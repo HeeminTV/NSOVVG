@@ -1,4 +1,4 @@
-@echo    off
+@echo    OFF
 
 SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by @Èñ¹ÎHeemin
@@ -16,17 +16,21 @@ set "linemode=p2p"
 set "chosenfiles="
 set "progressbartestpath=!temp!\NSOVVG_displayrendering.bat"
 set "progresslogpath=!temp!\NSOVVG_ffmpegprogresslog.log"
-set "fontpickerpath=!temp!\fontPicker.ps1"
-set "numberboxpath=!temp!\numberBox.ps1"
-set "reorderboxpath=!temp!\reorder.ps1"
+set "fontpickerpath=!temp!\NSOVVG_fontPicker.ps1"
+set "numberboxpath=!temp!\NSOVVG_numberBox.ps1"
+set "reorderboxpath=!temp!\NSOVVG_reorder.ps1"
+set "colorpickerpath=!temp!\NSOVVG_colorPicker.ps1"
 set "dffont=Arial"
-set "displayfont=Arial                  "
+rem set "displayfont=Arial                  "
 set "sizefont=14"
 set "colorfont=#FFFFFF"
-del /q !progresslogpath! 
-del /q !progressbartestpath! 
-del /q !reorderboxpath!
+del /q !progresslogpath! 2>nul
+del /q !progressbartestpath! 2>nul
+del /q !reorderboxpath! 2>nul
+del /q !colorpickerpath! 2>nul
+rem del /q "!temp!\NSOVVG_necoarc.zip" 2>nul
 
+rem start conhost "!temp!\NSOVVG_necoarc.bat"
 
 rem echo Detecting your GPU... Please wait!
 echo Creating external scripts... Please wait!
@@ -79,7 +83,6 @@ rem chcp 65001
  echo if not defined last_out_time goto a >> !progressbartestpath!
  echo set /a percent=(last_out_time*100)/duration >> !progressbartestpath!
  echo set /a display=(last_out_time*50)/duration >> !progressbartestpath!
- echo rem echo ¹éºÐÀ²: %%percent%%%% >> !progressbartestpath!
  echo for /l %%%%i in (1,1,^^!display^^!) do set "result=^!result^![103m [0m" >> !progressbartestpath!
  echo set /a remaining=50-^^!display^^! >> !progressbartestpath!
  echo for /l %%%%i in (1,1,^^!remaining^^!) do set "result=^!result^![44m [0m" >> !progressbartestpath!
@@ -160,9 +163,12 @@ echo $btnOK.Location = New-Object System.Drawing.Point^(100, 220^) >> !reorderbo
 echo $btnOK.Add_Click^({ >> !reorderboxpath!
 echo     $newOrder = $listBox.Items >> !reorderboxpath!
 echo     # »õ·Î¿î ¼ø¼­ Ãâ·Â >> !reorderboxpath!
-echo     foreach ^($channel in $newOrder^) { >> !reorderboxpath!
-echo         Write-Host $channel >> !reorderboxpath!
-echo     } >> !reorderboxpath!
+
+echo foreach ^($channel in $newOrder^) { >> !reorderboxpath!
+echo     $index = $channels.IndexOf^($channel^) >> !reorderboxpath!
+echo     Write-Host ^($index + 1^) >> !reorderboxpath!
+echo } >> !reorderboxpath!
+
 echo     $form.Close^(^) >> !reorderboxpath!
 echo }^) >> !reorderboxpath!
 echo $form.Controls.Add^($btnOK^) >> !reorderboxpath!
@@ -180,10 +186,42 @@ echo $form.Controls.Add^($btnCancel^) >> !reorderboxpath!
 
 echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !reorderboxpath!
 echo [void]$form.ShowDialog^(^) >> !reorderboxpath!
+
+echo param^($defaultColor = "#FF5733"^) > !colorpickerpath!
+
+echo Add-Type -AssemblyName System.Windows.Forms >> !colorpickerpath!
+
+
+echo function Convert-HexToColor^($hex^) { >> !colorpickerpath!
+echo     $r = [Convert]::ToInt32^($hex.Substring^(1, 2^), 16^) >> !colorpickerpath!
+echo     $g = [Convert]::ToInt32^($hex.Substring^(3, 2^), 16^) >> !colorpickerpath!
+echo     $b = [Convert]::ToInt32^($hex.Substring^(5, 2^), 16^) >> !colorpickerpath!
+echo     return [System.Drawing.Color]::FromArgb^($r, $g, $b^) >> !colorpickerpath!
+echo } >> !colorpickerpath!
+
+
+echo $colorDialog = New-Object System.Windows.Forms.ColorDialog >> !colorpickerpath!
+echo $colorDialog.FullOpen = $true >> !colorpickerpath!
+
+
+echo if ^($defaultColor -ne "None"^) { >> !colorpickerpath!
+echo     $colorDialog.Color = Convert-HexToColor $defaultColor >> !colorpickerpath!
+echo } >> !colorpickerpath!
+
+
+echo if ^($colorDialog.ShowDialog^(^) -eq [System.Windows.Forms.DialogResult]::OK^) { >> !colorpickerpath!
+
+echo     $color = "#{0:X2}{1:X2}{2:X2}" -f $colorDialog.Color.R, $colorDialog.Color.G, $colorDialog.Color.B >> !colorpickerpath!
+echo     Write-Host $color >> !colorpickerpath!
+echo } else { >> !colorpickerpath!
+
+echo     Write-Host "None" >> !colorpickerpath!
+echo } >> !colorpickerpath!
+
 rem echo 
 REM set tempScript=%temp%\fontPicker.ps1
 
-call :fontpickercreate
+rem call :fontpickercreate
 rem  chcp 949
  rem del /q !progresslogpath!
 :drawlogo
@@ -199,7 +237,7 @@ rem echo.
 echo 	[44m[97m[7m[D][27m - Change display mode[0m	[104m[97m[7m[F][27m - Configure the audio channels[0m
 rem echo.
 echo 	[44m[97m[7m[G][27m - Global configuration[0m	[41m[34m[7m[L][27m - Clear the channels[0m
-echo 	[45m[97m[7m[T][27m - Font configuration[0m	[45m[97m[7m[V][27m - Other video configuration[0m
+echo 	[45m[97m[7m[T][27m - Font configuration[0m	[45m[97m[7m[V][27m - Choose background image[0m
 echo 	[44m[97m[7m[X][27m - Set output resolution, FPS[0m[101m[93m[7m[R][27m - Render^^![0m
 echo.
 rem for /l %%i in (1,1,100) do (
@@ -305,7 +343,7 @@ if /i "!ERRORLEVEL!"=="6" (
 	)
 	echo.
 	rem echo aw%configch%fuck
-	if not defined channel!configch! call :errmsg "Invalid vaule" && goto reask
+	if not defined channel!configch! call :errmsg "Invalid vaule. Cancelling" && goto drawlogo
 	rem SET "configch=!ERRORLEVEL!"
 	ECHO Which configuration would you like to configure?
 	echo 	[44m[97m[L] - Label Text[0m		[44m[97m[A] - Amplification[0m		[44m[97m[C] - Wave Color[0m		[100m[97m[X] - Cancel[0m
@@ -325,11 +363,10 @@ if /i "!ERRORLEVEL!"=="6" (
 	)
 	if "!ERRORLEVEL!"=="3" (
 		rem call :inputbox "Please Type Hex Color for Channel No. !configch! (Example: 1CFF73)" "NSOVVG"
-		for /f "usebackq tokens=*" %%A in (`powershell -command ^
-		"Add-Type -AssemblyName System.Windows.Forms; $colorDialog = New-Object System.Windows.Forms.ColorDialog; if ($colorDialog.ShowDialog() -eq 'OK') { $colorDialog.Color.ToArgb().ToString('X8') } else { 'None' }"`) do set "color=%%A"
+		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do set "color=%%A"
 
 		if not "!color!"=="None" (
-			set "color!configch!=#!color:~2!"
+			set "color!configch!=!color!"
 			rem set "amp!configch!=!input!"
 		)
 	)
@@ -344,23 +381,24 @@ IF /I "!ERRORLEVEL!"=="2" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Config File|*.ini'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
 	IF NOT "!saveFile!"=="None" (
 		set i=1
-		echo x_res=!x_res!> "!saveFile!"
-		echo y_res=!y_res!>> "!saveFile!"
-		echo fps=!fps!>> "!saveFile!"
-		echo masteraudio=!masteraudio!>> "!saveFile!"
-		echo linemode=!linemode!>> "!saveFile!"
-		echo dffont=!dffont!>> "!saveFile!"
-		echo sizefont=!sizefont!>> "!saveFile!"
-		echo colorfont=!colorfont!>> "!saveFile!"
-		echo bgimage=!bgimage!>> "!saveFile!"
-		echo bitrate=!bitrate!>> "!saveFile!"
+		(echo x_res=!x_res!)> "!saveFile!"
+		(echo y_res=!y_res!)>> "!saveFile!"
+		(echo fps=!fps!)>> "!saveFile!"
+		(echo masteraudio=!masteraudio!)>> "!saveFile!"
+		(echo linemode=!linemode!)>> "!saveFile!"
+		(echo dffont=!dffont!)>> "!saveFile!"
+		(echo sizefont=!sizefont!)>> "!saveFile!"
+		(echo colorfont=!colorfont!)>> "!saveFile!"
+		(echo bgimage=!bgimage!)>> "!saveFile!"
+		rem (echo bitrate=!bitrate!)>> "!saveFile!"
+		(echo darkerbg=!darkerbg!)>> "!saveFile!"
 		
 		:saveloop
 		if not "!channel%i%!"=="" (
-			echo channel!i!=!channel%i%!>> "!saveFile!"
-			echo label!i!=!label%i%!>> "!saveFile!"
-			echo amp!i!=!amp%i%!>> "!saveFile!"
-			echo color!i!=!color%i%!>> "!saveFile!"
+			(echo channel!i!=!channel%i%!)>> "!saveFile!"
+			(echo label!i!=!label%i%!)>> "!saveFile!"
+			(echo amp!i!=!amp%i%!)>> "!saveFile!"
+			(echo color!i!=!color%i%!)>> "!saveFile!"
 			Set /A i+=1
 			goto saveloop
 		)
@@ -464,7 +502,7 @@ if /i "!ERRORLEVEL!"=="9" (
 	)
 	if "!ERRORLEVEL!"=="2" (
 		rem call :inputbox "Please Set Amplification for All of Channels" "NSOVVG"
-		call :createnumberbox 50 !amp1! "Please Set Amplification" 2
+		call :createnumberbox 50 !amp1! "Please Set Amplification" 1
 
 		rem if not "!input!"=="" (
 		if not "!selectedNumber!"=="None" (
@@ -478,18 +516,17 @@ if /i "!ERRORLEVEL!"=="9" (
 		)
 	)
 	if "!ERRORLEVEL!"=="3" (
-		rem call :inputbox "Please Type Hex Color for Channel No. !configch! (Example: 1CFF73)" "NSOVVG"
-		for /f "usebackq tokens=*" %%A in (`powershell -command ^
-		"Add-Type -AssemblyName System.Windows.Forms; $colorDialog = New-Object System.Windows.Forms.ColorDialog; if ($colorDialog.ShowDialog() -eq 'OK') { $colorDialog.Color.ToArgb().ToString('X8') } else { 'None' }"`) do set "color=%%A"
+
+		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color1!"') do set "color=%%A"
 
 		if not "!color!"=="None" (
-			rem set "color!configch!=#!color:~2!"
+
 			:labelset7
 				Set /A i+=1
-				rem set labelstr=!input:$=%i%!
+
 				if not "!channel%i%!"=="" (
 					rem set "amp!i!=!input!"
-					set "color!i!=#!color:~2!"
+					set "color!i!=!color!"
 					goto labelset7
 				)
 		)
@@ -499,12 +536,33 @@ if /i "!ERRORLEVEL!"=="9" (
 	for /f "tokens=*" %%A in ('powershell -ExecutionPolicy Bypass -File "!reorderboxpath!"') do (
 		set "output=%%A"
 		if "!output!" neq "None" (
-			set "channel!i!=!output!"
+			REM set "channel!i!=!output!"
+			set "buffer_channel!i!=!channel%%A!"
+			set "buffer_label!i!=!label%%A!"
+			set "buffer_amp!i!=!amp%%A!"
+			set "buffer_color!i!=!color%%A!"
+			rem ECHO "buffer_color!i! !channel%%a!"
 			set /a i+=1
 			rem echo Reordered channel: !output!
 			
 		)
+		
+	) 
+	rem PAUSE
+	REM set i=0
+	if "!output!" neq "None" (
+		 for /L %%i in (1,1,!i!) do (
+		rem echo %%i
+		rem set /a sum+=%%i
+			set "channel%%i=!buffer_channel%%i!"
+			set "label%%i=!buffer_label%%i!"
+			set "amp%%i=!buffer_amp%%i!"
+			set "color%%i=!buffer_color%%i!"
+		)
+		rem echo !buffer_channel3!
+		rem pause
 	)
+	rem pause
 rem pause
 )
 		goto drawlogo
@@ -522,8 +580,8 @@ if /i "!ERRORLEVEL!"=="10" (
 )
 
 if /i "!ERRORLEVEL!"=="11" (
-ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", "Font color", and "Font size".
-echo [WARNING] The font color keeps being reset to black, so please set it again.[0m
+ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", "Font color", and "Font size".[0m
+
 	call :createfontpicker
 	for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -File "!fontpickerpath!"') do (
 		if "%%a"=="Canceled" goto drawlogo
@@ -531,17 +589,17 @@ echo [WARNING] The font color keeps being reset to black, so please set it again
 		if "%%a"=="FontSize" set "sizefont=%%b"
 		if "%%a"=="FontColor" set "colorfont=%%b"
 	)
-	ECHO WScript.Echo Len^( WScript.Arguments^(0^) ^) > "!temp!\getlength.vbs"
-	for /f "tokens=*" %%a in ('cscript //nologo "!temp!\getlength.vbs" "!dffont!"') do set strLen=%%a
-	del /q "!temp!\getlength.vbs"
-	if !strLen! geq 23 (
-		set "displayfont=!dffont!"
-	) else (
-		set /a remainLen=23-!strLen!
-		set "fillString="
-		for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
-		set "displayfont=!dffont!!fillString!"
-	)
+	rem ECHO WScript.Echo Len^( WScript.Arguments^(0^) ^) > "!temp!\getlength.vbs"
+	rem for /f "tokens=*" %%a in ('cscript //nologo "!temp!\getlength.vbs" "!dffont!"') do set strLen=%%a
+	rem del /q "!temp!\getlength.vbs"
+	rem if !strLen! geq 23 (
+	rem 	set "displayfont=!dffont!"
+	rem ) else (
+	rem 	set /a remainLen=23-!strLen!
+	rem 	set "fillString="
+	rem 	for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
+	rem 	set "displayfont=!dffont!!fillString!"
+	rem )
 		
 	GOTO drawlogo
 )
@@ -554,14 +612,26 @@ if /i "!ERRORLEVEL!"=="12" (
 	echo.
 	if /i "!ERRORLEVEL!"=="2" (
 		for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Picture Files|*.png;*.jpg;*.mp4;*.jpeg;*.avi'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
-		IF NOT "!selectedFile!"=="None" set "bgimage=!selectedFile!"
+		IF NOT "!selectedFile!"=="None" (
+			rem set "bgimage=!selectedFile!"
+			ECHO [0mWould you like to get darker background?
+			echo 	[102m[97m[Y] - Yes![0m				[41m[97m[N] - No[0m			[100m[97m[X] - Cancel[0m
+			for /f %%A in ('powershell -command "$key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').Character; Write-Host $key"') do set "userInput=%%A"
+			if /i "!userInput!"=="y" set "darkerbg=on"
+			if /i "!userInput!"=="n" set "darkerbg=off"
+			if /i not "!userInput!"=="x" set "bgimage=!selectedFile!"
+		)
 		rem goto drawlogo
 	)
 	IF /I "!ERRORLEVEL!"=="4" (
-		for /f "usebackq tokens=*" %%A in (`powershell -command ^
-			"Add-Type -AssemblyName System.Windows.Forms; $colorDialog = New-Object System.Windows.Forms.ColorDialog; if ($colorDialog.ShowDialog() -eq 'OK') { $colorDialog.Color.ToArgb().ToString('X8') } else { 'None' }"`) do set "color=%%A"
+		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do set "color=%%A"
 
-		if not "!color!"=="None" set "bgimage=#!color:~2!"
+		if not "!color!"=="None" (
+			set "bgimage=!color!"
+			rem if not "!color!"=="None" set "bgimage=#!color:~2!"
+			rem set "amp!configch!=!input!"
+		)
+		REM if not "!color!"=="None" set "bgimage=#!color:~2!"
 	)
 	IF /I "!ERRORLEVEL!"=="1" (
 		call :createnumberbox 100000 !bitrate:~0,-1! "Please set the bitrate of the video. (kbps)" 100
@@ -584,20 +654,20 @@ REM Stephen Knight, October 2009, http://www.dragon-it.co.uk/
 set input=
 set heading=%~2
 set message=%~1
-echo wscript.echo inputbox(WScript.Arguments(0),WScript.Arguments(1)) >"!temp!\input.vbs"
-for /f "tokens=* delims=" %%a in ('cscript //nologo "!temp!\input.vbs" "!message!" "!heading!"') do set input=%%a
+echo wscript.echo inputbox(WScript.Arguments(0),WScript.Arguments(1)) >"!temp!\NSOVVG_input.vbs"
+for /f "tokens=* delims=" %%a in ('cscript //nologo "!temp!\NSOVVG_input.vbs" "!message!" "!heading!"') do set input=%%a
 goto :EOF
 
 :errmsg
-echo msgbox "%~1^!",vbOKOnly+vbCritical,"NSOVVG" > "!temp!\error.vbs"
-cscript //nologo "!temp!\error.vbs"
-DEL /Q "!temp!\error.vbs"
+echo msgbox "%~1^!",vbOKOnly+vbCritical,"NSOVVG" > "!temp!\NSOVVG_error.vbs"
+cscript //nologo "!temp!\NSOVVG_error.vbs"
+DEL /Q "!temp!\NSOVVG_error.vbs"
 goto :EOF
 
 :MsgBox prompt type title
  rem setlocal enableextensions
- set "tempFile=!temp!\%~nx0.%random%%random%%random%vbs.tmp"
- >"%tempFile%" echo(WScript.Quit msgBox("%~1",%~2,"%~3") & cscript //nologo //e:vbscript "%tempFile%"
+ set "tempFile=!temp!\NSOVVG_%~nx0.%random%%random%%random%vbs.tmp"
+ >"!tempFile!" echo(WScript.Quit msgBox("%~1",%~2,"%~3") & cscript //nologo //e:vbscript "!tempFile!"
  set "exitCode=!errorlevel!" & del "!tempFile!" >nul 2>nul
 
  exit /b !exitCode!
@@ -624,11 +694,35 @@ if "!masteraudio!"=="None" (
 if "!bgimage!"=="None" (
 	set "imagename=[32mBackground Image:	[93m[91mNone[97m"
 ) else if "!bgimage:~0,1!"=="#" (
-	set "imagename=[32mBackground Color:	[93m!bgimage![97m"
+	set "hexColor=!bgimage:~1!"
+	set /a r=0x!hexColor:~0,2!
+	set /a g=0x!hexColor:~2,2!
+	set /a b=0x!hexColor:~4,2!
+
+	set "displaybgimage=[38;2;!r!;!g!;!b!m!bgimage!"
+
+	set "imagename=[32mBackground Color:	[93m!displaybgimage![97m"
 ) else (
 	for %%F in ("!bgimage!") do set "imagename=[32mBackground Image:	[93m"%%~nxF"[97m"
 )
-echo [90mNSOVVG Version v1.0.2[0m
+	set strLen=0
+	for /l %%a in (0,1,64) do if not "!dffont:~%%a,1!" == "" set /a strLen+=1
+	if !strLen! geq 23 (
+		set "displayfont=!dffont!"
+	) else (
+		set /a remainLen=23-!strLen!
+		set "fillString="
+		for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
+		set "displayfont=!dffont!!fillString!"
+	)
+	set "hexColor=!colorfont:~1!"
+set /a r=0x!hexColor:~0,2!
+set /a g=0x!hexColor:~2,2!
+set /a b=0x!hexColor:~4,2!
+rem echo !r!!g!!b!!hexColor!
+set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
+
+echo [90mNSOVVG Version v1.0.3[0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
@@ -637,7 +731,7 @@ echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;
 echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	¦­  [32mDisplay Mode: [93m!linemode! !lmwv1![97m	¦­
 echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	¦­  [32mChosen Font:	[93m!displayfont![97m¦­
 echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	¦­  [32mFont Size:	[93m!sizefont![97m											¦­
-echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	¦­  [32mFont Color:	[93m!colorfont![97m												¦­
+echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	¦­  [32mFont Color:	!displaycolorfont![97m												¦­
 echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	¦­												¦­
 echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	¦­												¦­
 echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	¦­												¦­
@@ -650,9 +744,28 @@ goto :EOF
 
 :channelshow
 if !i! equ 1 echo	[100m[97mChannels[0m
-if "!label%i%!"=="" ( set "displayedlabel=[91mNone" ) else ( set "displayedlabel="!label%i%!"" )
+if "!label%i%!"=="" ( set "temp_displayedlabel=[91mNone" ) else ( set "temp_displayedlabel="!label%i%!"" )
+set strLen=0
+for /l %%a in (0,1,64) do if not "!temp_displayedlabel:~%%a,1!" == "" set /a strLen+=1
+	if !strLen! geq 23 (
+		set "displayedlabel=!temp_displayedlabel!"
+	) else (
+		set /a remainLen=23-!strLen!
+		set "fillString="
+		for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
+		set "displayedlabel=!temp_displayedlabel!!fillString!"
+	)
+rem if not exist "!channel%i%!" ( call :errmsg "Couldn't find " && goto drawlogo )
 for %%F in ("!channel%i%!") do set "displaych=%%~nxF"
-echo 	[96mChannel No. !i! [93m"!displaych!" && echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel!		[100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!		[100m[97m^|^|[0m	[96mWave Color: [93m!color%i%!
+rem if not exist "!channel%i%!" ( call :errmsg "Couldn't find the file !displaych!" && goto drawlogo )
+rem @echo on
+set "hexColor=!color%i%:~1!"
+set /a r=0x!hexColor:~0,2!
+set /a g=0x!hexColor:~2,2!
+set /a b=0x!hexColor:~4,2!
+rem echo !r!!g!!b!!hexColor!
+set "displaycolor=[38;2;!r!;!g!;!b!m!color%i%!"
+echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
 set chcount=!i!
 rem echo !chcount!
 Set /A i+=1
@@ -675,6 +788,10 @@ echo $fontDialog.ShowColor = $true >> !fontpickerpath!
 
 echo $defaultFont = New-Object System.Drawing.Font("!dffont!", !sizefont!, [System.Drawing.FontStyle]::Regular) >> !fontpickerpath!
 echo $fontDialog.Font = $defaultFont >> !fontpickerpath!
+
+echo $defaultColor = [System.Drawing.ColorTranslator]::FromHtml^("!colorfont!"^) >> !fontpickerpath!
+echo $fontDialog.Color = $defaultColor >> !fontpickerpath!
+rem THANK YOU STACKOVERFLOW NERDS
 
 echo if ($fontDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK^) { >> !fontpickerpath!
 echo Write-Host "FontName=$($fontDialog.Font.Name)" >> !fontpickerpath!
@@ -778,11 +895,11 @@ set "bgcf2="
 ::USER CONFIG VAULES::
 rem set x_res=1280
 rem set y_res=720
-set "colorvaule=White"
+rem set "colorvaule=White"
 rem set "linemode=p2p"
 set "bitrate=5000k"
 set "scalemode=lin"
-set "gain=4"
+rem set "gain=4"
 rem set "gpu=libx264"
 rem set "fps=60"
 ::USER CONFIG VAULES_END::
@@ -873,13 +990,13 @@ if !chcount! GTR !autosortvaule! (
 ) else (
 	if "!channelCount!"=="!chcount!" (
 		if !chcount!==1 (
-			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![g%channelCount%];[g%channelCount%]!drawtext!;"
+			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		) else (
 			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		)
 	) else (
 		if !chcount!==1 (
-			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![g%channelCount%];[g%channelCount%]!drawtext!;"
+			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		) else (
 			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		)
@@ -902,23 +1019,42 @@ if "!bgimage!"=="None" (
 	set "bgcf1="
 	set "bgcf2="
 ) else if "!bgimage:~0,1!"=="#" (
-	set "bgcf1=color=c=!bgimage!:size=!x_res!x!y_res!:d=1 [bgimg];[bgimg][v2]overlay=x=0:y=0[v2]"
+	rem (This is only a temporary solution. We will optimize it further soon)
+	if "!chcount!"=="1" (
+		set "bgcf1=color=c=!bgimage!:size=!x_res!x!y_res!:d=1 [bgimg];[bgimg][wave1]overlay=x=0:y=0[wave1]"
+	) else (
+		set "bgcf1=color=c=!bgimage!:size=!x_res!x!y_res!:d=1 [bgimg];[bgimg][v2]overlay=x=0:y=0[v2]"
+	)
 ) else (
-	set "bgcf1=[!channelCount!:v]scale='if(gt(iw/ih,!x_res!/!y_res!),!x_res!,-2)':'if(gt(iw/ih,!x_res!/!y_res!),-2,!y_res!)', pad=width=!x_res!:height=!y_res!:x=(ow-iw)/2:y=(oh-ih)/2[bgimg];[bgimg][v2]overlay=x=0:y=0[v2];"
-	rem set "bgcf1=[!channelCount!:v]scale^=!x_res!:!y_res!:force_original_aspect_ratio^=decrease,pad^=!x_res!:!y_res!:-1:-1:color^=black[v2]"
+	rem (This is only a temporary solution. We will optimize it further soon)
+	if "!chcount!"=="1" (
+			if /i "!darkerbg!"=="on" (
+			set "bgcf1=[!channelCount!:v]scale='if(gt(iw/ih,!x_res!/!y_res!),!x_res!,-2)':'if(gt(iw/ih,!x_res!/!y_res!),-2,!y_res!)', pad=width=!x_res!:height=!y_res!:x=(ow-iw)/2:y=(oh-ih)/2[bgimg];[bgimg]eq=brightness=-0.5[bgimg];[bgimg][wave1]overlay=x=0:y=0[wave1];"
+		) else (
+			set "bgcf1=[!channelCount!:v]scale='if(gt(iw/ih,!x_res!/!y_res!),!x_res!,-2)':'if(gt(iw/ih,!x_res!/!y_res!),-2,!y_res!)', pad=width=!x_res!:height=!y_res!:x=(ow-iw)/2:y=(oh-ih)/2[bgimg];[bgimg][wave1]overlay=x=0:y=0[wave1];"
+		)
+		
+	) else (
+		if /i "!darkerbg!"=="on" (
+			set "bgcf1=[!channelCount!:v]scale='if(gt(iw/ih,!x_res!/!y_res!),!x_res!,-2)':'if(gt(iw/ih,!x_res!/!y_res!),-2,!y_res!)', pad=width=!x_res!:height=!y_res!:x=(ow-iw)/2:y=(oh-ih)/2[bgimg];[bgimg]eq=brightness=-0.5[bgimg];[bgimg][v2]overlay=x=0:y=0[v2];"
+		) else (
+			set "bgcf1=[!channelCount!:v]scale='if(gt(iw/ih,!x_res!/!y_res!),!x_res!,-2)':'if(gt(iw/ih,!x_res!/!y_res!),-2,!y_res!)', pad=width=!x_res!:height=!y_res!:x=(ow-iw)/2:y=(oh-ih)/2[bgimg];[bgimg][v2]overlay=x=0:y=0[v2];"
+		)
+		rem set "bgcf1=[!channelCount!:v]scale^=!x_res!:!y_res!:force_original_aspect_ratio^=decrease,pad^=!x_res!:!y_res!:-1:-1:color^=black[v2]"
+	)
 	set "bgcf2=-i "!bgimage!" "
 )
-
+REM set "outer=-c:v !gpu! -format yuv420p -map [v2]"
 if "!chcount!"=="1" (
-	set "layout=!layout!"
-	set "outer=-c:v !gpu! -format yuv420p -map [v2]"
+	set "layout=!bgcf1!"
+	 set "outer=-c:v !gpu! -format yuv420p -map [wave1]"
 ) else if !chcount! GTR !autosortvaule! (
 	set "filterComplex=!H1F!!H2F!"
 	set "layout=!layout![left][right]hstack=inputs=2[v2];!bgcf1!"
-	set "outer=-c:v !gpu! -format yuv420p -map [v2]"
+	 set "outer=-c:v !gpu! -format yuv420p -map [v2]"
 ) else (
 	set "layout=!layout!vstack=inputs=!chcount![v2];!bgcf1!"
-	set "outer=-c:v !gpu! -format yuv420p -map [v2]"
+	 set "outer=-c:v !gpu! -format yuv420p -map [v2]"
 )
 REM echo ffmpeg -i "%masterAudio%" %channelInputs% -filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% -f nut
 :playorrender
@@ -932,11 +1068,12 @@ if /i "!renderorpreview!"=="2" (
 	rem pause
 	rem fuckkkkkkkkk
 	REM PAUSE
+	pause
 	echo None> !progresslogpath!
 ) else if /i "!renderorpreview!"=="1" (
 
 	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% -f nut - | ffplay - 
-	echo ^(Ignore if it said "Conversion failed^!"^)
+	rem echo ^(Ignore if it said "Conversion failed^!"^)
 	REM pause
 	
 ) else (
