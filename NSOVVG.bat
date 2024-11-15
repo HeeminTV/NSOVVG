@@ -1083,14 +1083,11 @@ rem CHOICE /C PR /N /M "Press "P" to preview, or "R" to render. "
 if /i "!renderorpreview!"=="2" (
 	del /q !progresslogpath!
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
-	REM echo conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
-	echo ffmpeg -progress !progresslogpath! -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% "!ffmpegoutput!"
+
 	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% "!ffmpegoutput!"
-	rem pause
-	rem fuckkkkkkkkk
-	REM PAUSE
-	pause
+
 	echo None> !progresslogpath!
+	
 ) else if /i "!renderorpreview!"=="1" (
 
 	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% -f nut - | ffplay - 
