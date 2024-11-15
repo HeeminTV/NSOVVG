@@ -33,30 +33,10 @@ rem del /q "!temp!\NSOVVG_necoarc.zip" 2>nul
 rem start conhost "!temp!\NSOVVG_necoarc.bat"
 
 rem echo Detecting your GPU... Please wait!
+call :gpudetect
 echo Creating external scripts... Please wait!
 
-for /f "tokens=2 delims==" %%G in ('wmic path win32_videocontroller get name /value') do set "gpu_name=%%G"
 
-echo !gpu_name! | find /i "NVIDIA" >nul
-if %errorlevel%==0 (
-    set "gpu=h264_nvenc"
-    goto bfdrawlogo
-)
-
-echo !gpu_name! | find /i "Intel" >nul
-if %errorlevel%==0 (
-    set "gpu=h264_qsv"
-    goto bfdrawlogo
-)
-
-echo !gpu_name! | find /i "AMD" >nul
-if %errorlevel%==0 (
-    set "gpu=h264_amf"
-    goto bfdrawlogo
-)
-
-
-if not defined gpu set "gpu=libx264"
 :bfdrawlogo
 rem ecoh 
 
@@ -237,8 +217,9 @@ rem echo.
 echo 	[44m[97m[7m[D][27m - Change display mode[0m	[104m[97m[7m[F][27m - Configure the audio channels[0m
 rem echo.
 echo 	[44m[97m[7m[G][27m - Global configuration[0m	[41m[34m[7m[L][27m - Clear the channels[0m
-echo 	[45m[97m[7m[T][27m - Font configuration[0m	[45m[97m[7m[V][27m - Choose background image[0m
+echo 	[45m[97m[7m[T][27m - Font configuration[0m	[45m[97m[7m[V][27m - Other video settings[0m
 echo 	[44m[97m[7m[X][27m - Set output resolution, FPS[0m[101m[93m[7m[R][27m - Render^^![0m
+rem echo !gpu!
 echo.
 rem for /l %%i in (1,1,100) do (
 
@@ -607,8 +588,13 @@ ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", 
 if /i "!ERRORLEVEL!"=="12" (
 	echo.
 	ECHO [0mWhich configuration would you like to configure?
-	echo 	[44m[97m[I] - Background Image / Video[0m		[44m[97m[C] - Background Color[0m		[100m[97m[X] - Cancel[0m
-	CHOICE /C BIXC /N
+	echo 	[44m[97m[I] - Background Image / Video[0m						[44m[97m[C] - Background Color[0m
+	if "!gpu!"=="libx264" (
+		echo 	[46m[97m[S] - Use Hardware Rendering For This Time[0m				[100m[97m[X] - Cancel[0m
+	) else (
+		echo 	[41m[97m[S] - Use Software Rendering For This Time ^(libx264^)[0m			[100m[97m[X] - Cancel[0m
+	)
+	CHOICE /C BIXCS /N
 	echo.
 	if /i "!ERRORLEVEL!"=="2" (
 		for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Picture Files|*.png;*.jpg;*.mp4;*.jpeg;*.avi'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
@@ -641,6 +627,14 @@ if /i "!ERRORLEVEL!"=="12" (
 		if not "!selectedNumber!"=="None" set "bitrate=!selectedNumber!k"
 	)
 	rem 
+	IF /I "!ERRORLEVEL!"=="5" (
+		if NOT "!gpu!"=="libx264" (
+			set "gpu=libx264"
+		) else (
+			call :gpudetect
+			if "!ERRORLEVEL!"=="2" ( call :errmsg "It appears that your computer does not support hardware rendering. Use software rendering instead" )
+		)
+	)
 	goto drawlogo
 )
 rem pause 
@@ -873,6 +867,33 @@ for /f "usebackq delims=" %%i in (`powershell -NoProfile -ExecutionPolicy Bypass
 )
 del /q !numberboxpath!
 goto :eof
+
+:gpudetect
+for /f "tokens=2 delims==" %%G in ('wmic path win32_videocontroller get name /value') do set "gpu_name=%%G"
+
+echo !gpu_name! | find /i "NVIDIA" >nul
+if %errorlevel%==0 (
+    set "gpu=h264_nvenc"
+    rem goto bfdrawlogo
+)
+
+echo !gpu_name! | find /i "Intel" >nul
+if %errorlevel%==0 (
+    set "gpu=h264_qsv"
+    rem goto bfdrawlogo
+)
+
+echo !gpu_name! | find /i "AMD" >nul
+if %errorlevel%==0 (
+    set "gpu=h264_amf"
+    rem goto bfdrawlogo
+)
+
+rem exit /b 2
+
+rem exit /b 2
+if not defined gpu ( set "gpu=libx264" && exit /b 2 ) else ( exit /b 1 )
+rem goto :eof
 
 :render
 :: ¸¶½ºÅÍ ¿Àµð¿À ÆÄÀÏ (%1)
