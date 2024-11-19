@@ -716,7 +716,7 @@ set /a b=0x!hexColor:~4,2!
 rem echo !r!!g!!b!!hexColor!
 set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
 
-echo [90mNSOVVG Version v1.0.3[0m
+echo [90mNSOVVG Version v1.0.4a1[0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
@@ -913,6 +913,7 @@ set "H1F="
 set "H2F="
 set "bgcf1="
 set "bgcf2="
+set "linemode2="
 ::USER CONFIG VAULES::
 rem set x_res=1280
 rem set y_res=720
@@ -926,6 +927,7 @@ rem set "fps=60"
 ::USER CONFIG VAULES_END::
 rem @echo on
 rem set "beforeshowwaves=volume=!gain![g"
+set "linemode2=!linemode!:split_channels=0"
 set stack_num=!chcount!
 set /a stack_y_res=y_res / stack_num
 set /a remainder=y_res %% stack_num
@@ -981,11 +983,11 @@ if !chcount! GTR !autosortvaule! (
 		set /a H1Count+=1
 		if "!H1Count!"=="!h2number!" (
 
-				set "H1F=!H1F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!last_H1_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+				set "H1F=!H1F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!last_H1_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 				set "layout=!layout![wave%channelCount%]vstack=inputs=!H1Count![left];"
 		) else (
 
-				set "H1F=!H1F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!H1_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+				set "H1F=!H1F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!H1_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 				set "layout=!layout![wave%channelCount%]"
 		)
 
@@ -996,11 +998,11 @@ if !chcount! GTR !autosortvaule! (
 		if "!H2Count!"=="!h1number!" (
 				
 
-				set "H2F=!H2F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!last_H2_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+				set "H2F=!H2F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!last_H2_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 				set "layout=!layout![wave%channelCount%]vstack=inputs=!H2Count![right];"
 		) else (
 
-				set "H2F=!H2F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!H2_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+				set "H2F=!H2F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!H2_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 				set "layout=!layout![wave%channelCount%]"
 		)
 
@@ -1011,15 +1013,15 @@ if !chcount! GTR !autosortvaule! (
 ) else (
 	if "!channelCount!"=="!chcount!" (
 		if !chcount!==1 (
-			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		) else (
-			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!last_stack_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		)
 	) else (
 		if !chcount!==1 (
-			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		) else (
-			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
+			set "filterComplex=!filterComplex! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_res!x!stack_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 		)
 	)
 	if !chcount!==1 (
@@ -1068,14 +1070,14 @@ if "!bgimage!"=="None" (
 REM set "outer=-c:v !gpu! -format yuv420p -map [v2]"
 if "!chcount!"=="1" (
 	set "layout=!bgcf1!"
-	 set "outer=-c:v !gpu! -format yuv420p -map [wave1]"
+	 set "outer=-c:v !gpu! -format yuv420p -b:v !bitrate! -map [wave1]"
 ) else if !chcount! GTR !autosortvaule! (
 	set "filterComplex=!H1F!!H2F!"
 	set "layout=!layout![left][right]hstack=inputs=2[v2];!bgcf1!"
-	 set "outer=-c:v !gpu! -format yuv420p -map [v2]"
+	 set "outer=-c:v !gpu! -format yuv420p -b:v !bitrate! -map [v2]"
 ) else (
 	set "layout=!layout!vstack=inputs=!chcount![v2];!bgcf1!"
-	 set "outer=-c:v !gpu! -format yuv420p -map [v2]"
+	 set "outer=-c:v !gpu! -format yuv420p -b:v !bitrate! -map [v2]"
 )
 REM echo ffmpeg -i "%masterAudio%" %channelInputs% -filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% -f nut
 :playorrender
@@ -1084,13 +1086,14 @@ if /i "!renderorpreview!"=="2" (
 	del /q !progresslogpath!
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
 
-	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% "!ffmpegoutput!"
+	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% "!ffmpegoutput!"
+	rem pause
 
 	echo None> !progresslogpath!
 	
 ) else if /i "!renderorpreview!"=="1" (
 
-	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% -f nut - | ffplay - 
+	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% -f nut - | ffplay - 
 	rem echo ^(Ignore if it said "Conversion failed^!"^)
 	REM pause
 	
