@@ -223,14 +223,15 @@ rem echo !gpu!
 echo.
 rem for /l %%i in (1,1,100) do (
 
-set i=1
-:channelbrr
-	if not "!channel%i%!"=="" (
-		call :channelshow
-		goto channelbrr
-	)
+REM YEAS Fset i=1
+CALL :channelbrr
+REM :channelbrr
+REM 	if not "!channel%i%!"=="" (
+REM 		call :channelshow
+REM 		goto channelbrr
+REM 	)
 	rem set i=1
-	set i=1
+	REM KIMINONAMAEWA set i=1
 rem :forout
 
 rem echo 	[33mChosen master audio: [93m!masteraudio![0m
@@ -299,18 +300,21 @@ if /i "!ERRORLEVEL!"=="6" (
 	set i=1
 	set "choisenumbers="
 	rem pause
-	:channelconfig
+	REM :channelconfig
 	rem echo !i!
 	rem echo !channel%i%!	xcopychannel%i%
-	if not "!channel%i%!"=="" (
+	REM if not "!channel%i%!"=="" (
 		rem set "choisenumbers=!choisenumbers!!i!"
-		set "choisenumbers=!i!"
-		call :channelshow
+	REM	set "choisenumbers=!i!"
+	REM	call :channelshow
 		rem echo !i!
 		rem set "choisenumbers=!choisenumbers!!i!"
 		rem set "choisenumbers=!choisenumbers!!chcount!"
-		goto channelconfig
-	)
+	REM	goto channelconfig
+	REM )
+	REM FAset i=1
+	CALL :channelbrr
+	REM SORRYset i=1
 	
 	echo [0m
 	rem echo !choisenumbers!
@@ -716,7 +720,7 @@ set /a b=0x!hexColor:~4,2!
 rem echo !r!!g!!b!!hexColor!
 set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
 
-echo [90mNSOVVG Version v1.0.4a1[0m
+echo [90mNSOVVG Version v1.0.4a2[0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
@@ -894,7 +898,16 @@ rem exit /b 2
 rem exit /b 2
 if not defined gpu ( set "gpu=libx264" && exit /b 2 ) else ( exit /b 1 )
 rem goto :eof
-
+:channelbrr
+	SET i=1
+	:CHLOOP
+	if not "!channel%i%!"=="" (
+		call :channelshow
+		goto CHLOOP
+	)
+	set i=1
+	goto :EOF
+	
 :render
 :: ¸¶½ºÅÍ ¿Àµð¿À ÆÄÀÏ (%1)
 rem set "masterAudio=%~1"
