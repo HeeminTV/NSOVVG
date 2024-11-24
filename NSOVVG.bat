@@ -1,11 +1,12 @@
 @echo    OFF
 
 SETLOCAL ENABLEDELAYEDEXPANSION
-title Not Serious Oscilloscope View Video Generator - by @Èñ¹ÎHeemin
-rem chcp 949
-chcp 949 > nul	
-rem CHOICE /C PR /N /M "Press "P" to preview, or "R" to render. "
+title Not Serious Oscilloscope View Video Generator - by @í¬ë¯¼Heemin
+rem set codepage to utf-8
+chcp 65001 >nul
 :resetvariables
+
+
 set "masteraudio=None"
 set "bgimage=None"
 set x_res=1280
@@ -40,9 +41,9 @@ echo Creating external scripts... Please wait!
 :bfdrawlogo
 rem ecoh 
 
-REM set "channel1=fuck
-rem chcp 65001
- echo @echo off> !progressbartestpath!
+REM create progressbartestpath bat file
+ echo @echo off >> !progressbartestpath!
+ echo chcp 65001 >nul >> !progressbartestpath!
  echo setlocal enabledelayedexpansion >> !progressbartestpath!
  echo title Rendering... >> !progressbartestpath!
  echo mode 53,7 >> !progressbartestpath!
@@ -68,12 +69,12 @@ rem chcp 65001
  echo for /l %%%%i in (1,1,^^!remaining^^!) do set "result=^!result^![44m [0m" >> !progressbartestpath!
  echo if not defined result goto a >> !progressbartestpath!
  echo cls >> !progressbartestpath!
- echo echo [44m[97m¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯ >> !progressbartestpath!
- echo echo ¦­   Not Serious Oscilloscope View Video Generator  ¦­ >> !progressbartestpath!
- echo echo ¦­   Rendering: ^^!percent^^!%%%%				   ¦­ >> !progressbartestpath!
- echo echo ¦­                                                  ¦­ >> !progressbartestpath!
- echo echo ¦­^^!result^^![44m[97m¦­ >> !progressbartestpath!
- echo echo ¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦° >> !progressbartestpath!
+ echo echo [44m[97mâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” >> !progressbartestpath!
+ echo echo â”‚   Not Serious Oscilloscope View Video Generator  â”‚ >> !progressbartestpath!
+ echo echo â”‚   Rendering: ^^!percent^^!%%%%				   â”‚ >> !progressbartestpath!
+ echo echo â”‚                                                  â”‚ >> !progressbartestpath!
+ echo echo â”‚^^!result^^![44m[97mâ”‚ >> !progressbartestpath!
+ echo echo â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ >> !progressbartestpath!
  echo timeout 1 ^> nul >> !progressbartestpath!
  echo goto a >> !progressbartestpath!
  
@@ -111,7 +112,7 @@ echo $btnUp.Location = New-Object System.Drawing.Point^(710, 30^) >> !reorderbox
 echo $btnUp.Add_Click^({ >> !reorderboxpath!
 echo     $selectedIndex = $listBox.SelectedIndex >> !reorderboxpath!
 echo     if ^($selectedIndex -gt 0^) { >> !reorderboxpath!
-echo         # Ç×¸ñÀ» À§·Î ÀÌµ¿ >> !reorderboxpath!
+echo         # í•­ëª©ì„ ìœ„ë¡œ ì´ë™ >> !reorderboxpath!
 echo         $temp = $listBox.Items[$selectedIndex] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex] = $listBox.Items[$selectedIndex - 1] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex - 1] = $temp >> !reorderboxpath!
@@ -127,7 +128,7 @@ echo $btnDown.Location = New-Object System.Drawing.Point^(710, 70^) >> !reorderb
 echo $btnDown.Add_Click^({ >> !reorderboxpath!
 echo     $selectedIndex = $listBox.SelectedIndex >> !reorderboxpath!
 echo     if ^($selectedIndex -lt $listBox.Items.Count - 1^) { >> !reorderboxpath!
-echo         # Ç×¸ñÀ» ¾Æ·¡·Î ÀÌµ¿ >> !reorderboxpath!
+echo         # í•­ëª©ì„ ì•„ëž˜ë¡œ ì´ë™ >> !reorderboxpath!
 echo         $temp = $listBox.Items[$selectedIndex] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex] = $listBox.Items[$selectedIndex + 1] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex + 1] = $temp >> !reorderboxpath!
@@ -142,7 +143,7 @@ echo $btnOK.Text = "OK" >> !reorderboxpath!
 echo $btnOK.Location = New-Object System.Drawing.Point^(100, 220^) >> !reorderboxpath!
 echo $btnOK.Add_Click^({ >> !reorderboxpath!
 echo     $newOrder = $listBox.Items >> !reorderboxpath!
-echo     # »õ·Î¿î ¼ø¼­ Ãâ·Â >> !reorderboxpath!
+echo     # ìƒˆë¡œìš´ ìˆœì„œ ì¶œë ¥ >> !reorderboxpath!
 
 echo foreach ^($channel in $newOrder^) { >> !reorderboxpath!
 echo     $index = $channels.IndexOf^($channel^) >> !reorderboxpath!
@@ -407,16 +408,28 @@ if /i "!ERRORLEVEL!"=="8" (
 	if not defined channel1 ( call :errmsg "You need to add the audio channels first" && goto drawlogo )
 	if "!masteraudio!"=="None" ( call :errmsg "You need to choose the master audio" && goto drawlogo )
 	echo 	[101m[93m[R] - Render^^![0m		[46m[97m[P] - Preview[0m		[100m[97m[X] - Cancel[0m
-	CHOICE /C RPX /N
+	CHOICE /C RDPX /N
 	if /i "!ERRORLEVEL!"=="1" (
 		for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Video File|*.mp4'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
 		IF NOT "!saveFile!"=="None" (
 			set "ffmpegoutput=!saveFile!"
 			set "renderorpreview=2"
+rem			set debuglevel=quiet
+rem			set debugstatus=
 			goto render
 		)
 	)
-	if /i "!ERRORLEVEL!"=="2" (
+	if /i "!ERORLEVEL!"=="2" (
+		for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Video File|*.mp4'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
+		IF NOT "!saveFile!"=="None" (
+			set "ffmpegoutput=!saveFile!"
+			set "renderorpreview=2"
+rem			set "debuglevel=debug"
+rem			set "debugstatus=-report"
+			goto render
+		)
+	)
+	if /i "!ERRORLEVEL!"=="3" (
 			set "renderorpreview=1"
 			goto render
 	)
@@ -642,7 +655,7 @@ if /i "!ERRORLEVEL!"=="12" (
 	goto drawlogo
 )
 rem pause 
-echo [91mIf you are seeing this message, there is a major bug in this script. Go ahead and tell the developers about this! This stupid script doesn't generate any debug logs, but you don't lose anything \_(¾²)_/[0m
+echo [91mIf you are seeing this message, there is a major bug in this script. Go ahead and tell the developers about this! This stupid script doesn't generate any debug logs, but you don't lose anything \_(ì“°)_/[0m
 PAUSE
 exit
 REM Input routine for batch using VBScript to provide input box
@@ -673,13 +686,13 @@ goto :EOF
 :reallogo
 cls
 if "!linemode!"=="point" (
-	set "lmwv1=.¡¤'¡¤.¡¤'¡¤.¡¤'¡¤.¡¤"
+	set "lmwv1=.Â·'Â·.Â·'Â·.Â·'Â·.Â·"
 ) else if "!linemode!"=="p2p" (
 	set "lmwv1=  /\/\/\/\/\/\/\"
 ) else if "!linemode!"=="line" (
-	set "lmwv1= ¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã"
+	set "lmwv1= â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²"
 ) else if "!linemode!"=="cline" (
-	set "lmwv1=¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß"
+	set "lmwv1=â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†"
 ) else (
 	set "lmwv1=undefined"
 )
@@ -721,19 +734,19 @@ rem echo !r!!g!!b!!hexColor!
 set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
 
 echo [90mNSOVVG Version v1.0.4a2[0m
-echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
-echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
-echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
-echo    ,`--.'`^|  ' ^|  :  /`. / .   /   ;.  \     /__./^|     /__./^|   :     :  	¦­  [32mFPS:			[93m!fps!FPS[97m				¦­
-echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;. /  	¦­  !imagename!		¦­
-echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	¦­  [32mDisplay Mode: [93m!linemode! !lmwv1![97m	¦­
-echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	¦­  [32mChosen Font:	[93m!displayfont![97m¦­
-echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	¦­  [32mFont Size:	[93m!sizefont![97m											¦­
-echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	¦­  [32mFont Color:	!displaycolorfont![97m												¦­
-echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	¦­												¦­
-echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	¦­												¦­
-echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	¦­												¦­
-echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°
+echo    [1m[97m         ,--.              ,----..                                     	â”â”â”â”â”â”â”â”â”â”â”[Current Settings]â”â”â”â”â”â”â”â”â”â”â”â”“
+echo           ,--.'^| .--.--.     /   /   \                         ,----..    	â”ƒ  [32mChosen Master Audio: !mastername![97m 		â”ƒ
+echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	â”ƒ  [32mVideo Resolution:	[93m!x_res! x !y_res![97m 	â”ƒ
+echo    ,`--.'`^|  ' ^|  :  /`. / .   /   ;.  \     /__./^|     /__./^|   :     :  	â”ƒ  [32mFPS:			[93m!fps!FPS[97m 		â”ƒ
+echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;. /  	â”ƒ  !imagename!		â”ƒ
+echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	â”ƒ  [32mDisplay Mode: [93m!linemode! !lmwv1![97m 	â”ƒ
+echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	â”ƒ  [32mChosen Font:	[93m!displayfont![97m â”ƒ
+echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	â”ƒ  [32mFont Size:	[93m!sizefont![97m 			â”ƒ
+echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	â”ƒ  [32mFont Color:	!displaycolorfont![97m 		â”ƒ
+echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	â”ƒ					â”ƒ
+echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	â”ƒ					â”ƒ
+echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	â”ƒ					â”ƒ
+echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	â”—â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”›
 echo    '---'                                                       `---`      [0m
 echo.             Not Serious Oscilloscope View Video Generator
 echo.
@@ -763,7 +776,7 @@ set /a g=0x!hexColor:~2,2!
 set /a b=0x!hexColor:~4,2!
 rem echo !r!!g!!b!!hexColor!
 set "displaycolor=[38;2;!r!;!g!;!b!m!color%i%!"
-echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
+echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 â””â”€â”€â”€ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
 set chcount=!i!
 rem echo !chcount!
 Set /A i+=1
@@ -909,11 +922,11 @@ rem goto :eof
 	goto :EOF
 	
 :render
-:: ¸¶½ºÅÍ ¿Àµð¿À ÆÄÀÏ (%1)
+:: ë§ˆìŠ¤í„° ì˜¤ë””ì˜¤ íŒŒì¼ (%1) [Master audio file (%1)]
 rem set "masterAudio=%~1"
 rem echo on
 
-:: Ã¤³Î ¿Àµð¿À ÆÄÀÏµéÀ» Ã³¸® (%2ºÎÅÍ ³¡±îÁö)
+:: ì±„ë„ ì˜¤ë””ì˜¤ íŒŒì¼ë“¤ì„ ì²˜ë¦¬ (%2ë¶€í„° ëê¹Œì§€) [Processing channel audio files (%2 From beginning to end)]
 set channelCount=0
 set H1Count=0
 set H2Count=0
@@ -1050,7 +1063,7 @@ goto loop
 :endloop
 set channelCount+=1
 rem echo %channelCount% %i%
-:: ÃÖÁ¾ Ãâ·Â ·¹ÀÌ¾Æ¿ôÀ» Á¤ÀÇ
+:: ìµœì¢… ì¶œë ¥ ë ˆì´ì•„ì›ƒì„ ì •ì˜ (Define the final output layout)
 if "!bgimage!"=="None" (
 	set "bgcf1="
 	set "bgcf2="
@@ -1099,7 +1112,7 @@ if /i "!renderorpreview!"=="2" (
 	del /q !progresslogpath!
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
 
-	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% "!ffmpegoutput!"
+	ffmpeg -progress !progresslogpath! -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% "!ffmpegoutput!"
 	rem pause
 
 	echo None> !progresslogpath!
