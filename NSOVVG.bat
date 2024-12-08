@@ -12,25 +12,31 @@ set "fps=60"
 set "bitrate=5000k"
 set "linemode=p2p"
 set "chosenfiles="
-set "progressbartestpath=!temp!\NSOVVG_displayrendering.bat"
-set "progresslogpath=!temp!\NSOVVG_ffmpegprogresslog.log"
-set "fontpickerpath=!temp!\NSOVVG_fontPicker.ps1"
-set "numberboxpath=!temp!\NSOVVG_numberBox.ps1"
-set "reorderboxpath=!temp!\NSOVVG_reorder.ps1"
-set "colorpickerpath=!temp!\NSOVVG_colorPicker.ps1"
+set "tempfileprefix=!temp!\NSOVVG_"
+
+set "progressbartestpath=!tempfileprefix!displayrendering.bat"
+set "progresslogpath=!tempfileprefix!ffmpegprogresslog.log"
+set "fontpickerpath=!tempfileprefix!fontPicker.ps1"
+set "numberboxpath=!tempfileprefix!numberBox.ps1"
+set "reorderboxpath=!tempfileprefix!reorder.ps1"
+set "colorpickerpath=!tempfileprefix!colorPicker.ps1"
+set "ffmpeglogpath=!tempfileprefix!ffmpeglog.log"
+set "ffmpegrenderingerrorboxpath=!tempfileprefix!ffmpegrenderingerrorBox.ps1"
+
+del /q "!tempfileprefix!*"
 set "dffont=Arial"
 set "h1count="
 set "h2count="
 rem set "displayfont=Arial                  "
 set "sizefont=14"
 set "colorfont=#FFFFFF"
-del /q !progresslogpath! 2>nul
-del /q !progressbartestpath! 2>nul
-del /q !reorderboxpath! 2>nul
-del /q !colorpickerpath! 2>nul
-rem del /q "!temp!\NSOVVG_necoarc.zip" 2>nul
+REM del /q !progresslogpath! 2>nul
+REM del /q !progressbartestpath! 2>nul
+REM del /q !reorderboxpath! 2>nul
+REM del /q !colorpickerpath! 2>nul
+rem del /q "!tempfileprefix!necoarc.zip" 2>nul
 
-rem start conhost "!temp!\NSOVVG_necoarc.bat"
+rem start conhost "!tempfileprefix!necoarc.bat"
 
 rem echo Detecting your GPU... Please wait!
 call :gpudetect
@@ -197,12 +203,88 @@ echo } else { >> !colorpickerpath!
 echo     Write-Host "None" >> !colorpickerpath!
 echo } >> !colorpickerpath!
 
-rem echo 
-REM set tempScript=%temp%\fontPicker.ps1
+echo Add-Type -AssemblyName System.Windows.Forms > !ffmpegrenderingerrorboxpath!
+echo Add-Type -AssemblyName System.Drawing >> !ffmpegrenderingerrorboxpath!
+echo $filePath = "!ffmpeglogpath!" >> !ffmpegrenderingerrorboxpath!
+echo $contactText = if ^(Test-Path $filePath^) { >> !ffmpegrenderingerrorboxpath!
+echo     $content = Get-Content $filePath -Raw >> !ffmpegrenderingerrorboxpath!
+echo     if ^(-not [string]::IsNullOrWhiteSpace^($content^)^) { >> !ffmpegrenderingerrorboxpath!
+echo         $content >> !ffmpegrenderingerrorboxpath!
+echo     } else { >> !ffmpegrenderingerrorboxpath!
+echo         "None" >> !ffmpegrenderingerrorboxpath!
+echo     } >> !ffmpegrenderingerrorboxpath!
+echo } else { >> !ffmpegrenderingerrorboxpath!
+echo     "None" >> !ffmpegrenderingerrorboxpath!
+echo } >> !ffmpegrenderingerrorboxpath!
 
-rem call :fontpickercreate
-rem  chcp 949
- rem del /q !progresslogpath!
+
+echo $form = New-Object System.Windows.Forms.Form >> !ffmpegrenderingerrorboxpath!
+echo $form.Text = "NSOVVG" >> !ffmpegrenderingerrorboxpath!
+echo $form.Width = 450 >> !ffmpegrenderingerrorboxpath!
+echo $form.Height = 600 >> !ffmpegrenderingerrorboxpath!
+echo $form.StartPosition = 'CenterScreen' >> !ffmpegrenderingerrorboxpath!
+
+
+echo $errorLabel = New-Object System.Windows.Forms.Label >> !ffmpegrenderingerrorboxpath!
+echo $errorLabel.Text = "An error occurred during video rendering.`n" + >> !ffmpegrenderingerrorboxpath!
+echo                    "To send this error to the developer, click [Save]`n" + >> !ffmpegrenderingerrorboxpath!
+echo                    "and send the log file to one of the following contacts:" >> !ffmpegrenderingerrorboxpath!
+echo $errorLabel.Location = New-Object System.Drawing.Point^(10, 10^) >> !ffmpegrenderingerrorboxpath!
+echo $errorLabel.Size = New-Object System.Drawing.Size^(420, 60^) >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($errorLabel^) >> !ffmpegrenderingerrorboxpath!
+
+
+echo $contactBox = New-Object System.Windows.Forms.TextBox >> !ffmpegrenderingerrorboxpath!
+echo $contactBox.Multiline = $true >> !ffmpegrenderingerrorboxpath!
+echo $contactBox.Text = "Email: heeminwelcome1@gmail.com`r`nDiscord: _yumetaro_" >> !ffmpegrenderingerrorboxpath!
+echo $contactBox.Location = New-Object System.Drawing.Point^(10, 80^) >> !ffmpegrenderingerrorboxpath!
+echo $contactBox.Size = New-Object System.Drawing.Size^(410, 30^) >> !ffmpegrenderingerrorboxpath!
+echo $contactBox.ReadOnly = $true >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($contactBox^) >> !ffmpegrenderingerrorboxpath!
+
+echo $Banner = New-Object System.Windows.Forms.Label >> !ffmpegrenderingerrorboxpath!
+echo $Banner.Text = "Error log:" >> !ffmpegrenderingerrorboxpath!
+echo $Banner.Location = New-Object System.Drawing.Point^(10, 115^) >> !ffmpegrenderingerrorboxpath!
+echo $Banner.Size = New-Object System.Drawing.Size^(420, 15^) >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($Banner^) >> !ffmpegrenderingerrorboxpath!
+
+echo $ErrorBox = New-Object System.Windows.Forms.TextBox >> !ffmpegrenderingerrorboxpath!
+echo $ErrorBox.Multiline = $true >> !ffmpegrenderingerrorboxpath!
+echo $ErrorBox.Text = $contactText >> !ffmpegrenderingerrorboxpath!
+echo $ErrorBox.Location = New-Object System.Drawing.Point^(10, 130^) >> !ffmpegrenderingerrorboxpath!
+echo $ErrorBox.Size = New-Object System.Drawing.Size^(410, 350^) >> !ffmpegrenderingerrorboxpath!
+echo $ErrorBox.ReadOnly = $true >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($ErrorBox^) >> !ffmpegrenderingerrorboxpath!
+
+echo $saveButton = New-Object System.Windows.Forms.Button >> !ffmpegrenderingerrorboxpath!
+echo $saveButton.Text = "Save" >> !ffmpegrenderingerrorboxpath!
+echo $saveButton.Location = New-Object System.Drawing.Point^(80, 530^) >> !ffmpegrenderingerrorboxpath!
+echo $saveButton.Add_Click^({ >> !ffmpegrenderingerrorboxpath!
+echo     Write-Host "YES" >> !ffmpegrenderingerrorboxpath!
+echo 	$buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
+echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
+echo }^) >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($saveButton^) >> !ffmpegrenderingerrorboxpath!
+
+echo $cancelButton = New-Object System.Windows.Forms.Button >> !ffmpegrenderingerrorboxpath!
+echo $cancelButton.Text = "Cancel" >> !ffmpegrenderingerrorboxpath!
+echo $cancelButton.Location = New-Object System.Drawing.Point^(240, 530^) >> !ffmpegrenderingerrorboxpath!
+echo $cancelButton.Add_Click^({ >> !ffmpegrenderingerrorboxpath!
+echo     Write-Host "None" >> !ffmpegrenderingerrorboxpath!
+echo 	$buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
+echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
+echo }^) >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($cancelButton^) >> !ffmpegrenderingerrorboxpath!
+
+echo $form.Add_FormClosing^({ >> !ffmpegrenderingerrorboxpath!
+echo     if ^(-not $buttonClicked^) { >> !ffmpegrenderingerrorboxpath!
+echo         Write-Host "None" >> !ffmpegrenderingerrorboxpath!
+echo     } >> !ffmpegrenderingerrorboxpath!
+echo }^) >> !ffmpegrenderingerrorboxpath!
+echo $buttonClicked = $false >> !ffmpegrenderingerrorboxpath!
+echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !ffmpegrenderingerrorboxpath!
+echo [void]$form.ShowDialog^(^) >> !ffmpegrenderingerrorboxpath!
+
 :drawlogo
 REM echo !gpu!
 call :reallogo
@@ -667,19 +749,19 @@ REM Stephen Knight, October 2009, http://www.dragon-it.co.uk/
 set input=
 set heading=%~2
 set message=%~1
-echo wscript.echo inputbox(WScript.Arguments(0),WScript.Arguments(1)) >"!temp!\NSOVVG_input.vbs"
-for /f "tokens=* delims=" %%a in ('cscript //nologo "!temp!\NSOVVG_input.vbs" "!message!" "!heading!"') do set input=%%a
+echo wscript.echo inputbox(WScript.Arguments(0),WScript.Arguments(1)) >"!tempfileprefix!input.vbs"
+for /f "tokens=* delims=" %%a in ('cscript //nologo "!tempfileprefix!input.vbs" "!message!" "!heading!"') do set input=%%a
 goto :EOF
 
 :errmsg
-echo msgbox "%~1^!",vbOKOnly+vbCritical,"NSOVVG" > "!temp!\NSOVVG_error.vbs"
-cscript //nologo "!temp!\NSOVVG_error.vbs"
-DEL /Q "!temp!\NSOVVG_error.vbs"
+echo msgbox "%~1^!",vbOKOnly+vbCritical,"NSOVVG" > "!tempfileprefix!error.vbs"
+cscript //nologo "!tempfileprefix!error.vbs"
+DEL /Q "!tempfileprefix!error.vbs"
 goto :EOF
 
 :MsgBox prompt type title
  rem setlocal enableextensions
- set "tempFile=!temp!\NSOVVG_%~nx0.%random%%random%%random%vbs.tmp"
+ set "tempFile=!tempfileprefix!%~nx0.%random%%random%%random%vbs.tmp"
  >"!tempFile!" echo(WScript.Quit msgBox("%~1",%~2,"%~3") & cscript //nologo //e:vbscript "!tempFile!"
  set "exitCode=!errorlevel!" & del "!tempFile!" >nul 2>nul
 
@@ -747,7 +829,7 @@ if "!h1count!"=="0" (
 	set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
 )
 
-echo [90mNSOVVG Version v1.0.4a3[0m
+echo [90mNSOVVG Version v1.0.4a4[0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
@@ -1126,14 +1208,24 @@ if /i "!renderorpreview!"=="2" (
 	del /q !progresslogpath!
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
 
-	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% "!ffmpegoutput!"
-	rem pause
-	pause
+	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k !outer! "!ffmpegoutput!" 2> "!ffmpeglogpath!"
+
 	echo None> !progresslogpath!
+	IF "!ERRORLEVEL!" NEQ "0" (
+		for /f "delims=" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -File !ffmpegrenderingerrorboxpath!') do (
+			if "%%a"=="YES" (
+				for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Error Log|*.log'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
+				IF NOT "!saveFile!"=="None" move /y "!ffmpeglogpath!" "!saveFile!"
+			)
+		)
+	)
+				
+	
+
 	
 ) else if /i "!renderorpreview!"=="1" (
 
-	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% -f nut - | ffplay - 
+	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k !outer! -f nut - | ffplay - 
 	rem echo ^(Ignore if it said "Conversion failed^!"^)
 	REM pause
 	

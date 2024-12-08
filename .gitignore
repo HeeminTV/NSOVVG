@@ -10,3 +10,4 @@ ignore
 CLINSOVVG.bat
 images
 *.png
+*.log
