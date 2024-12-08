@@ -3,7 +3,30 @@
 SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by @í¬ë¯¼Heemin
 "%__APPDIR__%chcp.com" 949 >nul
+rem set found=0
+
+echo Checking for the existence of the ffmpeg set... Please wait!
+set fmpeg=0
+set fplay=0
+set fprobe=0
+
+IF EXIST "ffmpeg.exe" ( set "fmpeg=1" ) else for %%P in (!PATH!) do (
+        IF EXIST "%%~P\ffmpeg.exe" set "fmpeg=1"
+)
+		
+IF EXIST "ffplay.exe" ( set "fplay=1" ) else for %%P in (!PATH!) do (
+        IF EXIST "%%~P\ffplay.exe" set "fplay=1"
+)
+IF EXIST "ffprobe.exe" ( set "fprobe=1" ) else for %%P in (!PATH!) do (
+        IF EXIST "%%~P\ffprobe.exe" set "fprobe=1"
+)
+
+if "!fmpeg!!fplay!!fprobe!" NEQ "111" call :errmsg "Some or all of the ffmpeg set is missing. Please put the set in the same directory as this script or system path"
+
 :resetvariables
+:: VERSION
+SET "NSOVVGVERSION=1.0.4a5"
+
 set "masteraudio=None"
 set "bgimage=None"
 set x_res=1280
@@ -30,15 +53,7 @@ set "h2count="
 rem set "displayfont=Arial                  "
 set "sizefont=14"
 set "colorfont=#FFFFFF"
-REM del /q !progresslogpath! 2>nul
-REM del /q !progressbartestpath! 2>nul
-REM del /q !reorderboxpath! 2>nul
-REM del /q !colorpickerpath! 2>nul
-rem del /q "!tempfileprefix!necoarc.zip" 2>nul
 
-rem start conhost "!tempfileprefix!necoarc.bat"
-
-rem echo Detecting your GPU... Please wait!
 call :gpudetect
 echo Creating external scripts... Please wait!
 
@@ -829,7 +844,7 @@ if "!h1count!"=="0" (
 	set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
 )
 
-echo [90mNSOVVG Version v1.0.4a4[0m
+echo [90mNSOVVG Version v!NSOVVGVERSION![0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
@@ -1203,31 +1218,33 @@ if "!chcount!"=="1" (
 )
 REM echo ffmpeg -i "%masterAudio%" %channelInputs% -filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac %outer% -f nut
 :playorrender
+del /q "!ffmpeglogpath!"
+set "ffmpegcommand=-loglevel error -stats -i "!masterAudio!" !channelInputs! !bgcf2!-filter_complex "!filterComplex! !layout!" -map 0:a -c:a aac -b:a 192k !outer!"
 rem CHOICE /C PR /N /M "Press "P" to preview, or "R" to render. "
 if /i "!renderorpreview!"=="2" (
 	del /q !progresslogpath!
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
 
-	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k !outer! "!ffmpegoutput!" 2> "!ffmpeglogpath!"
+	ffmpeg -progress !progresslogpath! !ffmpegcommand! "!ffmpegoutput!" 2> "!ffmpeglogpath!"
 
 	echo None> !progresslogpath!
-	IF "!ERRORLEVEL!" NEQ "0" (
-		for /f "delims=" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -File !ffmpegrenderingerrorboxpath!') do (
-			if "%%a"=="YES" (
-				for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Error Log|*.log'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
-				IF NOT "!saveFile!"=="None" move /y "!ffmpeglogpath!" "!saveFile!"
-			)
-		)
-	)
+	CALL :ffmpegerrorhandling NEQ
 				
 	
 
 	
 ) else if /i "!renderorpreview!"=="1" (
 
-	ffmpeg -loglevel quiet -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k !outer! -f nut - | ffplay - 
-	rem echo ^(Ignore if it said "Conversion failed^!"^)
+	ffmpeg !ffmpegcommand! -f nut - | ffplay - 2> "!ffmpeglogpath!"
+	findstr /i "Invalid" "!ffmpeglogpath!"
+	REM echo !errorlevel!r
 	REM pause
+	if "!ERRORLEVEL!"=="0" ( 
+		rem ffmpeg !ffmpegcommand!  2> "!ffmpeglogpath!"
+		ffmpeg !ffmpegcommand! -f null - 2> "!ffmpeglogpath!"
+		CALL :ffmpegerrorhandling NEQ
+	)
+	
 	
 ) else (
 	echo Aborted.
@@ -1235,3 +1252,14 @@ if /i "!renderorpreview!"=="2" (
 )
 rem endlocal
 goto drawlogo
+
+:ffmpegerrorhandling
+IF "!ERRORLEVEL!" %1 "0" (
+		for /f "delims=" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -File !ffmpegrenderingerrorboxpath!') do (
+			if "%%a"=="YES" (
+				for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Error Log|*.log'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
+				IF NOT "!saveFile!"=="None" move /y "!ffmpeglogpath!" "!saveFile!"
+			)
+		)
+	)
+goto :EOF
