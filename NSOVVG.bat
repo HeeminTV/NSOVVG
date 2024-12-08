@@ -1,10 +1,8 @@
 @echo    OFF
 
 SETLOCAL ENABLEDELAYEDEXPANSION
-title Not Serious Oscilloscope View Video Generator - by @Èñ¹ÎHeemin
-rem chcp 949
-chcp 949 > nul	
-rem CHOICE /C PR /N /M "Press "P" to preview, or "R" to render. "
+title Not Serious Oscilloscope View Video Generator - by @í¬ë¯¼Heemin
+"%__APPDIR__%chcp.com" 949 >nul
 :resetvariables
 set "masteraudio=None"
 set "bgimage=None"
@@ -21,6 +19,8 @@ set "numberboxpath=!temp!\NSOVVG_numberBox.ps1"
 set "reorderboxpath=!temp!\NSOVVG_reorder.ps1"
 set "colorpickerpath=!temp!\NSOVVG_colorPicker.ps1"
 set "dffont=Arial"
+set "h1count="
+set "h2count="
 rem set "displayfont=Arial                  "
 set "sizefont=14"
 set "colorfont=#FFFFFF"
@@ -111,7 +111,7 @@ echo $btnUp.Location = New-Object System.Drawing.Point^(710, 30^) >> !reorderbox
 echo $btnUp.Add_Click^({ >> !reorderboxpath!
 echo     $selectedIndex = $listBox.SelectedIndex >> !reorderboxpath!
 echo     if ^($selectedIndex -gt 0^) { >> !reorderboxpath!
-echo         # Ç×¸ñÀ» À§·Î ÀÌµ¿ >> !reorderboxpath!
+
 echo         $temp = $listBox.Items[$selectedIndex] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex] = $listBox.Items[$selectedIndex - 1] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex - 1] = $temp >> !reorderboxpath!
@@ -127,7 +127,7 @@ echo $btnDown.Location = New-Object System.Drawing.Point^(710, 70^) >> !reorderb
 echo $btnDown.Add_Click^({ >> !reorderboxpath!
 echo     $selectedIndex = $listBox.SelectedIndex >> !reorderboxpath!
 echo     if ^($selectedIndex -lt $listBox.Items.Count - 1^) { >> !reorderboxpath!
-echo         # Ç×¸ñÀ» ¾Æ·¡·Î ÀÌµ¿ >> !reorderboxpath!
+
 echo         $temp = $listBox.Items[$selectedIndex] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex] = $listBox.Items[$selectedIndex + 1] >> !reorderboxpath!
 echo         $listBox.Items[$selectedIndex + 1] = $temp >> !reorderboxpath!
@@ -142,7 +142,6 @@ echo $btnOK.Text = "OK" >> !reorderboxpath!
 echo $btnOK.Location = New-Object System.Drawing.Point^(100, 220^) >> !reorderboxpath!
 echo $btnOK.Add_Click^({ >> !reorderboxpath!
 echo     $newOrder = $listBox.Items >> !reorderboxpath!
-echo     # »õ·Î¿î ¼ø¼­ Ãâ·Â >> !reorderboxpath!
 
 echo foreach ^($channel in $newOrder^) { >> !reorderboxpath!
 echo     $index = $channels.IndexOf^($channel^) >> !reorderboxpath!
@@ -286,8 +285,23 @@ if /i "!ERRORLEVEL!"=="4" (
 		set "amp!i!=2"
 		set "color!i!=#FFFFFF"
 	)
+
 	if !i! NEQ 0 (
 		CALL :clearch
+		set /a i-=1
+		echo !i!
+		set /a h1number=!i! / 2
+		set /a hremainder=!i! %% 2
+
+		if !hremainder! equ 0 (
+			set /a h1number=!i! / 2
+			set /a h2number=!i! / 2
+		) else (
+			set /a h1number=!i! / 2
+			set /a h2number=!hremainder! + !h1number!
+		)
+		echo !h2number! !h1number!
+		pause
 		
 	)
 	
@@ -594,11 +608,12 @@ if /i "!ERRORLEVEL!"=="12" (
 	ECHO [0mWhich configuration would you like to configure?
 	echo 	[44m[97m[I] - Background Image / Video[0m						[44m[97m[C] - Background Color[0m
 	if "!gpu!"=="libx264" (
-		echo 	[46m[97m[S] - Use Hardware Rendering For This Time[0m				[100m[97m[X] - Cancel[0m
+		echo 	[46m[97m[S] - Use Hardware Rendering For This Time[0m				[44m[97m[W] - Channel Sorting[0m
 	) else (
-		echo 	[41m[97m[S] - Use Software Rendering For This Time ^(libx264^)[0m			[100m[97m[X] - Cancel[0m
+		echo 	[41m[97m[S] - Use Software Rendering For This Time ^(libx264^)[0m			[44m[97m[W] - Channel Sorting[0m
 	)
-	CHOICE /C BIXCS /N
+	echo 	[100m[97m[X] - Cancel[0m
+	CHOICE /C BIXCSW /N
 	echo.
 	if /i "!ERRORLEVEL!"=="2" (
 		for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Picture Files|*.png;*.jpg;*.mp4;*.jpeg;*.avi'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
@@ -720,7 +735,19 @@ set /a b=0x!hexColor:~4,2!
 rem echo !r!!g!!b!!hexColor!
 set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
 
-echo [90mNSOVVG Version v1.0.4a2[0m
+if not defined h1count set "h1count=0"
+if not defined h2count set "h2count=0"
+if "!h1count!"=="0" (
+	if "!h2count!"=="0" (
+		set "displaychannelsorting=	[91mNone"
+	) else (
+		set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
+	)
+) else ( 
+	set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
+)
+
+echo [90mNSOVVG Version v1.0.4a3[0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
@@ -730,7 +757,7 @@ echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /-
 echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	¦­  [32mChosen Font:	[93m!displayfont![97m¦­
 echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	¦­  [32mFont Size:	[93m!sizefont![97m											¦­
 echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	¦­  [32mFont Color:	!displaycolorfont![97m												¦­
-echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	¦­												¦­
+echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	¦­  [32mChannel Sorting:[97m !displaychannelsorting![97m												¦­
 echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	¦­												¦­
 echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	¦­												¦­
 echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°
@@ -1101,7 +1128,7 @@ if /i "!renderorpreview!"=="2" (
 
 	ffmpeg -progress !progresslogpath! -loglevel error -stats -i "!masterAudio!" %channelInputs% !bgcf2!-filter_complex "%filterComplex% %layout%" -map 0:a -c:a aac -b:a 192k %outer% "!ffmpegoutput!"
 	rem pause
-
+	pause
 	echo None> !progresslogpath!
 	
 ) else if /i "!renderorpreview!"=="1" (
