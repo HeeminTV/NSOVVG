@@ -1,9 +1,54 @@
 @echo    OFF
 
 SETLOCAL ENABLEDELAYEDEXPANSION
-title Not Serious Oscilloscope View Video Generator - by @í¬ë¯¼Heemin
+title Not Serious Oscilloscope View Video Generator - by heeminwelcome1@gmail.com
 "%__APPDIR__%chcp.com" 949 >nul
 rem set found=0
+
+
+
+:resetvariables
+:: VERSION
+SET "NSOVVGVERSION=1.0.4a6"
+
+set "masteraudio=None"
+set "bgimage=None"
+set x_res=1280
+set y_res=720
+set "fps=60"
+set "bitrate=5000k"
+set "linemode=p2p"
+set "chosenfiles="
+set "tempfileprefix=!temp!\NSOVVG_"
+set "userfileprefix=!temp!\NSOVVG-USER_"
+
+set "progressbartestpath=!tempfileprefix!displayrendering.bat"
+set "progresslogpath=!tempfileprefix!ffmpegprogresslog.log"
+set "fontpickerpath=!tempfileprefix!fontPicker.ps1"
+set "numberboxpath=!tempfileprefix!numberBox.ps1"
+set "reorderboxpath=!tempfileprefix!reorder.ps1"
+set "colorpickerpath=!tempfileprefix!colorPicker.ps1"
+set "ffmpeglogpath=!tempfileprefix!ffmpeglog.log"
+set "ffmpegrenderingerrorboxpath=!tempfileprefix!ffmpegrenderingerrorBox.ps1"
+set "chsortboxpath=!tempfileprefix!chsortBox.ps1"
+set "loadingshowname=!userfileprefix!loading"
+
+del /q "!tempfileprefix!*" 2>nul
+
+if not exist "!loadingshowname!.bat" (
+	ECHO Please wait a moment... This procedure will be run once on the first run...
+	echo QEVDSE8gT0ZGDQpTRVRMT0NBTCBFTkFCTEVERUxBWUVERVhQQU5TSU9ODQpDSENQIDY1MDAxDQpUSVRMRSAlfjINCnNldCBpPTANCnNldCBpbnRyb3k9Mg0Kc2V0ICJnYXA9CQkJCSINCnNldCAibG9hZGlnbj0bWzRBCUxvYWRpbmciDQpDTFMNCg0KY2FsbCA6SU5UUk8NCg0KOkVYSQ0KY2xzDQpDQUxMIDpEUkxPR08NCg0KRUNITy4NCkVDSE8uDQpFQ0hPLg0KRUNITy4NCjpURVNUDQpzZXQgL2EgaSs9MQ0KDQpDQUxMIDpBTkkhaSENCmlmICFpISBHRVEgNCBzZXQgaT0wDQp0aW1lb3V0IDAgPm51bA0KSUYgTk9UIEVYSVNUICIlfjEiICggDQoJQ0FMTCA6T1VUUk8NCglFWElUIC9CDQopDQpHT1RPIFRFU1QNCg0KOkFOSTENCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAhICAgLyANCkVDSE8gIWdhcCEgIC8gIA0KRUNITyAhZ2FwISAvICAgDQpHT1RPIDpFT0YNCg0KOkFOSTINCmVjaG8gIWxvYWRpZ24hLiAgDQpFQ0hPICFnYXAhICBefCAgDQpFQ0hPICFnYXAhICBefCAgDQpFQ0hPICFnYXAhICBefCAgDQpHT1RPIDpFT0YNCg0KOkFOSTMNCmVjaG8gIWxvYWRpZ24hLi4gCQ0KRUNITyAhZ2FwISBcICAgDQpFQ0hPICFnYXAhICBcICANCkVDSE8gIWdhcCEgICBcIA0KR09UTyA6RU9GDQoNCjpBTkk0DQplY2hvICFsb2FkaWduIS4uLg0KRUNITyAhZ2FwIeOFpOOFpOOFpOOFpOOFpA0KRUNITyAhZ2FwIS0tLS0tDQpFQ0hPICFnYXAh44Wk44Wk44Wk44Wk44WkDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQxDQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKVlOKUgOKUgOKUgOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKUgOKUgOKUgOKVnQ0KR09UTyA6RU9GDQoNCjpBTklfQUxUMg0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilZDilIDilIDilJANCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilJTilIDilIDilZDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDMNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pWQ4pSA4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pSA4pWQ4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQ0DQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKUgOKUgOKVkOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKVkOKUgOKUgOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUNQ0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilIDilIDilZcNCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilZrilIDilIDilIDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDYNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pSA4pSA4pSQDQpFQ0hPICFnYXAh4pWRICAg4pWRDQpFQ0hPICFnYXAh4pSU4pSA4pSA4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkRSTE9HTw0KRUNITy4NCmVjaG8gICAgG1sxbRtbOTdtICAgICAgICAgLC0tLiAgICAgICAgICAgICAgLC0tLS0uLg0KZWNobyAgICAgICAgICAgLC0tLidefCAuLS0uLS0uICAgICAvICAgLyAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgLC0tLS0uLiAgICAJDQplY2hvICAgICAgICwtLSw6ICA6IF58LyAgLyAgICAnLiAgLyAgIC4gICAgIDogICAgICAgLC0tLS4gICAgICAsLS0tLi8gICAvICAgXCAgIAkNCmVjaG8gICAgLGAtLS4nYF58ICAnIF58ICA6ICAvYC4gLyAuICAgLyAgIDsuICBcICAgICAvX18uL158ICAgICAvX18uL158ICAgOiAgICAgOiAgCQ0KZWNobyAgICBefCAgIDogIDogIF58IDsgIF58ICBefC0tYCAuICAgOyAgIC8gIGAgOywtLS0uOyAgOyBefCwtLS0uOyAgOyAuICAgXnwgIDsuIC8gIAkNCmVjaG8gICAgOiAgIF58ICAgXCBefCBefCAgOiAgO18gICA7ICAgXnwgIDsgXCA7IC9fX18vIFwgIF58IC9fX18vIFwgIF58IC4gICA7IC8tLWAgICAJDQplY2hvICAgIF58ICAgOiAnICAnOyBefFwgIFwgICAgYC5efCAgIDogIF58IDsgXnwgXCAgIDsgIFwgJyBcICAgOyAgXCAnIDsgICBefCA7ICBfXyAgCQ0KZWNobyAgICAnICAgJyA7LiAgICA7IGAtLS0tLiAgIC4gICBefCAgJyAnICcgOlwgICBcICBcOiBefFwgICBcICBcOiBefCAgIDogXnwuJyAuJyAJDQplY2hvICAgIF58ICAgXnwgXnwgXCAgIF58IF9fIFwgIFwgICcgICA7ICBcOyAvICBefCA7ICAgXCAgJyAuIDsgICBcICAnIC4gICBefCAnXy4nIDogCQ0KZWNobyAgICAnICAgOiBefCAgOyAuJy8gIC9gLS0nICAvXCAgIFwgICcsICAvICAgXCAgIFwgICAnICBcICAgXCAgICcgICA7IDogXCAgXnwgCQ0KZWNobyAgICBefCAgIF58ICdgLS0nICctLScuICAgICAvICA7ICAgOiAgICAvICAgICBcICAgYCAgOyAgIFwgICBgICAnICAgXnwgJy8gIC4nIAkNCmVjaG8gICAgJyAgIDogXnwgICAgICAgYC0tJy0tLScgICAgXCAgIFwgLicgICAgICAgOiAgIFwgXnwgICAgOiAgIFwgXnwgICA6ICAgIC8gICAJDQplY2hvICAgIDsgICBefC4nICAgICAgICAgICAgICAgICAgICBgLS0tYCAgICAgICAgICAnLS0tIiAgICAgICctLS0iIFwgICBcIC4nDQplY2hvICAgICctLS0nICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGAtLS1gICAgICAgG1swbQ0KZWNoby4gICAgICAgICAgICAgTm90IFNlcmlvdXMgT3NjaWxsb3Njb3BlIFZpZXcgVmlkZW8gR2VuZXJhdG9yDQplY2hvLg0KR09UTyA6RU9GDQoNCjpJTlRSTw0Kc2V0IC9hIGludHJveSs9MQ0KTU9ERSA3NSwgIWludHJveSENCkNBTEwgOkRSTE9HTw0KaWYgIWludHJveSEgR0VRIDIzICBnb3RvIDpFT0YNCkdPVE8gSU5UUk8NCg0KOk9VVFJPDQpzZXQgL2EgaW50cm95LT0xDQpNT0RFIDc1LCAhaW50cm95IQ0KQ0FMTCA6RFJMT0dPDQppZiAhaW50cm95ISBMU1MgMiAgZ290byA6RU9GDQpHT1RPIE9VVFJP > "!loadingshowname!.b64"
+	certutil -decode "!loadingshowname!.b64" "!loadingshowname!.bat" >nul
+) else echo. > "!loadingshowname!.b64"
+START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG"
+
+set "dffont=Arial"
+set "h1count="
+set "h2count="
+rem set "displayfont=Arial                  "
+set "sizefont=14"
+set "colorfont=#FFFFFF"
+set "chsort=4=4"
 
 echo Checking for the existence of the ffmpeg set... Please wait!
 set fmpeg=0
@@ -23,50 +68,17 @@ IF EXIST "ffprobe.exe" ( set "fprobe=1" ) else for %%P in (!PATH!) do (
 
 if "!fmpeg!!fplay!!fprobe!" NEQ "111" call :errmsg "Some or all of the ffmpeg set is missing. Please put the set in the same directory as this script or system path"
 
-:resetvariables
-:: VERSION
-SET "NSOVVGVERSION=1.0.4a5"
-
-set "masteraudio=None"
-set "bgimage=None"
-set x_res=1280
-set y_res=720
-set "fps=60"
-set "bitrate=5000k"
-set "linemode=p2p"
-set "chosenfiles="
-set "tempfileprefix=!temp!\NSOVVG_"
-
-set "progressbartestpath=!tempfileprefix!displayrendering.bat"
-set "progresslogpath=!tempfileprefix!ffmpegprogresslog.log"
-set "fontpickerpath=!tempfileprefix!fontPicker.ps1"
-set "numberboxpath=!tempfileprefix!numberBox.ps1"
-set "reorderboxpath=!tempfileprefix!reorder.ps1"
-set "colorpickerpath=!tempfileprefix!colorPicker.ps1"
-set "ffmpeglogpath=!tempfileprefix!ffmpeglog.log"
-set "ffmpegrenderingerrorboxpath=!tempfileprefix!ffmpegrenderingerrorBox.ps1"
-
-del /q "!tempfileprefix!*"
-set "dffont=Arial"
-set "h1count="
-set "h2count="
-rem set "displayfont=Arial                  "
-set "sizefont=14"
-set "colorfont=#FFFFFF"
-
+echo Detecting your GPU... Please wait!
 call :gpudetect
 echo Creating external scripts... Please wait!
 
 
 :bfdrawlogo
-rem ecoh 
 
-REM set "channel1=fuck
-rem chcp 65001
  echo @echo off> !progressbartestpath!
  echo setlocal enabledelayedexpansion >> !progressbartestpath!
  echo title Rendering... >> !progressbartestpath!
- echo mode 53,7 >> !progressbartestpath!
+ echo mode 53,8 >> !progressbartestpath!
  echo for /f "tokens=* delims=" %%%%a in ('ffprobe -v error -show_entries format^^=duration -of default^^=noprint_wrappers^^=1:nokey^^=1 "%%~1"') do ( >> !progressbartestpath!
  echo     set decimal_value=%%%%a >> !progressbartestpath!
  echo ) >> !progressbartestpath!
@@ -95,6 +107,7 @@ rem chcp 65001
  echo echo ¦­                                                  ¦­ >> !progressbartestpath!
  echo echo ¦­^^!result^^![44m[97m¦­ >> !progressbartestpath!
  echo echo ¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦° >> !progressbartestpath!
+ echo echo To abort, press [7m[Ctrl][27m + [7m[C][27m on the main console. >> !progressbartestpath!
  echo timeout 1 ^> nul >> !progressbartestpath!
  echo goto a >> !progressbartestpath!
  
@@ -291,6 +304,15 @@ echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
 echo }^) >> !ffmpegrenderingerrorboxpath!
 echo $form.Controls.Add^($cancelButton^) >> !ffmpegrenderingerrorboxpath!
 
+echo $pictureBox = New-Object System.Windows.Forms.PictureBox >> !ffmpegrenderingerrorboxpath!
+echo $pictureBox.Size = New-Object System.Drawing.Size^(300, 300^) >> !ffmpegrenderingerrorboxpath!
+echo $pictureBox.Location = New-Object System.Drawing.Point^(450, 100^) >> !ffmpegrenderingerrorboxpath!
+echo $pictureBox.SizeMode = "Zoom" >> !ffmpegrenderingerrorboxpath!
+echo $imageStream = ^(get-item '!tempfileprefix!fjpegify.jpeg'^) >> !ffmpegrenderingerrorboxpath!
+echo $pictureBox.Image = [System.Drawing.Image]::Fromfile^($imageStream^) >> !ffmpegrenderingerrorboxpath!
+echo $form.Controls.Add^($pictureBox^) >> !ffmpegrenderingerrorboxpath!
+
+
 echo $form.Add_FormClosing^({ >> !ffmpegrenderingerrorboxpath!
 echo     if ^(-not $buttonClicked^) { >> !ffmpegrenderingerrorboxpath!
 echo         Write-Host "None" >> !ffmpegrenderingerrorboxpath!
@@ -299,6 +321,120 @@ echo }^) >> !ffmpegrenderingerrorboxpath!
 echo $buttonClicked = $false >> !ffmpegrenderingerrorboxpath!
 echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !ffmpegrenderingerrorboxpath!
 echo [void]$form.ShowDialog^(^) >> !ffmpegrenderingerrorboxpath!
+
+echo Add-Type -AssemblyName System.Windows.Forms >> !chsortboxpath!
+echo Add-Type -AssemblyName System.Drawing >> !chsortboxpath!
+
+
+
+echo $L = $args[0] >> !chsortboxpath!
+echo $R = $args[1] >> !chsortboxpath!
+echo $total = $L + $R >> !chsortboxpath!
+
+
+echo $form = New-Object System.Windows.Forms.Form >> !chsortboxpath!
+
+echo $form.Text = "NSOVVG" >> !chsortboxpath!
+echo $form.Size = New-Object System.Drawing.Size^(300, 230^) >> !chsortboxpath!
+echo $form.StartPosition = "CenterScreen" >> !chsortboxpath!
+
+
+echo $labelL = New-Object System.Windows.Forms.Label >> !chsortboxpath!
+echo $labelL.Text = "Left Channels:" >> !chsortboxpath!
+echo $labelL.Location = New-Object System.Drawing.Point^(10, 20^) >> !chsortboxpath!
+echo $labelL.Size = New-Object System.Drawing.Size^(100, 20^) >> !chsortboxpath!
+echo $form.Controls.Add^($labelL^) >> !chsortboxpath!
+
+echo $numericL = New-Object System.Windows.Forms.NumericUpDown >> !chsortboxpath!
+echo $numericL.Location = New-Object System.Drawing.Point^(120, 20^) >> !chsortboxpath!
+echo $numericL.Size = New-Object System.Drawing.Size^(100, 20^) >> !chsortboxpath!
+echo $numericL.Minimum = 1 >> !chsortboxpath!
+echo $numericL.Maximum = $total - 1 >> !chsortboxpath!
+echo $numericL.Value = $L >> !chsortboxpath!
+echo $form.Controls.Add^($numericL^) >> !chsortboxpath!
+
+
+echo $labelR = New-Object System.Windows.Forms.Label >> !chsortboxpath!
+echo $labelR.Text = "Right Channels:" >> !chsortboxpath!
+echo $labelR.Location = New-Object System.Drawing.Point^(10, 60^) >> !chsortboxpath!
+echo $labelR.Size = New-Object System.Drawing.Size^(100, 20^) >> !chsortboxpath!
+echo $form.Controls.Add^($labelR^) >> !chsortboxpath!
+
+echo $numericR = New-Object System.Windows.Forms.NumericUpDown >> !chsortboxpath!
+echo $numericR.Location = New-Object System.Drawing.Point^(120, 60^) >> !chsortboxpath!
+echo $numericR.Size = New-Object System.Drawing.Size^(100, 20^) >> !chsortboxpath!
+echo $numericR.Minimum = 1 >> !chsortboxpath!
+echo $numericR.Maximum = $total - 1 >> !chsortboxpath!
+echo $numericR.Value = $R >> !chsortboxpath!
+echo $form.Controls.Add^($numericR^) >> !chsortboxpath!
+
+
+echo $numericL.add_ValueChanged^({ >> !chsortboxpath!
+echo     $numericR.Value = $total - $numericL.Value >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+
+
+echo $numericR.add_ValueChanged^({ >> !chsortboxpath!
+echo     $numericL.Value = $total - $numericR.Value >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+
+
+echo $btnOK = New-Object System.Windows.Forms.Button >> !chsortboxpath!
+echo $btnOK.Text = "OK" >> !chsortboxpath!
+echo $btnOK.Location = New-Object System.Drawing.Point^(50, 120^) >> !chsortboxpath!
+echo $btnOK.Size = New-Object System.Drawing.Size^(75, 30^) >> !chsortboxpath!
+echo $btnOK.Add_Click^({ >> !chsortboxpath!
+echo 	$buttonClicked = $true >> !chsortboxpath!
+echo     Write-Host "$($numericL.Value)=$($numericR.Value)" >> !chsortboxpath!
+echo     $form.Close^(^) >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+echo $form.Controls.Add^($btnOK^) >> !chsortboxpath!
+
+
+echo $btnCancel = New-Object System.Windows.Forms.Button >> !chsortboxpath!
+echo $btnCancel.Text = "Cancel" >> !chsortboxpath!
+echo $btnCancel.Location = New-Object System.Drawing.Point^(150, 120^) >> !chsortboxpath!
+echo $btnCancel.Size = New-Object System.Drawing.Size^(75, 30^) >> !chsortboxpath!
+echo $btnCancel.Add_Click^({ >> !chsortboxpath!
+echo 	$buttonClicked = $true >> !chsortboxpath!
+echo     Write-Host "None" >> !chsortboxpath!
+echo     $form.Close^(^) >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+echo $form.Controls.Add^($btnCancel^) >> !chsortboxpath!
+
+
+echo $btnAuto = New-Object System.Windows.Forms.Button >> !chsortboxpath!
+echo $btnAuto.Text = "Auto" >> !chsortboxpath!
+echo $btnAuto.Location = New-Object System.Drawing.Point^(100, 160^) >> !chsortboxpath!
+echo $btnAuto.Size = New-Object System.Drawing.Size^(75, 30^) >> !chsortboxpath!
+echo $btnAuto.Add_Click^({ >> !chsortboxpath!
+rem echo     
+echo     if ^($total %% 2 -eq 0^) { >> !chsortboxpath!
+echo         $numericL.Value = $total / 2 >> !chsortboxpath!
+echo         $numericR.Value = $total / 2 >> !chsortboxpath!
+echo     } else { >> !chsortboxpath!
+echo         $numericL.Value = [math]::Ceiling^($total / 2.0^) >> !chsortboxpath!
+echo         $numericR.Value = [math]::Floor^($total / 2.0^) >> !chsortboxpath!
+echo     } >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+echo $form.Controls.Add^($btnAuto^) >> !chsortboxpath!
+
+
+
+echo $buttonClicked = $false >> !chsortboxpath!
+echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !chsortboxpath!
+echo [void]$form.ShowDialog^(^) >> !chsortboxpath!
+
+echo $form.Add_FormClosing^({ >> !chsortboxpath!
+echo     if ^(-not $buttonClicked^) { >> !chsortboxpath!
+echo         Write-Host "None" >> !chsortboxpath!
+echo     } >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+
+echo /9j/4AAQSkZJRgABAQEAeAB4AAD/4QA6RXhpZgAATU0AKgAAAAgAA1EQAAEAAAABAQAAAFERAAQAAAABAAAAAFESAAQAAAABAAAAAAAAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9cv2ov2grH9mn4X3firy/MW3AWRW6NmvlP4S/tjeOPhD8T/8Ait8MrD866z/gp9pniTTrD/ioI7dfh2x+do/vE/7XevhOb/gpD4Gh6t8Rj9PAAP8AWv524+ozqcbxnRi3GKjd7pX/AM7H57VqcbOp7nw+f4n76RNvjVvUA0V8BfsDftWx/Df4TQ+OPHTvG3xHmWeNl7MM4/maK/oeOyP0GN7an0X+1b8Hf+FwfDB4d25l+YZPY186/D//AIJB+B/ibYNN4yt5Lps4CIcE0UV+JRyXCyqqTWpvvI9F+En/AATrt/gtbrJcOvjwHtOwQ/qaKKK/bY/CjE//2Q== > "!tempfileprefix!fjpegify.b64"
+certutil -decode "!tempfileprefix!fjpegify.b64" "!tempfileprefix!fjpegify.jpeg" >nul
+del /q "!tempfileprefix!fjpegify.b64"
+del /q "!loadingshowname!.b64"
 
 :drawlogo
 REM echo !gpu!
@@ -398,7 +534,7 @@ if /i "!ERRORLEVEL!"=="4" (
 			set /a h2number=!hremainder! + !h1number!
 		)
 		echo !h2number! !h1number!
-		pause
+		rem pause
 		
 	)
 	
@@ -488,15 +624,16 @@ IF /I "!ERRORLEVEL!"=="2" (
 		(echo bgimage=!bgimage!)>> "!saveFile!"
 		rem (echo bitrate=!bitrate!)>> "!saveFile!"
 		(echo darkerbg=!darkerbg!)>> "!saveFile!"
+		(echo chsort=!chsort!)>> "!saveFile!"
 		
-		:saveloop
+		:CHLOOP_SAVE
 		if not "!channel%i%!"=="" (
 			(echo channel!i!=!channel%i%!)>> "!saveFile!"
 			(echo label!i!=!label%i%!)>> "!saveFile!"
 			(echo amp!i!=!amp%i%!)>> "!saveFile!"
 			(echo color!i!=!color%i%!)>> "!saveFile!"
 			Set /A i+=1
-			goto saveloop
+			goto CHLOOP_SAVE
 		)
 	)
 	goto drawlogo
@@ -685,18 +822,7 @@ ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", 
 		if "%%a"=="FontSize" set "sizefont=%%b"
 		if "%%a"=="FontColor" set "colorfont=%%b"
 	)
-	rem ECHO WScript.Echo Len^( WScript.Arguments^(0^) ^) > "!temp!\getlength.vbs"
-	rem for /f "tokens=*" %%a in ('cscript //nologo "!temp!\getlength.vbs" "!dffont!"') do set strLen=%%a
-	rem del /q "!temp!\getlength.vbs"
-	rem if !strLen! geq 23 (
-	rem 	set "displayfont=!dffont!"
-	rem ) else (
-	rem 	set /a remainLen=23-!strLen!
-	rem 	set "fillString="
-	rem 	for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
-	rem 	set "displayfont=!dffont!!fillString!"
-	rem )
-		
+
 	GOTO drawlogo
 )
 
@@ -751,6 +877,46 @@ if /i "!ERRORLEVEL!"=="12" (
 			if "!ERRORLEVEL!"=="2" ( call :errmsg "It appears that your computer does not support hardware rendering. Use software rendering instead" )
 		)
 	)
+	
+	if /i "!ERRORLEVEL!" EQU "6" (
+		if not defined channel1 ( call :errmsg "You need to add the audio channels first" && goto drawlogo )
+		set /a SORT2_h1number=!chcount_fortitle! / 2
+		set /a SORT2_hremainder=!chcount_fortitle! %% 2	
+		if !SORT2_hremainder! equ 0 (
+			set /a SORT2_h2number=!chcount_fortitle! / 2
+		) else (
+			set /a SORT2_h2number=!SORT2_hremainder! + !SORT2_h1number!
+		)
+		
+		if "!chsort!"=="AUTO" (
+			set "SORT_h1number=!SORT2_h1number!"
+			set "SORT_h2number=!SORT2_h2number!"
+			
+		) else (
+			for /f "tokens=1,2 delims==" %%a in ("!chsort!") do (
+				set "SORT_h1number=%%a"
+				set "SORT_h2number=%%b"
+			)
+		)
+			
+		for /f "tokens=1,2 delims==" %%a in ('powershell -Command "& {!chsortboxpath! !SORT_h2number! !SORT_h1number!}"') do (
+			if "%%a" NEQ "None" (
+				if "!SORT2_h2number!"=="%%a" ( set "chsort=AUTO" ) ELSE ( set "chsort=%%a=%%b" )
+				REM if "!SORT2_h2number!"=="%%a" if "!SORT2_h1number!"=="%%b" ( set "chsort=AUTO" ) ELSE ( set "chsort=%%a=%%b" )
+			)
+			ECHO %%a%%b
+			echo !SORT2_h2number!x!SORT2_h1number!
+			pause
+		)
+		rem echo !SORT_h1number! !SORT_h2number!
+		rem pause
+		set "SORT_h1number="
+		set "SORT_h2number="
+		set "SORT_hremainder="
+		set "SORT2_h1number="
+		set "SORT2_h2number="
+		set "SORT2_hremainder="
+	)
 	goto drawlogo
 )
 rem pause 
@@ -784,6 +950,7 @@ goto :EOF
  
 :reallogo
 cls
+SET i=0
 if "!linemode!"=="point" (
 	set "lmwv1=.¡¤'¡¤.¡¤'¡¤.¡¤'¡¤.¡¤"
 ) else if "!linemode!"=="p2p" (
@@ -831,18 +998,31 @@ set /a g=0x!hexColor:~2,2!
 set /a b=0x!hexColor:~4,2!
 rem echo !r!!g!!b!!hexColor!
 set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
-
-if not defined h1count set "h1count=0"
-if not defined h2count set "h2count=0"
-if "!h1count!"=="0" (
-	if "!h2count!"=="0" (
-		set "displaychannelsorting=	[91mNone"
-	) else (
-		set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
+:CHLOOP_FORTITLE
+	Set /A i+=1
+	if defined channel1 ( if not "!channel%i%!"=="" set "chcount_fortitle=!i!" && goto CHLOOP_FORTITLE ) else ( set "chcount_fortitle=0" )
+	rem ECHO !chcount_fortitle!
+rem if defined channel1 echo !chcount!
+if "!chsort!"=="AUTO" (
+	set "displaychannelsorting=	[91mAuto"
+) else (
+	for /f "tokens=1,2 delims==" %%a in ("!chsort!") do (
+		set /a CCresult=%%a + %%b
+		IF "!CCresult!" NEQ "!chcount_fortitle!" ( set "chsort=AUTO" && set "displaychannelsorting=	[91mAuto" ) ELSE ( set "displaychannelsorting=	[93mLeft=%%a, Right=%%b" )
 	)
-) else ( 
-	set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
+	
 )
+rem if not defined h1count set "h1count=0"
+rem if not defined h2count set "h2count=0"
+rem if "!h1count!"=="0" (
+rem 	if "!h2count!"=="0" (
+rem 		set "displaychannelsorting=	[Auto"
+rem 	) else (
+rem 		set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
+rem 	)
+rem ) else ( 
+rem 	set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
+rem )
 
 echo [90mNSOVVG Version v!NSOVVGVERSION![0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
@@ -1044,26 +1224,15 @@ set H2Count=0
 set "channelInputs="
 set "filterComplex="
 set "layout="
-set "autosortvaule=4"
+IF "!chsort!"=="AUTO" ( set "autosortvaule=4" ) else ( set "autosortvaule=1" )
 set "outer="
 set "H1F="
 set "H2F="
 set "bgcf1="
 set "bgcf2="
 set "linemode2="
-::USER CONFIG VAULES::
-rem set x_res=1280
-rem set y_res=720
-rem set "colorvaule=White"
-rem set "linemode=p2p"
 set "bitrate=5000k"
 set "scalemode=lin"
-rem set "gain=4"
-rem set "gpu=libx264"
-rem set "fps=60"
-::USER CONFIG VAULES_END::
-rem @echo on
-rem set "beforeshowwaves=volume=!gain![g"
 set "linemode2=!linemode!:split_channels=0"
 set stack_num=!chcount!
 set /a stack_y_res=y_res / stack_num
@@ -1071,35 +1240,43 @@ set /a remainder=y_res %% stack_num
 echo !stack_num!
 set /a last_stack_y_res=stack_y_res + remainder
 rem set "drawtext=drawtext=text='Channel 3':x=10:y=10:fontsize=24:fontcolor=white"
+rem IF "!chsort!"=="AUTO" (
+	if !chcount! GTR !autosortvaule! (
+		if "!chsort!"=="AUTO" (
+			echo AUTO CHANNEL SORTING
 
-if !chcount! GTR !autosortvaule! (
-	echo AUTO CHANNEL SORTING
+			set /a h1number=!chcount! / 2
+			set /a hremainder=!chcount! %% 2
 
-	set /a h1number=!chcount! / 2
-	set /a hremainder=!chcount! %% 2
+			if !hremainder! equ 0 (
+				rem set /a h1number=!chcount! / 2
+				set /a h2number=!chcount! / 2
+			) else (
+				rem set /a h1number=!chcount! / 2
+				set /a h2number=!hremainder! + !h1number!
+			)
+		) else if "!chsort!"=="ALLVERTICAL" (
+			echo A
+		) else for /f "tokens=1,2 delims==" %%a in ("!chsort!") do (
+			set "h2number=%%a"
+			set "h1number=%%b"
+		)
+		echo !h2number! !h1number!
+		set /a H1_y_res=y_res / h2number
+		set /a H1remainder=y_res %% h2number
+		set /a last_H1_y_res=H1_y_res + H1remainder
 
-	if !hremainder! equ 0 (
-		set /a h1number=!chcount! / 2
-		set /a h2number=!chcount! / 2
-	) else (
-		set /a h1number=!chcount! / 2
-		set /a h2number=!hremainder! + !h1number!
+		set /a H2_y_res=y_res / h1number
+		set /a H2remainder=y_res %% h1number
+		set /a last_H2_y_res=H2_y_res + H2remainder
+
+		set /a x_reshalf=x_res/2
+		rem echo !x_res!
+		ECHO H1 : !H1_y_res!, !last_H1_y_res!
+		echo H2 : !H2_y_res!, !last_H2_y_res!
+
 	)
-	echo !h2number! !h1number!
-	set /a H1_y_res=y_res / h2number
-	set /a H1remainder=y_res %% h2number
-	set /a last_H1_y_res=H1_y_res + H1remainder
-
-	set /a H2_y_res=y_res / h1number
-	set /a H2remainder=y_res %% h1number
-	set /a last_H2_y_res=H2_y_res + H2remainder
-
-	set /a x_reshalf=x_res/2
-	rem echo !x_res!
-	ECHO H1 : !H1_y_res!, !last_H1_y_res!
-	echo H2 : !H2_y_res!, !last_H2_y_res!
-
-)
+rem )
 :loop
 rem shift
 set /a channelCount+=1
@@ -1226,13 +1403,10 @@ if /i "!renderorpreview!"=="2" (
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
 
 	ffmpeg -progress !progresslogpath! !ffmpegcommand! "!ffmpegoutput!" 2> "!ffmpeglogpath!"
-
+	
 	echo None> !progresslogpath!
-	CALL :ffmpegerrorhandling NEQ
+	IF "!ERRORLEVEL!" NEQ "255" ( CALL :ffmpegerrorhandling NEQ ) ELSE ( ECHO If you see the message ¡°Terminate batch job ^(Y/N^)¡±, please type [7m[N][27m. )
 				
-	
-
-	
 ) else if /i "!renderorpreview!"=="1" (
 
 	ffmpeg !ffmpegcommand! -f nut - | ffplay - 2> "!ffmpeglogpath!"
@@ -1244,7 +1418,6 @@ if /i "!renderorpreview!"=="2" (
 		ffmpeg !ffmpegcommand! -f null - 2> "!ffmpeglogpath!"
 		CALL :ffmpegerrorhandling NEQ
 	)
-	
 	
 ) else (
 	echo Aborted.
