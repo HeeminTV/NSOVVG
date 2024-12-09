@@ -9,7 +9,7 @@ rem set found=0
 
 :resetvariables
 :: VERSION
-SET "NSOVVGVERSION=1.0.4a6"
+SET "NSOVVGVERSION=1.0.4a7"
 
 set "masteraudio=None"
 set "bgimage=None"
@@ -543,23 +543,10 @@ if /i "!ERRORLEVEL!"=="4" (
 
 if /i "!ERRORLEVEL!"=="6" (
 	if not defined channel1 ( call :errmsg "You need to add the audio channels first" && goto drawlogo )
+	
+	:REASK
 	call :reallogo
 	set i=1
-	set "choisenumbers="
-	rem pause
-	REM :channelconfig
-	rem echo !i!
-	rem echo !channel%i%!	xcopychannel%i%
-	REM if not "!channel%i%!"=="" (
-		rem set "choisenumbers=!choisenumbers!!i!"
-	REM	set "choisenumbers=!i!"
-	REM	call :channelshow
-		rem echo !i!
-		rem set "choisenumbers=!choisenumbers!!i!"
-		rem set "choisenumbers=!choisenumbers!!chcount!"
-	REM	goto channelconfig
-	REM )
-	REM FAset i=1
 	CALL :channelbrr
 	REM SORRYset i=1
 	
@@ -567,16 +554,20 @@ if /i "!ERRORLEVEL!"=="6" (
 	rem echo !choisenumbers!
 	
 	REM CHOICE /C !choisenumbers! /N /M "[0mWhich channel would you like to configure?"
-	:reask
-	if defined channel2 (
-		SET /P configch=Which channel would you like to configure? 
-	) else (
-		set configch=1
+	rem :reask
+	IF "!ERRORLEVEL!" EQU "6" (
+		if defined channel2 (
+			SET /P configch=Which channel would you like to configure? 
+		) else (
+			set configch=1
+		)
+		echo.
+		rem echo aw%configch%fuck
+		if not defined channel!configch! call :errmsg "Invalid vaule. Cancelling" && goto drawlogo
+		rem SET "configch=!ERRORLEVEL!"
 	)
-	echo.
-	rem echo aw%configch%fuck
-	if not defined channel!configch! call :errmsg "Invalid vaule. Cancelling" && goto drawlogo
-	rem SET "configch=!ERRORLEVEL!"
+	
+	rem :REASK
 	ECHO Which configuration would you like to configure?
 	echo 	[44m[97m[L] - Label Text[0m		[44m[97m[A] - Amplification[0m		[44m[97m[C] - Wave Color[0m		[100m[97m[X] - Cancel[0m
 	CHOICE /C LACX /N
@@ -602,6 +593,7 @@ if /i "!ERRORLEVEL!"=="6" (
 			rem set "amp!configch!=!input!"
 		)
 	)
+	IF "!ERRORLEVEL!" NEQ "4" GOTO REASK
 	
 	goto drawlogo
 	
