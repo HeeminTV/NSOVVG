@@ -1,23 +1,16 @@
 @echo    OFF
-
+mode 120, 30
 SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by heeminwelcome1@gmail.com
-"%__APPDIR__%chcp.com" 949 >nul
-rem set found=0
+"!__APPDIR__!chcp.com" 949 >nul
 
 
-
-:resetvariables
+REM :resetvariables
 :: VERSION
-SET "NSOVVGVERSION=1.0.4a7"
+SET "NSOVVGVERSION=1.0.4a8"
 
-set "masteraudio=None"
-set "bgimage=None"
-set x_res=1280
-set y_res=720
-set "fps=60"
-set "bitrate=5000k"
-set "linemode=p2p"
+CALL :resetvariables
+
 set "chosenfiles="
 set "tempfileprefix=!temp!\NSOVVG_"
 set "userfileprefix=!temp!\NSOVVG-USER_"
@@ -32,6 +25,7 @@ set "ffmpeglogpath=!tempfileprefix!ffmpeglog.log"
 set "ffmpegrenderingerrorboxpath=!tempfileprefix!ffmpegrenderingerrorBox.ps1"
 set "chsortboxpath=!tempfileprefix!chsortBox.ps1"
 set "loadingshowname=!userfileprefix!loading"
+set "multidumperpath=!userfileprefix!multidumper"
 
 del /q "!tempfileprefix!*" 2>nul
 
@@ -40,15 +34,7 @@ if not exist "!loadingshowname!.bat" (
 	echo QEVDSE8gT0ZGDQpTRVRMT0NBTCBFTkFCTEVERUxBWUVERVhQQU5TSU9ODQpDSENQIDY1MDAxDQpUSVRMRSAlfjINCnNldCBpPTANCnNldCBpbnRyb3k9Mg0Kc2V0ICJnYXA9CQkJCSINCnNldCAibG9hZGlnbj0bWzRBCUxvYWRpbmciDQpDTFMNCg0KY2FsbCA6SU5UUk8NCg0KOkVYSQ0KY2xzDQpDQUxMIDpEUkxPR08NCg0KRUNITy4NCkVDSE8uDQpFQ0hPLg0KRUNITy4NCjpURVNUDQpzZXQgL2EgaSs9MQ0KDQpDQUxMIDpBTkkhaSENCmlmICFpISBHRVEgNCBzZXQgaT0wDQp0aW1lb3V0IDAgPm51bA0KSUYgTk9UIEVYSVNUICIlfjEiICggDQoJQ0FMTCA6T1VUUk8NCglFWElUIC9CDQopDQpHT1RPIFRFU1QNCg0KOkFOSTENCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAhICAgLyANCkVDSE8gIWdhcCEgIC8gIA0KRUNITyAhZ2FwISAvICAgDQpHT1RPIDpFT0YNCg0KOkFOSTINCmVjaG8gIWxvYWRpZ24hLiAgDQpFQ0hPICFnYXAhICBefCAgDQpFQ0hPICFnYXAhICBefCAgDQpFQ0hPICFnYXAhICBefCAgDQpHT1RPIDpFT0YNCg0KOkFOSTMNCmVjaG8gIWxvYWRpZ24hLi4gCQ0KRUNITyAhZ2FwISBcICAgDQpFQ0hPICFnYXAhICBcICANCkVDSE8gIWdhcCEgICBcIA0KR09UTyA6RU9GDQoNCjpBTkk0DQplY2hvICFsb2FkaWduIS4uLg0KRUNITyAhZ2FwIeOFpOOFpOOFpOOFpOOFpA0KRUNITyAhZ2FwIS0tLS0tDQpFQ0hPICFnYXAh44Wk44Wk44Wk44Wk44WkDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQxDQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKVlOKUgOKUgOKUgOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKUgOKUgOKUgOKVnQ0KR09UTyA6RU9GDQoNCjpBTklfQUxUMg0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilZDilIDilIDilJANCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilJTilIDilIDilZDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDMNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pWQ4pSA4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pSA4pWQ4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQ0DQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKUgOKUgOKVkOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKVkOKUgOKUgOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUNQ0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilIDilIDilZcNCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilZrilIDilIDilIDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDYNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pSA4pSA4pSQDQpFQ0hPICFnYXAh4pWRICAg4pWRDQpFQ0hPICFnYXAh4pSU4pSA4pSA4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkRSTE9HTw0KRUNITy4NCmVjaG8gICAgG1sxbRtbOTdtICAgICAgICAgLC0tLiAgICAgICAgICAgICAgLC0tLS0uLg0KZWNobyAgICAgICAgICAgLC0tLidefCAuLS0uLS0uICAgICAvICAgLyAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgLC0tLS0uLiAgICAJDQplY2hvICAgICAgICwtLSw6ICA6IF58LyAgLyAgICAnLiAgLyAgIC4gICAgIDogICAgICAgLC0tLS4gICAgICAsLS0tLi8gICAvICAgXCAgIAkNCmVjaG8gICAgLGAtLS4nYF58ICAnIF58ICA6ICAvYC4gLyAuICAgLyAgIDsuICBcICAgICAvX18uL158ICAgICAvX18uL158ICAgOiAgICAgOiAgCQ0KZWNobyAgICBefCAgIDogIDogIF58IDsgIF58ICBefC0tYCAuICAgOyAgIC8gIGAgOywtLS0uOyAgOyBefCwtLS0uOyAgOyAuICAgXnwgIDsuIC8gIAkNCmVjaG8gICAgOiAgIF58ICAgXCBefCBefCAgOiAgO18gICA7ICAgXnwgIDsgXCA7IC9fX18vIFwgIF58IC9fX18vIFwgIF58IC4gICA7IC8tLWAgICAJDQplY2hvICAgIF58ICAgOiAnICAnOyBefFwgIFwgICAgYC5efCAgIDogIF58IDsgXnwgXCAgIDsgIFwgJyBcICAgOyAgXCAnIDsgICBefCA7ICBfXyAgCQ0KZWNobyAgICAnICAgJyA7LiAgICA7IGAtLS0tLiAgIC4gICBefCAgJyAnICcgOlwgICBcICBcOiBefFwgICBcICBcOiBefCAgIDogXnwuJyAuJyAJDQplY2hvICAgIF58ICAgXnwgXnwgXCAgIF58IF9fIFwgIFwgICcgICA7ICBcOyAvICBefCA7ICAgXCAgJyAuIDsgICBcICAnIC4gICBefCAnXy4nIDogCQ0KZWNobyAgICAnICAgOiBefCAgOyAuJy8gIC9gLS0nICAvXCAgIFwgICcsICAvICAgXCAgIFwgICAnICBcICAgXCAgICcgICA7IDogXCAgXnwgCQ0KZWNobyAgICBefCAgIF58ICdgLS0nICctLScuICAgICAvICA7ICAgOiAgICAvICAgICBcICAgYCAgOyAgIFwgICBgICAnICAgXnwgJy8gIC4nIAkNCmVjaG8gICAgJyAgIDogXnwgICAgICAgYC0tJy0tLScgICAgXCAgIFwgLicgICAgICAgOiAgIFwgXnwgICAgOiAgIFwgXnwgICA6ICAgIC8gICAJDQplY2hvICAgIDsgICBefC4nICAgICAgICAgICAgICAgICAgICBgLS0tYCAgICAgICAgICAnLS0tIiAgICAgICctLS0iIFwgICBcIC4nDQplY2hvICAgICctLS0nICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGAtLS1gICAgICAgG1swbQ0KZWNoby4gICAgICAgICAgICAgTm90IFNlcmlvdXMgT3NjaWxsb3Njb3BlIFZpZXcgVmlkZW8gR2VuZXJhdG9yDQplY2hvLg0KR09UTyA6RU9GDQoNCjpJTlRSTw0Kc2V0IC9hIGludHJveSs9MQ0KTU9ERSA3NSwgIWludHJveSENCkNBTEwgOkRSTE9HTw0KaWYgIWludHJveSEgR0VRIDIzICBnb3RvIDpFT0YNCkdPVE8gSU5UUk8NCg0KOk9VVFJPDQpzZXQgL2EgaW50cm95LT0xDQpNT0RFIDc1LCAhaW50cm95IQ0KQ0FMTCA6RFJMT0dPDQppZiAhaW50cm95ISBMU1MgMiAgZ290byA6RU9GDQpHT1RPIE9VVFJP > "!loadingshowname!.b64"
 	certutil -decode "!loadingshowname!.b64" "!loadingshowname!.bat" >nul
 ) else echo. > "!loadingshowname!.b64"
-START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG"
-
-set "dffont=Arial"
-set "h1count="
-set "h2count="
-rem set "displayfont=Arial                  "
-set "sizefont=14"
-set "colorfont=#FFFFFF"
-set "chsort=4=4"
+START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG is now loading..."
 
 echo Checking for the existence of the ffmpeg set... Please wait!
 set fmpeg=0
@@ -437,7 +423,6 @@ del /q "!tempfileprefix!fjpegify.b64"
 del /q "!loadingshowname!.b64"
 
 :drawlogo
-REM echo !gpu!
 call :reallogo
 
 
@@ -448,28 +433,16 @@ echo 	[43m[97m[7m[M][27m - Choose the master audio[0m	[44m[97m[7m[C][27
 rem echo.
 echo 	[44m[97m[7m[D][27m - Change display mode[0m	[104m[97m[7m[F][27m - Configure the audio channels[0m
 rem echo.
-echo 	[44m[97m[7m[G][27m - Global configuration[0m	[41m[34m[7m[L][27m - Clear the channels[0m
-echo 	[45m[97m[7m[T][27m - Font configuration[0m	[45m[97m[7m[V][27m - Other video settings[0m
+echo 	[44m[97m[7m[G][27m - Global configuration[0m	[41m[34m[7m[N][27m - New project[0m
+echo 	[42m[97m[7m[I][27m - Import VGM file[0m		[45m[97m[7m[V][27m - Other video settings[0m
 echo 	[44m[97m[7m[X][27m - Set output resolution, FPS[0m[101m[93m[7m[R][27m - Render^^![0m
-rem echo !gpu!
 echo.
-rem for /l %%i in (1,1,100) do (
 
-REM YEAS Fset i=1
 CALL :channelbrr
-REM :channelbrr
-REM 	if not "!channel%i%!"=="" (
-REM 		call :channelshow
-REM 		goto channelbrr
-REM 	)
-	rem set i=1
-	REM KIMINONAMAEWA set i=1
-rem :forout
 
-rem echo 	[33mChosen master audio: [93m!masteraudio![0m
-CHOICE /C OSMCDFXRGLTV /N
+CHOICE /C OSMCDFXRGNIV /N
 if /i "!ERRORLEVEL!"=="5" (
-		if "!linemode!"=="point" (
+	if "!linemode!"=="point" (
 		set "linemode=p2p"
 	) else if "!linemode!"=="p2p" (
 		set "linemode=line"
@@ -480,7 +453,7 @@ if /i "!ERRORLEVEL!"=="5" (
 	) else (
 		set "lmwv1=undefined"
 	)
-	goto drawlogo
+	rem TESTgoto drawlogo
 )
 if /i "!ERRORLEVEL!"=="7" (
 	call :inputbox "Input Grammer: XRESxYRESxFPS (Example: 1280x720x60)" "NSOVVG"
@@ -500,12 +473,12 @@ if /i "!ERRORLEVEL!"=="7" (
 			)
 		)
 	)
-	goto drawlogo
+	rem TESTgoto drawlogo
 )
 if /i "!ERRORLEVEL!"=="3" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Audio Files|*.wav;*.mp3'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
 	IF NOT "!selectedFile!"=="None" set "masteraudio=!selectedFile!"
-	goto drawlogo
+	rem TESTgoto drawlogo
 )
 if /i "!ERRORLEVEL!"=="4" (
 	set pwshcmd=powershell -NoP -C "[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms')|Out-Null;$OFD = New-Object System.Windows.Forms.OpenFileDialog;$OFD.Multiselect = $True;$OFD.Filter = 'Audio Files|*.mp3;*.wav';$OFD.InitialDirectory = [Environment]::GetFolderPath('Desktop');$OFD.ShowDialog()|out-null;$OFD.FileNames"
@@ -520,7 +493,7 @@ if /i "!ERRORLEVEL!"=="4" (
 	)
 
 	if !i! NEQ 0 (
-		CALL :clearch
+		CALL :CHLOOP_CLEAR
 		set /a i-=1
 		echo !i!
 		set /a h1number=!i! / 2
@@ -538,7 +511,7 @@ if /i "!ERRORLEVEL!"=="4" (
 		
 	)
 	
-	goto drawlogo
+	rem TESTgoto drawlogo
 )
 
 if /i "!ERRORLEVEL!"=="6" (
@@ -547,15 +520,8 @@ if /i "!ERRORLEVEL!"=="6" (
 	:REASK
 	call :reallogo
 	set i=1
-	CALL :channelbrr
-	REM SORRYset i=1
-	
-	echo [0m
-	rem echo !choisenumbers!
-	
-	REM CHOICE /C !choisenumbers! /N /M "[0mWhich channel would you like to configure?"
-	rem :reask
 	IF "!ERRORLEVEL!" EQU "6" (
+		CALL :channelbrr
 		if defined channel2 (
 			SET /P configch=Which channel would you like to configure? 
 		) else (
@@ -563,11 +529,15 @@ if /i "!ERRORLEVEL!"=="6" (
 		)
 		echo.
 		rem echo aw%configch%fuck
-		if not defined channel!configch! call :errmsg "Invalid vaule. Cancelling" && goto drawlogo
+		if not defined channel!configch! ( call :errmsg "Invalid vaule. Cancelling" && goto drawlogo ) ELSE ( 
+			call :reallogo 
+			set i=1
+			CALL :channelbrr !configch! 
+		)
 		rem SET "configch=!ERRORLEVEL!"
-	)
+	) ELSE CALL :channelbrr !configch!
 	
-	rem :REASK
+	echo [0m
 	ECHO Which configuration would you like to configure?
 	echo 	[44m[97m[L] - Label Text[0m		[44m[97m[A] - Amplification[0m		[44m[97m[C] - Wave Color[0m		[100m[97m[X] - Cancel[0m
 	CHOICE /C LACX /N
@@ -595,7 +565,7 @@ if /i "!ERRORLEVEL!"=="6" (
 	)
 	IF "!ERRORLEVEL!" NEQ "4" GOTO REASK
 	
-	goto drawlogo
+	rem TESTgoto drawlogo
 	
 	rem :channelconfigout
 	
@@ -628,18 +598,18 @@ IF /I "!ERRORLEVEL!"=="2" (
 			goto CHLOOP_SAVE
 		)
 	)
-	goto drawlogo
+	rem TESTgoto drawlogo
 )
 IF /I "!ERRORLEVEL!"=="1" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Config File|*.ini'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
 	IF NOT "!selectedFile!"=="None" (
 		SET i=0
-		CALL :clearch
+		CALL :CHLOOP_CLEAR
 		for /f "tokens=1,* delims==" %%a in ('type "!selectedFile!"') do (
 		set "%%a=%%b"
 		)
 	)
-	goto drawlogo
+	rem TESTgoto drawlogo
 
 )
 
@@ -660,7 +630,7 @@ if /i "!ERRORLEVEL!"=="8" (
 			set "renderorpreview=1"
 			goto render
 	)
-	goto drawlogo
+	rem TESTgoto drawlogo
 )
 if /i "!ERRORLEVEL!"=="9" (
 	if not defined channel1 ( call :errmsg "You have no channels to configure" && goto drawlogo )
@@ -757,65 +727,73 @@ if /i "!ERRORLEVEL!"=="9" (
 		)
 	)
 	IF "!ERRORLEVEL!"=="5" (
-	set i=1
-	for /f "tokens=*" %%A in ('powershell -ExecutionPolicy Bypass -File "!reorderboxpath!"') do (
-		set "output=%%A"
-		if "!output!" neq "None" (
-			REM set "channel!i!=!output!"
-			set "buffer_channel!i!=!channel%%A!"
-			set "buffer_label!i!=!label%%A!"
-			set "buffer_amp!i!=!amp%%A!"
-			set "buffer_color!i!=!color%%A!"
-			rem ECHO "buffer_color!i! !channel%%a!"
-			set /a i+=1
-			rem echo Reordered channel: !output!
+		set i=1
+		for /f "tokens=*" %%A in ('powershell -ExecutionPolicy Bypass -File "!reorderboxpath!"') do (
+			set "output=%%A"
+			if "!output!" neq "None" (
+				REM set "channel!i!=!output!"
+				set "buffer_channel!i!=!channel%%A!"
+				set "buffer_label!i!=!label%%A!"
+				set "buffer_amp!i!=!amp%%A!"
+				set "buffer_color!i!=!color%%A!"
+				rem ECHO "buffer_color!i! !channel%%a!"
+				set /a i+=1
+				rem echo Reordered channel: !output!
+				
+			)
 			
+		) 
+		rem PAUSE
+		REM set i=0
+		if "!output!" neq "None" (
+			 for /L %%i in (1,1,!i!) do (
+			rem echo %%i
+			rem set /a sum+=%%i
+				set "channel%%i=!buffer_channel%%i!"
+				set "label%%i=!buffer_label%%i!"
+				set "amp%%i=!buffer_amp%%i!"
+				set "color%%i=!buffer_color%%i!"
+			)
+			rem echo !buffer_channel3!
+			rem pause
 		)
-		
-	) 
-	rem PAUSE
-	REM set i=0
-	if "!output!" neq "None" (
-		 for /L %%i in (1,1,!i!) do (
-		rem echo %%i
-		rem set /a sum+=%%i
-			set "channel%%i=!buffer_channel%%i!"
-			set "label%%i=!buffer_label%%i!"
-			set "amp%%i=!buffer_amp%%i!"
-			set "color%%i=!buffer_color%%i!"
-		)
-		rem echo !buffer_channel3!
 		rem pause
-	)
 	rem pause
-rem pause
-)
-		goto drawlogo
+	)
+		rem TESTgoto drawlogo
 )
 if /i "!ERRORLEVEL!"=="10" (
 	if not defined channel1 ( call :errmsg "You have no channels to clear" && goto drawlogo )
 	SET i=0
 	call :MsgBox "You imported a lot of channels, are you sure to clear everything?"  "VBYesNo+VBQuestion" "NSOVVG"
-	REM echo !errorlevel!
-	REM pause
-	if "!errorlevel!"=="6" CALL :clearch
+	if "!errorlevel!"=="6" ( 
+		CALL :CHLOOP_CLEAR
+		CALL :resetvariables
+	)
+		
 
-	goto drawlogo
+	rem TESTgoto drawlogo
 	
 )
 
 if /i "!ERRORLEVEL!"=="11" (
-ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", "Font color", and "Font size".[0m
-
-	call :createfontpicker
-	for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -File "!fontpickerpath!"') do (
-		if "%%a"=="Canceled" goto drawlogo
-		if "%%a"=="FontName" set "dffont=%%b"
-		if "%%a"=="FontSize" set "sizefont=%%b"
-		if "%%a"=="FontColor" set "colorfont=%%b"
+	IF NOT EXIST "!multidumperpath!\multidumper.exe" (
+		call :MsgBox "Could not find multidumper in NSOVVG temp directory. Would you like to download it now?"  "VBYesNo+VBQuestion" "NSOVVG"
+		if "!errorlevel!"=="6" (
+			START conhost "!loadingshowname!.bat" "!multidumperpath!.zip" "Downloading multidumper..."
+			powershell "(New-Object System.Net.WebClient).DownloadFile('https://github.com/maxim-zhao/multidumper/releases/download/v20220512/multidumper.zip','!multidumperpath!.zip')"
+			if "!ERRORLEVEL!" NEQ "0" call :errmsg "An error occurred while downloading the file. Returning to menu" && goto drawlogo
+			powershell "Expand-Archive -LiteralPath !multidumperpath!.zip -DestinationPath !multidumperpath!"
+			del /q !multidumperpath!.zip
+		)
 	)
-
-	GOTO drawlogo
+	IF NOT EXIST "!multidumperpath!\multidumper.exe" goto drawlogo
+	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Multidumper Compatible Files|*.ay;*.gbs;*.gym;*.hes;*.kss;*.nsf;*.nsfe;*.sap;*.sfm;*.sgc;*.spc;*.vgm;*.vgz;*.spu'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
+	IF NOT "!selectedFile!"=="None" (
+	)
+	
+		rem Could not find multidumper in NSOVVG temp location. Would you like to download it now?
+		
 )
 
 if /i "!ERRORLEVEL!"=="12" (
@@ -827,8 +805,8 @@ if /i "!ERRORLEVEL!"=="12" (
 	) else (
 		echo 	[41m[97m[S] - Use Software Rendering For This Time ^(libx264^)[0m			[44m[97m[W] - Channel Sorting[0m
 	)
-	echo 	[100m[97m[X] - Cancel[0m
-	CHOICE /C BIXCSW /N
+	echo 	[44m[97m[T] - Font Configuration[0m						[100m[97m[X] - Cancel[0m
+	CHOICE /C BIXCSWT /N
 	echo.
 	if /i "!ERRORLEVEL!"=="2" (
 		for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Picture Files|*.png;*.jpg;*.mp4;*.jpeg;*.avi'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
@@ -841,23 +819,15 @@ if /i "!ERRORLEVEL!"=="12" (
 			if /i "!userInput!"=="n" set "darkerbg=off"
 			if /i not "!userInput!"=="x" set "bgimage=!selectedFile!"
 		)
-		rem goto drawlogo
+		rem rem TESTgoto drawlogo
 	)
 	IF /I "!ERRORLEVEL!"=="4" (
 		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do set "color=%%A"
 
-		if not "!color!"=="None" (
-			set "bgimage=!color!"
-			rem if not "!color!"=="None" set "bgimage=#!color:~2!"
-			rem set "amp!configch!=!input!"
-		)
-		REM if not "!color!"=="None" set "bgimage=#!color:~2!"
+		if not "!color!"=="None" set "bgimage=!color!"
 	)
 	IF /I "!ERRORLEVEL!"=="1" (
 		call :createnumberbox 100000 !bitrate:~0,-1! "Please set the bitrate of the video. (kbps)" 100
-		rem for /f "usebackq delims=" %%i in (`powershell -NoProfile -ExecutionPolicy Bypass -File "!numberboxpath!"`) do (
-		rem 	set selectedNumber=%%i
-		rem )
 		if not "!selectedNumber!"=="None" set "bitrate=!selectedNumber!k"
 	)
 	rem 
@@ -909,8 +879,21 @@ if /i "!ERRORLEVEL!"=="12" (
 		set "SORT2_h2number="
 		set "SORT2_hremainder="
 	)
-	goto drawlogo
+	
+	if /i "!ERRORLEVEL!"=="7" (
+		ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", "Font color", and "Font size".[0m
+
+		call :createfontpicker
+		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -File "!fontpickerpath!"') do (
+			if "%%a"=="Canceled" goto drawlogo
+			if "%%a"=="FontName" set "dffont=%%b"
+			if "%%a"=="FontSize" set "sizefont=%%b"
+			if "%%a"=="FontColor" set "colorfont=%%b"
+		)
+	)
+	rem TESTgoto drawlogo
 )
+goto drawlogo
 rem pause 
 echo [91mIf you are seeing this message, there is a major bug in this script. Go ahead and tell the developers about this! This stupid script doesn't generate any debug logs, but you don't lose anything \_(¾²)_/[0m
 PAUSE
@@ -1004,17 +987,6 @@ if "!chsort!"=="AUTO" (
 	)
 	
 )
-rem if not defined h1count set "h1count=0"
-rem if not defined h2count set "h2count=0"
-rem if "!h1count!"=="0" (
-rem 	if "!h2count!"=="0" (
-rem 		set "displaychannelsorting=	[Auto"
-rem 	) else (
-rem 		set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
-rem 	)
-rem ) else ( 
-rem 	set "displaychannelsorting=Left=!h2count!, Right=!h1count!"
-rem )
 
 echo [90mNSOVVG Version v!NSOVVGVERSION![0m
 echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
@@ -1036,41 +1008,13 @@ echo.
 
 goto :EOF
 
-:channelshow
-if !i! equ 1 echo	[100m[97mChannels[0m
-if "!label%i%!"=="" ( set "temp_displayedlabel=[91mNone" ) else ( set "temp_displayedlabel="!label%i%!"" )
-set strLen=0
-for /l %%a in (0,1,64) do if not "!temp_displayedlabel:~%%a,1!" == "" set /a strLen+=1
-	if !strLen! geq 23 (
-		set "displayedlabel=!temp_displayedlabel!"
-	) else (
-		set /a remainLen=23-!strLen!
-		set "fillString="
-		for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
-		set "displayedlabel=!temp_displayedlabel!!fillString!"
-	)
-rem if not exist "!channel%i%!" ( call :errmsg "Couldn't find " && goto drawlogo )
-for %%F in ("!channel%i%!") do set "displaych=%%~nxF"
-rem if not exist "!channel%i%!" ( call :errmsg "Couldn't find the file !displaych!" && goto drawlogo )
-rem @echo on
-set "hexColor=!color%i%:~1!"
-set /a r=0x!hexColor:~0,2!
-set /a g=0x!hexColor:~2,2!
-set /a b=0x!hexColor:~4,2!
-rem echo !r!!g!!b!!hexColor!
-set "displaycolor=[38;2;!r!;!g!;!b!m!color%i%!"
-echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
-set chcount=!i!
-rem echo !chcount!
-Set /A i+=1
 
-goto :EOF
 
-		:clearch
+		:CHLOOP_CLEAR
 		Set /A i+=1
 		if not "!channel%i%!"=="" (
 			set "channel!i!="
-			goto clearch
+			goto CHLOOP_CLEAR
 		)
 		goto :EOF
 		
@@ -1196,10 +1140,37 @@ if not defined gpu ( set "gpu=libx264" && exit /b 2 ) else ( exit /b 1 )
 rem goto :eof
 :channelbrr
 	SET i=1
-	:CHLOOP
+	rem echo %~1
+	:CHLOOP_CHSHOW
+	rem echo s%~1s
 	if not "!channel%i%!"=="" (
-		call :channelshow
-		goto CHLOOP
+		if !i! equ 1 echo	[100m[97mChannels[0m
+		if "!label%i%!"=="" ( set "temp_displayedlabel=[91mNone" ) else ( set "temp_displayedlabel="!label%i%!"" )
+		set strLen=0
+		for /l %%a in (0,1,64) do if not "!temp_displayedlabel:~%%a,1!" == "" set /a strLen+=1
+			if !strLen! geq 23 (
+				set "displayedlabel=!temp_displayedlabel!"
+			) else (
+				set /a remainLen=23-!strLen!
+				set "fillString="
+				for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
+				set "displayedlabel=!temp_displayedlabel!!fillString!"
+			)
+		rem if not exist "!channel%i%!" ( call :errmsg "Couldn't find " && goto drawlogo )
+		for %%F in ("!channel%i%!") do set "displaych=%%~nxF"
+		set "hexColor=!color%i%:~1!"
+		set /a r=0x!hexColor:~0,2!
+		set /a g=0x!hexColor:~2,2!
+		set /a b=0x!hexColor:~4,2!
+		set "displaycolor=[38;2;!r!;!g!;!b!m!color%i%!"
+		IF "%~1"=="" ( echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m ) ELSE (
+			if "!i!" equ "%~1" ( echo 	[92m[107m[SELECTED][40m[7m Channel No. !i![27m [93m[7m"!displaych!"[27m ) else ( echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m )
+			echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
+		)
+		set chcount=!i!
+		rem echo !chcount!
+		Set /A i+=1
+		goto CHLOOP_CHSHOW
 	)
 	set i=1
 	goto :EOF
@@ -1415,7 +1386,6 @@ if /i "!renderorpreview!"=="2" (
 	echo Aborted.
 	exit
 )
-rem endlocal
 goto drawlogo
 
 :ffmpegerrorhandling
@@ -1428,3 +1398,19 @@ IF "!ERRORLEVEL!" %1 "0" (
 		)
 	)
 goto :EOF
+
+:resetvariables
+set "masteraudio=None"
+set "bgimage=None"
+set x_res=1280
+set y_res=720
+set "fps=60"
+set "bitrate=5000k"
+set "linemode=p2p"
+set "dffont=Arial"
+set "h1count="
+set "h2count="
+set "sizefont=14"
+set "colorfont=#FFFFFF"
+set "chsort=AUTO"
+goto :eof
