@@ -4,10 +4,9 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by heeminwelcome1@gmail.com
 "!__APPDIR__!chcp.com" 65001 >nul
 
-
 REM :resetvariables
 :: VERSION
-SET "NSOVVGVERSION=1.0.4a9"
+SET "NSOVVGVERSION=1.0.4a9_rev1"
 
 CALL :resetvariables
 
