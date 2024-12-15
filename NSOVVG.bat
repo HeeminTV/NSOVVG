@@ -1,13 +1,13 @@
-@echo    OFF
+@echo off
 mode 120, 30
 SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by heeminwelcome1@gmail.com
-"!__APPDIR__!chcp.com" 949 >nul
+"!__APPDIR__!chcp.com" 65001 >nul
 
 
 REM :resetvariables
 :: VERSION
-SET "NSOVVGVERSION=1.0.4a8"
+SET "NSOVVGVERSION=1.0.4a9"
 
 CALL :resetvariables
 
@@ -24,17 +24,18 @@ set "colorpickerpath=!tempfileprefix!colorPicker.ps1"
 set "ffmpeglogpath=!tempfileprefix!ffmpeglog.log"
 set "ffmpegrenderingerrorboxpath=!tempfileprefix!ffmpegrenderingerrorBox.ps1"
 set "chsortboxpath=!tempfileprefix!chsortBox.ps1"
-set "loadingshowname=!userfileprefix!loading"
+set "loadingshowname=!userfileprefix!loadingscreen"
 set "multidumperpath=!userfileprefix!multidumper"
+set "multidumpersettingsboxpath=!tempfileprefix!vgmsettingsBox.ps1"
 
 del /q "!tempfileprefix!*" 2>nul
 
 if not exist "!loadingshowname!.bat" (
 	ECHO Please wait a moment... This procedure will be run once on the first run...
-	echo QEVDSE8gT0ZGDQpTRVRMT0NBTCBFTkFCTEVERUxBWUVERVhQQU5TSU9ODQpDSENQIDY1MDAxDQpUSVRMRSAlfjINCnNldCBpPTANCnNldCBpbnRyb3k9Mg0Kc2V0ICJnYXA9CQkJCSINCnNldCAibG9hZGlnbj0bWzRBCUxvYWRpbmciDQpDTFMNCg0KY2FsbCA6SU5UUk8NCg0KOkVYSQ0KY2xzDQpDQUxMIDpEUkxPR08NCg0KRUNITy4NCkVDSE8uDQpFQ0hPLg0KRUNITy4NCjpURVNUDQpzZXQgL2EgaSs9MQ0KDQpDQUxMIDpBTkkhaSENCmlmICFpISBHRVEgNCBzZXQgaT0wDQp0aW1lb3V0IDAgPm51bA0KSUYgTk9UIEVYSVNUICIlfjEiICggDQoJQ0FMTCA6T1VUUk8NCglFWElUIC9CDQopDQpHT1RPIFRFU1QNCg0KOkFOSTENCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAhICAgLyANCkVDSE8gIWdhcCEgIC8gIA0KRUNITyAhZ2FwISAvICAgDQpHT1RPIDpFT0YNCg0KOkFOSTINCmVjaG8gIWxvYWRpZ24hLiAgDQpFQ0hPICFnYXAhICBefCAgDQpFQ0hPICFnYXAhICBefCAgDQpFQ0hPICFnYXAhICBefCAgDQpHT1RPIDpFT0YNCg0KOkFOSTMNCmVjaG8gIWxvYWRpZ24hLi4gCQ0KRUNITyAhZ2FwISBcICAgDQpFQ0hPICFnYXAhICBcICANCkVDSE8gIWdhcCEgICBcIA0KR09UTyA6RU9GDQoNCjpBTkk0DQplY2hvICFsb2FkaWduIS4uLg0KRUNITyAhZ2FwIeOFpOOFpOOFpOOFpOOFpA0KRUNITyAhZ2FwIS0tLS0tDQpFQ0hPICFnYXAh44Wk44Wk44Wk44Wk44WkDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQxDQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKVlOKUgOKUgOKUgOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKUgOKUgOKUgOKVnQ0KR09UTyA6RU9GDQoNCjpBTklfQUxUMg0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilZDilIDilIDilJANCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilJTilIDilIDilZDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDMNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pWQ4pSA4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pSA4pWQ4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQ0DQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKUgOKUgOKVkOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKVkOKUgOKUgOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUNQ0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilIDilIDilZcNCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilZrilIDilIDilIDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDYNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pSA4pSA4pSQDQpFQ0hPICFnYXAh4pWRICAg4pWRDQpFQ0hPICFnYXAh4pSU4pSA4pSA4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkRSTE9HTw0KRUNITy4NCmVjaG8gICAgG1sxbRtbOTdtICAgICAgICAgLC0tLiAgICAgICAgICAgICAgLC0tLS0uLg0KZWNobyAgICAgICAgICAgLC0tLidefCAuLS0uLS0uICAgICAvICAgLyAgIFwgICAgICAgICAgICAgICAgICAgICAgICAgLC0tLS0uLiAgICAJDQplY2hvICAgICAgICwtLSw6ICA6IF58LyAgLyAgICAnLiAgLyAgIC4gICAgIDogICAgICAgLC0tLS4gICAgICAsLS0tLi8gICAvICAgXCAgIAkNCmVjaG8gICAgLGAtLS4nYF58ICAnIF58ICA6ICAvYC4gLyAuICAgLyAgIDsuICBcICAgICAvX18uL158ICAgICAvX18uL158ICAgOiAgICAgOiAgCQ0KZWNobyAgICBefCAgIDogIDogIF58IDsgIF58ICBefC0tYCAuICAgOyAgIC8gIGAgOywtLS0uOyAgOyBefCwtLS0uOyAgOyAuICAgXnwgIDsuIC8gIAkNCmVjaG8gICAgOiAgIF58ICAgXCBefCBefCAgOiAgO18gICA7ICAgXnwgIDsgXCA7IC9fX18vIFwgIF58IC9fX18vIFwgIF58IC4gICA7IC8tLWAgICAJDQplY2hvICAgIF58ICAgOiAnICAnOyBefFwgIFwgICAgYC5efCAgIDogIF58IDsgXnwgXCAgIDsgIFwgJyBcICAgOyAgXCAnIDsgICBefCA7ICBfXyAgCQ0KZWNobyAgICAnICAgJyA7LiAgICA7IGAtLS0tLiAgIC4gICBefCAgJyAnICcgOlwgICBcICBcOiBefFwgICBcICBcOiBefCAgIDogXnwuJyAuJyAJDQplY2hvICAgIF58ICAgXnwgXnwgXCAgIF58IF9fIFwgIFwgICcgICA7ICBcOyAvICBefCA7ICAgXCAgJyAuIDsgICBcICAnIC4gICBefCAnXy4nIDogCQ0KZWNobyAgICAnICAgOiBefCAgOyAuJy8gIC9gLS0nICAvXCAgIFwgICcsICAvICAgXCAgIFwgICAnICBcICAgXCAgICcgICA7IDogXCAgXnwgCQ0KZWNobyAgICBefCAgIF58ICdgLS0nICctLScuICAgICAvICA7ICAgOiAgICAvICAgICBcICAgYCAgOyAgIFwgICBgICAnICAgXnwgJy8gIC4nIAkNCmVjaG8gICAgJyAgIDogXnwgICAgICAgYC0tJy0tLScgICAgXCAgIFwgLicgICAgICAgOiAgIFwgXnwgICAgOiAgIFwgXnwgICA6ICAgIC8gICAJDQplY2hvICAgIDsgICBefC4nICAgICAgICAgICAgICAgICAgICBgLS0tYCAgICAgICAgICAnLS0tIiAgICAgICctLS0iIFwgICBcIC4nDQplY2hvICAgICctLS0nICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGAtLS1gICAgICAgG1swbQ0KZWNoby4gICAgICAgICAgICAgTm90IFNlcmlvdXMgT3NjaWxsb3Njb3BlIFZpZXcgVmlkZW8gR2VuZXJhdG9yDQplY2hvLg0KR09UTyA6RU9GDQoNCjpJTlRSTw0Kc2V0IC9hIGludHJveSs9MQ0KTU9ERSA3NSwgIWludHJveSENCkNBTEwgOkRSTE9HTw0KaWYgIWludHJveSEgR0VRIDIzICBnb3RvIDpFT0YNCkdPVE8gSU5UUk8NCg0KOk9VVFJPDQpzZXQgL2EgaW50cm95LT0xDQpNT0RFIDc1LCAhaW50cm95IQ0KQ0FMTCA6RFJMT0dPDQppZiAhaW50cm95ISBMU1MgMiAgZ290byA6RU9GDQpHT1RPIE9VVFJP > "!loadingshowname!.b64"
+	echo QEVDSE8gT0ZGDQpTRVRMT0NBTCBFTkFCTEVERUxBWUVERVhQQU5TSU9ODQpDSENQIDY1MDAxDQpUSVRMRSBOU09WVkcNCnNldCBpPTANCnNldCBpbnRyb3k9Mg0Kc2V0ICJnYXA9CQkJCSINCnNldCAibG9hZGlnbj0bWzRBCSV+MiINCkNMUw0KDQpjYWxsIDpJTlRSTw0KDQo6RVhJDQpjbHMNCkNBTEwgOkRSTE9HTw0KDQpFQ0hPLg0KRUNITy4NCkVDSE8uDQpFQ0hPLg0KOlRFU1QNCnNldCAvYSBpKz0xDQoNCkNBTEwgOkFOSSFpIQ0KaWYgIWkhIEdFUSA0IHNldCBpPTANCnRpbWVvdXQgMCA+bnVsDQpJRiBOT1QgRVhJU1QgIiV+MSIgKCANCglDQUxMIDpPVVRSTw0KCUVYSVQgL0INCikNCkdPVE8gVEVTVA0KDQo6QU5JMQ0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCEgICAvIA0KRUNITyAhZ2FwISAgLyAgDQpFQ0hPICFnYXAhIC8gICANCkdPVE8gOkVPRg0KDQo6QU5JMg0KZWNobyAhbG9hZGlnbiEuICANCkVDSE8gIWdhcCEgIF58ICANCkVDSE8gIWdhcCEgIF58ICANCkVDSE8gIWdhcCEgIF58ICANCkdPVE8gOkVPRg0KDQo6QU5JMw0KZWNobyAhbG9hZGlnbiEuLiAJDQpFQ0hPICFnYXAhIFwgICANCkVDSE8gIWdhcCEgIFwgIA0KRUNITyAhZ2FwISAgIFwgDQpHT1RPIDpFT0YNCg0KOkFOSTQNCmVjaG8gIWxvYWRpZ24hLi4uDQpFQ0hPICFnYXAh44Wk44Wk44Wk44Wk44WkDQpFQ0hPICFnYXAhLS0tLS0NCkVDSE8gIWdhcCHjhaTjhaTjhaTjhaTjhaQNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDENCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pWU4pSA4pSA4pSA4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pSA4pSA4pSA4pWdDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQyDQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKVkOKUgOKUgOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKUgOKUgOKVkOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUMw0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilZDilIDilJANCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilJTilIDilZDilIDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDQNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pSA4pWQ4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pWQ4pSA4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQ1DQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKUgOKUgOKUgOKVlw0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKVmuKUgOKUgOKUgOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUNg0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilIDilIDilJANCkVDSE8gIWdhcCHilZEgICDilZENCkVDSE8gIWdhcCHilJTilIDilIDilIDilJgNCkdPVE8gOkVPRg0KDQo6RFJMT0dPDQpFQ0hPLg0KZWNobyAgICAbWzFtG1s5N20gICAgICAgICAsLS0uICAgICAgICAgICAgICAsLS0tLS4uDQplY2hvICAgICAgICAgICAsLS0uJ158IC4tLS4tLS4gICAgIC8gICAvICAgXCAgICAgICAgICAgICAgICAgICAgICAgICAsLS0tLS4uDQplY2hvICAgICAgICwtLSw6ICA6IF58LyAgLyAgICAnLiAgLyAgIC4gICAgIDogICAgICAgLC0tLS4gICAgICAsLS0tLi8gICAvICAgXA0KZWNobyAgICAsYC0tLidgXnwgICcgXnwgIDogIC9gLiAvIC4gICAvICAgOy4gIFwgICAgIC9fXy4vXnwgICAgIC9fXy4vXnwgICA6ICAgICA6DQplY2hvICAgIF58ICAgOiAgOiAgXnwgOyAgXnwgIF58LS1gIC4gICA7ICAgLyAgYCA7LC0tLS47ICA7IF58LC0tLS47ICA7IC4gICBefCAgOy4gLw0KZWNobyAgICA6ICAgXnwgICBcIF58IF58ICA6ICA7XyAgIDsgICBefCAgOyBcIDsgL19fXy8gXCAgXnwgL19fXy8gXCAgXnwgLiAgIDsgLy0tYA0KZWNobyAgICBefCAgIDogJyAgJzsgXnxcICBcICAgIGAuXnwgICA6ICBefCA7IF58IFwgICA7ICBcICcgXCAgIDsgIFwgJyA7ICAgXnwgOyAgX18NCmVjaG8gICAgJyAgICcgOy4gICAgOyBgLS0tLS4gICAuICAgXnwgICcgJyAnIDpcICAgXCAgXDogXnxcICAgXCAgXDogXnwgICA6IF58LicgLicNCmVjaG8gICAgXnwgICBefCBefCBcICAgXnwgX18gXCAgXCAgJyAgIDsgIFw7IC8gIF58IDsgICBcICAnIC4gOyAgIFwgICcgLiAgIF58ICdfLicgOg0KZWNobyAgICAnICAgOiBefCAgOyAuJy8gIC9gLS0nICAvXCAgIFwgICcsICAvICAgXCAgIFwgICAnICBcICAgXCAgICcgICA7IDogXCAgXnwNCmVjaG8gICAgXnwgICBefCAnYC0tJyAnLS0nLiAgICAgLyAgOyAgIDogICAgLyAgICAgXCAgIGAgIDsgICBcICAgYCAgJyAgIF58ICcvICAuJw0KZWNobyAgICAnICAgOiBefCAgICAgICBgLS0nLS0tJyAgICBcICAgXCAuJyAgICAgICA6ICAgXCBefCAgICA6ICAgXCBefCAgIDogICAgLw0KZWNobyAgICA7ICAgXnwuJyAgICAgICAgICAgICAgICAgICAgYC0tLWAgICAgICAgICAgJy0tLSIgICAgICAnLS0tIiBcICAgXCAuJw0KZWNobyAgICAnLS0tJyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBgLS0tYBtbMG0NCmVjaG8uICAgICAgICAgICAgIE5vdCBTZXJpb3VzIE9zY2lsbG9zY29wZSBWaWV3IFZpZGVvIEdlbmVyYXRvcg0KZWNoby4NCkdPVE8gOkVPRg0KDQo6SU5UUk8NCnNldCAvYSBpbnRyb3krPTENCk1PREUgNzUsICFpbnRyb3khDQpDQUxMIDpEUkxPR08NCmlmICFpbnRyb3khIEdFUSAyMyAgZ290byA6RU9GDQpHT1RPIElOVFJPDQoNCjpPVVRSTw0Kc2V0IC9hIGludHJveS09MQ0KTU9ERSA3NSwgIWludHJveSENCkNBTEwgOkRSTE9HTw0KaWYgIWludHJveSEgTFNTIDIgIGdvdG8gOkVPRg0KR09UTyBPVVRSTw== > "!loadingshowname!.b64"
 	certutil -decode "!loadingshowname!.b64" "!loadingshowname!.bat" >nul
 ) else echo. > "!loadingshowname!.b64"
-START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG is now loading..."
+START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG is now loading"
 
 echo Checking for the existence of the ffmpeg set... Please wait!
 set fmpeg=0
@@ -63,8 +64,9 @@ echo Creating external scripts... Please wait!
 
  echo @echo off> !progressbartestpath!
  echo setlocal enabledelayedexpansion >> !progressbartestpath!
+ECHO CHCP 65001 >> !progressbartestpath!
  echo title Rendering... >> !progressbartestpath!
- echo mode 53,8 >> !progressbartestpath!
+ echo mode 54,8 >> !progressbartestpath!
  echo for /f "tokens=* delims=" %%%%a in ('ffprobe -v error -show_entries format^^=duration -of default^^=noprint_wrappers^^=1:nokey^^=1 "%%~1"') do ( >> !progressbartestpath!
  echo     set decimal_value=%%%%a >> !progressbartestpath!
  echo ) >> !progressbartestpath!
@@ -80,25 +82,27 @@ echo Creating external scripts... Please wait!
  echo     set /a last_out_time=%%%%a / 1000 >> !progressbartestpath!
  echo ) >> !progressbartestpath!
  echo if not defined last_out_time goto a >> !progressbartestpath!
- echo set /a percent=(last_out_time*100)/duration >> !progressbartestpath!
- echo set /a display=(last_out_time*50)/duration >> !progressbartestpath!
+ echo set /a percent=(last_out_time*100)/duration 2^>nul >> !progressbartestpath!
+ echo set /a display=(last_out_time*50)/duration 2^>nul >> !progressbartestpath!
  echo for /l %%%%i in (1,1,^^!display^^!) do set "result=^!result^![103m [0m" >> !progressbartestpath!
  echo set /a remaining=50-^^!display^^! >> !progressbartestpath!
  echo for /l %%%%i in (1,1,^^!remaining^^!) do set "result=^!result^![44m [0m" >> !progressbartestpath!
  echo if not defined result goto a >> !progressbartestpath!
  echo cls >> !progressbartestpath!
- echo echo [44m[97m¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯ >> !progressbartestpath!
- echo echo ¦­   Not Serious Oscilloscope View Video Generator  ¦­ >> !progressbartestpath!
- echo echo ¦­   Rendering: ^^!percent^^!%%%%				   ¦­ >> !progressbartestpath!
- echo echo ¦­                                                  ¦­ >> !progressbartestpath!
- echo echo ¦­^^!result^^![44m[97m¦­ >> !progressbartestpath!
- echo echo ¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦° >> !progressbartestpath!
- echo echo To abort, press [7m[Ctrl][27m + [7m[C][27m on the main console. >> !progressbartestpath!
+echo echo. >> !progressbartestpath!
+ echo echo [44m[97m [7mO==================================================O[27m >> !progressbartestpath!
+ echo echo     Not Serious Oscilloscope View Video Generator    >> !progressbartestpath!
+ echo echo     Rendering: ^^!percent^^!%%%%				     >> !progressbartestpath!
+ echo echo.                                                      >> !progressbartestpath!
+ echo echo  ^^!result^^![44m[97m  >> !progressbartestpath!
+ echo echo  [7mO==================================================O[27m >> !progressbartestpath!
+ rem echo echo To abort, press [7m[Ctrl][27m + [7m[C][27m on the main console. >> !progressbartestpath!
  echo timeout 1 ^> nul >> !progressbartestpath!
  echo goto a >> !progressbartestpath!
  
 echo Add-Type -AssemblyName System.Windows.Forms > !reorderboxpath!
 echo Add-Type -AssemblyName System.Drawing >> !reorderboxpath!
+echo $buttonClicked = $false >> !reorderboxpath!
 
 
 echo $channels = @^(^) >> !reorderboxpath!
@@ -166,6 +170,7 @@ echo     $newOrder = $listBox.Items >> !reorderboxpath!
 echo foreach ^($channel in $newOrder^) { >> !reorderboxpath!
 echo     $index = $channels.IndexOf^($channel^) >> !reorderboxpath!
 echo     Write-Host ^($index + 1^) >> !reorderboxpath!
+echo 	 $buttonClicked = $true >> !reorderboxpath!
 echo } >> !reorderboxpath!
 
 echo     $form.Close^(^) >> !reorderboxpath!
@@ -177,6 +182,7 @@ echo $btnCancel = New-Object System.Windows.Forms.Button >> !reorderboxpath!
 echo $btnCancel.Text = "Cancel" >> !reorderboxpath!
 echo $btnCancel.Location = New-Object System.Drawing.Point^(200, 220^) >> !reorderboxpath!
 echo $btnCancel.Add_Click^({ >> !reorderboxpath!
+echo 	 $buttonClicked = $true >> !reorderboxpath!
 echo     Write-Host "None" >> !reorderboxpath!
 echo     $form.Close^(^) >> !reorderboxpath!
 echo }^) >> !reorderboxpath!
@@ -185,6 +191,12 @@ echo $form.Controls.Add^($btnCancel^) >> !reorderboxpath!
 
 echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !reorderboxpath!
 echo [void]$form.ShowDialog^(^) >> !reorderboxpath!
+
+echo $form.Add_FormClosing^({ >> !reorderboxpath!
+echo     if ^(-not $buttonClicked^) { >> !reorderboxpath!
+echo         Write-Host "None" >> !reorderboxpath!
+echo     } >> !reorderboxpath!
+echo }^) >> !reorderboxpath!
 
 echo param^($defaultColor = "#FF5733"^) > !colorpickerpath!
 
@@ -219,7 +231,7 @@ echo } >> !colorpickerpath!
 
 echo Add-Type -AssemblyName System.Windows.Forms > !ffmpegrenderingerrorboxpath!
 echo Add-Type -AssemblyName System.Drawing >> !ffmpegrenderingerrorboxpath!
-echo $filePath = "!ffmpeglogpath!" >> !ffmpegrenderingerrorboxpath!
+echo $filePath = $args[0] >> !ffmpegrenderingerrorboxpath!
 echo $contactText = if ^(Test-Path $filePath^) { >> !ffmpegrenderingerrorboxpath!
 echo     $content = Get-Content $filePath -Raw >> !ffmpegrenderingerrorboxpath!
 echo     if ^(-not [string]::IsNullOrWhiteSpace^($content^)^) { >> !ffmpegrenderingerrorboxpath!
@@ -240,8 +252,8 @@ echo $form.StartPosition = 'CenterScreen' >> !ffmpegrenderingerrorboxpath!
 
 
 echo $errorLabel = New-Object System.Windows.Forms.Label >> !ffmpegrenderingerrorboxpath!
-echo $errorLabel.Text = "An error occurred during video rendering.`n" + >> !ffmpegrenderingerrorboxpath!
-echo                    "To send this error to the developer, click [Save]`n" + >> !ffmpegrenderingerrorboxpath!
+echo $errorLabel.Text = $args[1] + >> !ffmpegrenderingerrorboxpath!
+echo                    "`nTo send this error to the developer, click [Save]`n" + >> !ffmpegrenderingerrorboxpath!
 echo                    "and send the log file to one of the following contacts:" >> !ffmpegrenderingerrorboxpath!
 echo $errorLabel.Location = New-Object System.Drawing.Point^(10, 10^) >> !ffmpegrenderingerrorboxpath!
 echo $errorLabel.Size = New-Object System.Drawing.Size^(420, 60^) >> !ffmpegrenderingerrorboxpath!
@@ -275,7 +287,7 @@ echo $saveButton.Text = "Save" >> !ffmpegrenderingerrorboxpath!
 echo $saveButton.Location = New-Object System.Drawing.Point^(80, 530^) >> !ffmpegrenderingerrorboxpath!
 echo $saveButton.Add_Click^({ >> !ffmpegrenderingerrorboxpath!
 echo     Write-Host "YES" >> !ffmpegrenderingerrorboxpath!
-echo 	$buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
+echo 	 $buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
 echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
 echo }^) >> !ffmpegrenderingerrorboxpath!
 echo $form.Controls.Add^($saveButton^) >> !ffmpegrenderingerrorboxpath!
@@ -285,7 +297,7 @@ echo $cancelButton.Text = "Cancel" >> !ffmpegrenderingerrorboxpath!
 echo $cancelButton.Location = New-Object System.Drawing.Point^(240, 530^) >> !ffmpegrenderingerrorboxpath!
 echo $cancelButton.Add_Click^({ >> !ffmpegrenderingerrorboxpath!
 echo     Write-Host "None" >> !ffmpegrenderingerrorboxpath!
-echo 	$buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
+echo 	 $buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
 echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
 echo }^) >> !ffmpegrenderingerrorboxpath!
 echo $form.Controls.Add^($cancelButton^) >> !ffmpegrenderingerrorboxpath!
@@ -420,6 +432,91 @@ echo }^) >> !chsortboxpath!
 echo /9j/4AAQSkZJRgABAQEAeAB4AAD/4QA6RXhpZgAATU0AKgAAAAgAA1EQAAEAAAABAQAAAFERAAQAAAABAAAAAFESAAQAAAABAAAAAAAAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9cv2ov2grH9mn4X3firy/MW3AWRW6NmvlP4S/tjeOPhD8T/8Ait8MrD866z/gp9pniTTrD/ioI7dfh2x+do/vE/7XevhOb/gpD4Gh6t8Rj9PAAP8AWv524+ozqcbxnRi3GKjd7pX/AM7H57VqcbOp7nw+f4n76RNvjVvUA0V8BfsDftWx/Df4TQ+OPHTvG3xHmWeNl7MM4/maK/oeOyP0GN7an0X+1b8Hf+FwfDB4d25l+YZPY186/D//AIJB+B/ibYNN4yt5Lps4CIcE0UV+JRyXCyqqTWpvvI9F+En/AATrt/gtbrJcOvjwHtOwQ/qaKKK/bY/CjE//2Q== > "!tempfileprefix!fjpegify.b64"
 certutil -decode "!tempfileprefix!fjpegify.b64" "!tempfileprefix!fjpegify.jpeg" >nul
 del /q "!tempfileprefix!fjpegify.b64"
+
+
+echo $jsonFilePath = $args[0]   > "!multidumpersettingsboxpath!"
+echo $jsonData = Get-Content -Raw -Path $jsonFilePath ^| ConvertFrom-Json >> "!multidumpersettingsboxpath!"
+
+
+echo $subsongCount = $jsonData.subsongCount >> "!multidumpersettingsboxpath!"
+echo $copyright = $jsonData.containerinfo.copyright >> "!multidumpersettingsboxpath!"
+echo $game = $jsonData.containerinfo.game >> "!multidumpersettingsboxpath!"
+
+
+echo Add-Type -AssemblyName System.Windows.Forms >> "!multidumpersettingsboxpath!"
+echo Add-Type -AssemblyName System.Drawing >> "!multidumpersettingsboxpath!"
+
+echo $form = New-Object System.Windows.Forms.Form >> "!multidumpersettingsboxpath!"
+echo $form.Text = "NSOVVG [$copyright - $game]" >> "!multidumpersettingsboxpath!"
+echo $form.Size = New-Object System.Drawing.Size^(300, 180^) >> "!multidumpersettingsboxpath!"
+echo $form.StartPosition = 'CenterScreen' >> "!multidumpersettingsboxpath!"
+
+
+echo $labelSubsong = New-Object System.Windows.Forms.Label >> "!multidumpersettingsboxpath!"
+echo $labelSubsong.Text = "Subsong No." >> "!multidumpersettingsboxpath!"
+echo $labelSubsong.Location = New-Object System.Drawing.Point^(10, 20^) >> "!multidumpersettingsboxpath!"
+echo $labelSubsong.Size = New-Object System.Drawing.Size^(100, 20^) >> "!multidumpersettingsboxpath!"
+echo $form.Controls.Add^($labelSubsong^) >> "!multidumpersettingsboxpath!"
+
+
+echo $numSubsong = New-Object System.Windows.Forms.NumericUpDown >> "!multidumpersettingsboxpath!"
+echo $numSubsong.Minimum = 1 >> "!multidumpersettingsboxpath!"
+echo $numSubsong.Maximum = $subsongCount >> "!multidumpersettingsboxpath!"
+echo $numSubsong.Value = 1 >> "!multidumpersettingsboxpath!"
+echo $numSubsong.Location = New-Object System.Drawing.Point^(120, 20^) >> "!multidumpersettingsboxpath!"
+echo $numSubsong.Size = New-Object System.Drawing.Size^(150, 20^) >> "!multidumpersettingsboxpath!"
+echo $form.Controls.Add^($numSubsong^) >> "!multidumpersettingsboxpath!"
+
+
+echo $labelLength = New-Object System.Windows.Forms.Label >> "!multidumpersettingsboxpath!"
+echo $labelLength.Text = "Length" >> "!multidumpersettingsboxpath!"
+echo $labelLength.Location = New-Object System.Drawing.Point^(10, 60^) >> "!multidumpersettingsboxpath!"
+echo $labelLength.Size = New-Object System.Drawing.Size^(100, 20^) >> "!multidumpersettingsboxpath!"
+echo $form.Controls.Add^($labelLength^) >> "!multidumpersettingsboxpath!"
+
+
+echo $numLength = New-Object System.Windows.Forms.NumericUpDown >> "!multidumpersettingsboxpath!"
+echo $numLength.Minimum = 1 >> "!multidumpersettingsboxpath!"
+echo $numLength.Maximum = [decimal]::MaxValue >> "!multidumpersettingsboxpath!"
+echo $numLength.Value = 180 >> "!multidumpersettingsboxpath!"
+echo $numLength.Location = New-Object System.Drawing.Point^(120, 60^) >> "!multidumpersettingsboxpath!"
+echo $numLength.Size = New-Object System.Drawing.Size^(150, 20^) >> "!multidumpersettingsboxpath!"
+echo $form.Controls.Add^($numLength^) >> "!multidumpersettingsboxpath!"
+
+
+echo $btnConfirm = New-Object System.Windows.Forms.Button >> "!multidumpersettingsboxpath!"
+echo $btnConfirm.Text = "Confirm" >> "!multidumpersettingsboxpath!"
+echo $btnConfirm.Location = New-Object System.Drawing.Point^(50, 100^) >> "!multidumpersettingsboxpath!"
+echo $btnConfirm.Size = New-Object System.Drawing.Size^(80, 30^) >> "!multidumpersettingsboxpath!"
+echo $btnConfirm.Add_Click^({ >> "!multidumpersettingsboxpath!"
+echo     Write-Host "$($numSubsong.Value - 1)=$($numLength.Value - 1)" >> "!multidumpersettingsboxpath!"
+echo 	 $buttonClicked = $true >> "!multidumpersettingsboxpath!"
+echo     $form.Close^(^) >> "!multidumpersettingsboxpath!"
+echo }^) >> "!multidumpersettingsboxpath!"
+echo $form.Controls.Add^($btnConfirm^) >> "!multidumpersettingsboxpath!"
+
+
+echo $btnCancel = New-Object System.Windows.Forms.Button >> "!multidumpersettingsboxpath!"
+echo $btnCancel.Text = "Cancel" >> "!multidumpersettingsboxpath!"
+echo $btnCancel.Location = New-Object System.Drawing.Point^(150, 100^) >> "!multidumpersettingsboxpath!"
+echo $btnCancel.Size = New-Object System.Drawing.Size^(80, 30^) >> "!multidumpersettingsboxpath!"
+echo $btnCancel.Add_Click^({ >> "!multidumpersettingsboxpath!"
+echo 	 $buttonClicked = $true >> "!multidumpersettingsboxpath!"
+echo     Write-Host "None" >> "!multidumpersettingsboxpath!"
+echo     $form.Close^(^) >> "!multidumpersettingsboxpath!"
+echo }^) >> "!multidumpersettingsboxpath!"
+echo $form.Controls.Add^($btnCancel^) >> "!multidumpersettingsboxpath!"
+
+
+echo $form.Add_FormClosing^({ >> "!multidumpersettingsboxpath!"
+echo     if ^(-not $buttonClicked^) { >> "!multidumpersettingsboxpath!"
+echo         Write-Host "None" >> "!multidumpersettingsboxpath!"
+echo     } >> "!multidumpersettingsboxpath!"
+echo }^) >> "!multidumpersettingsboxpath!"
+
+
+echo [void]$form.ShowDialog^(^) >> "!multidumpersettingsboxpath!"
+
 del /q "!loadingshowname!.b64"
 
 :drawlogo
@@ -451,9 +548,10 @@ if /i "!ERRORLEVEL!"=="5" (
 	) else if "!linemode!"=="cline" (
 		set "linemode=point
 	) else (
-		set "lmwv1=undefined"
+		set "lmwv1=p2p"
 	)
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="7" (
 	call :inputbox "Input Grammer: XRESxYRESxFPS (Example: 1280x720x60)" "NSOVVG"
@@ -473,12 +571,14 @@ if /i "!ERRORLEVEL!"=="7" (
 			)
 		)
 	)
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="3" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Audio Files|*.wav;*.mp3'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
 	IF NOT "!selectedFile!"=="None" set "masteraudio=!selectedFile!"
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="4" (
 	set pwshcmd=powershell -NoP -C "[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms')|Out-Null;$OFD = New-Object System.Windows.Forms.OpenFileDialog;$OFD.Multiselect = $True;$OFD.Filter = 'Audio Files|*.mp3;*.wav';$OFD.InitialDirectory = [Environment]::GetFolderPath('Desktop');$OFD.ShowDialog()|out-null;$OFD.FileNames"
@@ -511,7 +611,8 @@ if /i "!ERRORLEVEL!"=="4" (
 		
 	)
 	
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 
 if /i "!ERRORLEVEL!"=="6" (
@@ -565,7 +666,8 @@ if /i "!ERRORLEVEL!"=="6" (
 	)
 	IF "!ERRORLEVEL!" NEQ "4" GOTO REASK
 	
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 	
 	rem :channelconfigout
 	
@@ -598,7 +700,8 @@ IF /I "!ERRORLEVEL!"=="2" (
 			goto CHLOOP_SAVE
 		)
 	)
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 IF /I "!ERRORLEVEL!"=="1" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Config File|*.ini'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
@@ -609,7 +712,8 @@ IF /I "!ERRORLEVEL!"=="1" (
 		set "%%a=%%b"
 		)
 	)
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 
 )
 
@@ -630,7 +734,8 @@ if /i "!ERRORLEVEL!"=="8" (
 			set "renderorpreview=1"
 			goto render
 	)
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="9" (
 	if not defined channel1 ( call :errmsg "You have no channels to configure" && goto drawlogo )
@@ -638,8 +743,8 @@ if /i "!ERRORLEVEL!"=="9" (
 	echo.
 	ECHO [0mWhich configuration would you like to configure globally?
 	echo 	[44m[97m[L] - Label Text[0m		[44m[97m[A] - Amplification[0m		[44m[97m[C] - Wave Color[0m
-	echo 	[44m[97m[R] - Reorder the channels[0m					[100m[97m[X] - Cancel[0m
-	CHOICE /C LACXR /N
+	echo 	[44m[97m[R] - Reorder the channels[0m	[41m[34m[N] - Remove the last channel	[100m[97m[X] - Cancel[0m
+	CHOICE /C LACXRN /N
 	echo.
 	if /i "!ERRORLEVEL!"=="1" (
 		rem set i=0
@@ -727,40 +832,35 @@ if /i "!ERRORLEVEL!"=="9" (
 		)
 	)
 	IF "!ERRORLEVEL!"=="5" (
-		set i=1
+		set i=0
+		if not defined channel2 ( call :errmsg "There are no more than 2 channels to reorder" && goto drawlogo )
 		for /f "tokens=*" %%A in ('powershell -ExecutionPolicy Bypass -File "!reorderboxpath!"') do (
-			set "output=%%A"
-			if "!output!" neq "None" (
-				REM set "channel!i!=!output!"
+			rem set "output=%%A"
+			if "%%A" neq "None" (
+				set /a i+=1
 				set "buffer_channel!i!=!channel%%A!"
 				set "buffer_label!i!=!label%%A!"
 				set "buffer_amp!i!=!amp%%A!"
 				set "buffer_color!i!=!color%%A!"
-				rem ECHO "buffer_color!i! !channel%%a!"
-				set /a i+=1
-				rem echo Reordered channel: !output!
-				
 			)
-			
 		) 
-		rem PAUSE
-		REM set i=0
-		if "!output!" neq "None" (
+		if "%%A" neq "None" (
 			 for /L %%i in (1,1,!i!) do (
-			rem echo %%i
-			rem set /a sum+=%%i
 				set "channel%%i=!buffer_channel%%i!"
 				set "label%%i=!buffer_label%%i!"
 				set "amp%%i=!buffer_amp%%i!"
 				set "color%%i=!buffer_color%%i!"
+				set "buffer_channel%%i="
+				set "buffer_label%%i="
+				set "buffer_amp%%i="
+				set "buffer_color%%i="
 			)
-			rem echo !buffer_channel3!
-			rem pause
 		)
-		rem pause
-	rem pause
 	)
-		rem TESTgoto drawlogo
+
+	IF "!ERRORLEVEL!"=="6" call :MsgBox "Are you sure to remove this channel?"  "VBYesNo+VBQuestion" "NSOVVG"
+	if "!errorlevel!"=="6" set "channel!chcount_fortitle!="
+	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="10" (
 	if not defined channel1 ( call :errmsg "You have no channels to clear" && goto drawlogo )
@@ -771,16 +871,28 @@ if /i "!ERRORLEVEL!"=="10" (
 		CALL :resetvariables
 	)
 		
-
-	rem TESTgoto drawlogo
+	
+	rem TEST
+	goto drawlogo
 	
 )
 
 if /i "!ERRORLEVEL!"=="11" (
+	if defined channel1 (
+		SET i=0
+		call :MsgBox "You imported a lot of channels, are you sure to clear everything?"  "VBYesNo+VBQuestion" "NSOVVG"
+		if "!errorlevel!"=="6" ( 
+			CALL :CHLOOP_CLEAR
+			CALL :resetvariables
+		)
+	)
+	SET i=0
+	
 	IF NOT EXIST "!multidumperpath!\multidumper.exe" (
 		call :MsgBox "Could not find multidumper in NSOVVG temp directory. Would you like to download it now?"  "VBYesNo+VBQuestion" "NSOVVG"
 		if "!errorlevel!"=="6" (
-			START conhost "!loadingshowname!.bat" "!multidumperpath!.zip" "Downloading multidumper..."
+			echo. > "!multidumperpath!.zip"
+			START conhost "!loadingshowname!.bat" "!multidumperpath!.zip" "Downloading multidumper"
 			powershell "(New-Object System.Net.WebClient).DownloadFile('https://github.com/maxim-zhao/multidumper/releases/download/v20220512/multidumper.zip','!multidumperpath!.zip')"
 			if "!ERRORLEVEL!" NEQ "0" call :errmsg "An error occurred while downloading the file. Returning to menu" && goto drawlogo
 			powershell "Expand-Archive -LiteralPath !multidumperpath!.zip -DestinationPath !multidumperpath!"
@@ -790,10 +902,52 @@ if /i "!ERRORLEVEL!"=="11" (
 	IF NOT EXIST "!multidumperpath!\multidumper.exe" goto drawlogo
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Multidumper Compatible Files|*.ay;*.gbs;*.gym;*.hes;*.kss;*.nsf;*.nsfe;*.sap;*.sfm;*.sgc;*.spc;*.vgm;*.vgz;*.spu'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
 	IF NOT "!selectedFile!"=="None" (
+		echo WScript.Echo^(new Date^(^).getTime^(^)^); > "!tempfileprefix!unixTime.js"
+		for /f "tokens=*" %%a in ('cscript //nologo "!tempfileprefix!unixTime.js"') do set "multidumperTimeStamp=%%a"
+		for /f "tokens=*" %%a in ("!selectedFile!") do set "multidumperExtansion=%%~xa"
+		del /q "!tempfileprefix!unixTime.js" 2>nul
+		mkdir "!multidumperpath!\TEMP_!multidumperTimeStamp!\"
+		copy /y /v "!selectedFile!" "!multidumperpath!\TEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!"
+		!multidumperpath!\multidumper.exe "!multidumperpath!\TEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" --json > "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"
+		findstr /i "error" "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"
+		if "!errorlevel!" EQU "0" (
+			call :guierrorbox "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json" "A problem occurred while converting file information to json in multidumper."
+			goto drawlogo
+		)
+		:f
+		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -Command "!multidumpersettingsboxpath!" "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"') do (
+			if "%%a"=="None" goto drawlogo
+			START conhost "!loadingshowname!.bat" "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json" "Seperating audio channels"
+			!multidumperpath!\multidumper.exe "!multidumperpath!\TEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" %%a --play_length=%%b000 --gap_length=100 --fade_length=5000
+			set "multidumperFFmpegMixingCommand="
+			echo $jsonData = Get-Content -Path '!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json' ^| ConvertFrom-Json;foreach ^($channel in $jsonData.channels^) { Write-Host "vgm - $channel.wav" } > "!tempfileprefix!multidumperchsort.ps1"
+			rem for /f "tokens=*" %%b in ('powershell -command "Get-ChildItem -File "!multidumperpath!\TEMP_!multidumperTimeStamp!\*.wav" | Sort-Object { [int]($_.Name -replace '[^^0-9]', '') } | ForEach-Object { $_.Name }"') do (
+			for /f "tokens=*" %%b in ('powershell -ExecutionPolicy Bypass -File "!tempfileprefix!multidumperchsort.ps1"') do (
+			rem echo %%b
+				set /a i+=1
+				set "channel!i!=!multidumperpath!\TEMP_!multidumperTimeStamp!\%%b"
+				set "multidumperFilename=%%~nb"
+				set "label!i!=!multidumperFilename:~6!"
+				set "amp!i!=2"
+				set "color!i!=#FFFFFF"
+				set "multidumperFFmpegMixingCommand=!multidumperFFmpegMixingCommand!-i "!multidumperpath!\TEMP_!multidumperTimeStamp!\%%b" "
+				
+				rem \TEMP_!multidumperTimeStamp!
+			)
+			rem pause
+			rem del /q "!tempfileprefix!multidumperchsort.ps1" 2>nul
+			rem powershell -command "Get-ChildItem -File "!multidumperpath!\TEMP_!multidumperTimeStamp!\*.wav" ^| Sort-Object { [int]^($_.Name -replace '[^0-9]', ''^) } ^| ForEach-Object { $_.Name }"
+			rem PAUSE
+			rem pause
+			ffmpeg.exe !multidumperFFmpegMixingCommand! -filter_complex amix=inputs=!i!:duration=longest:normalize=0 "!multidumperpath!\TEMP_!multidumperTimeStamp!\masteraud.wav"
+			set "masteraudio=!multidumperpath!\TEMP_!multidumperTimeStamp!\masteraud.wav"
+			del /q "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"
+		)
+		
 	)
 	
 		rem Could not find multidumper in NSOVVG temp location. Would you like to download it now?
-		
+	goto drawlogo
 )
 
 if /i "!ERRORLEVEL!"=="12" (
@@ -819,7 +973,8 @@ if /i "!ERRORLEVEL!"=="12" (
 			if /i "!userInput!"=="n" set "darkerbg=off"
 			if /i not "!userInput!"=="x" set "bgimage=!selectedFile!"
 		)
-		rem rem TESTgoto drawlogo
+		rem rem TEST
+	goto drawlogo
 	)
 	IF /I "!ERRORLEVEL!"=="4" (
 		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do set "color=%%A"
@@ -891,11 +1046,12 @@ if /i "!ERRORLEVEL!"=="12" (
 			if "%%a"=="FontColor" set "colorfont=%%b"
 		)
 	)
-	rem TESTgoto drawlogo
+	rem TEST
+	goto drawlogo
 )
 goto drawlogo
 rem pause 
-echo [91mIf you are seeing this message, there is a major bug in this script. Go ahead and tell the developers about this! This stupid script doesn't generate any debug logs, but you don't lose anything \_(¾²)_/[0m
+echo [91mIf you are seeing this message, there is a major bug in this script. Go ahead and tell the developers about this! This stupid script doesn't generate any debug logs, but you don't lose anything \_(å™™)_/[0m
 PAUSE
 exit
 REM Input routine for batch using VBScript to provide input box
@@ -924,16 +1080,15 @@ goto :EOF
  exit /b !exitCode!
  
 :reallogo
-cls
 SET i=0
 if "!linemode!"=="point" (
-	set "lmwv1=.¡¤'¡¤.¡¤'¡¤.¡¤'¡¤.¡¤"
+	set "lmwv1=.Â·'Â·.Â·'Â·.Â·'Â·.Â·"
 ) else if "!linemode!"=="p2p" (
 	set "lmwv1=  /\/\/\/\/\/\/\"
 ) else if "!linemode!"=="line" (
-	set "lmwv1= ¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã"
+	set "lmwv1= â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²â–²"
 ) else if "!linemode!"=="cline" (
-	set "lmwv1=¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß¡ß"
+	set "lmwv1=â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†â—†"
 ) else (
 	set "lmwv1=undefined"
 )
@@ -987,21 +1142,21 @@ if "!chsort!"=="AUTO" (
 	)
 	
 )
-
+cls
 echo [90mNSOVVG Version v!NSOVVGVERSION![0m
-echo    [1m[97m         ,--.              ,----..                                     	¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬[Current Settings]¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯
-echo           ,--.'^| .--.--.     /   /   \                         ,----..    	¦­  [32mChosen Master Audio: !mastername![97m		¦­
-echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	¦­  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		¦­
-echo    ,`--.'`^|  ' ^|  :  /`. / .   /   ;.  \     /__./^|     /__./^|   :     :  	¦­  [32mFPS:			[93m!fps!FPS[97m				¦­
-echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;. /  	¦­  !imagename!		¦­
-echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	¦­  [32mDisplay Mode: [93m!linemode! !lmwv1![97m	¦­
-echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	¦­  [32mChosen Font:	[93m!displayfont![97m¦­
-echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	¦­  [32mFont Size:	[93m!sizefont![97m											¦­
-echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	¦­  [32mFont Color:	!displaycolorfont![97m												¦­
-echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	¦­  [32mChannel Sorting:[97m !displaychannelsorting![97m												¦­
-echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	¦­												¦­
-echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	¦­												¦­
-echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°
+echo    [1m[97m         ,--.              ,----..                                     	â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€[Current Settings]â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+echo           ,--.'^| .--.--.     /   /   \                         ,----..    	^|  [32mChosen Master Audio: !mastername![97m		^|
+echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	^|  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		^|
+echo    ,`--.'`^|  ' ^|  :  /`. / .   /   ;.  \     /__./^|     /__./^|   :     :  	^|  [32mFPS:			[93m!fps!FPS[97m				^|
+echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;. /  	^|  !imagename!		^|
+echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	^|  [32mDisplay Mode: [93m!linemode! !lmwv1![97m	^|
+echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	^|  [32mChosen Font:	[93m!displayfont![97m^|
+echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	^|  [32mFont Size:	[93m!sizefont![97m											^|
+echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	^|  [32mFont Color:	!displaycolorfont![97m												^|
+echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	^|  [32mChannel Sorting:[97m !displaychannelsorting![97m												^|
+echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	^|												^|
+echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	^|												^|
+echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 echo    '---'                                                       `---`      [0m
 echo.             Not Serious Oscilloscope View Video Generator
 echo.
@@ -1163,9 +1318,9 @@ rem goto :eof
 		set /a g=0x!hexColor:~2,2!
 		set /a b=0x!hexColor:~4,2!
 		set "displaycolor=[38;2;!r!;!g!;!b!m!color%i%!"
-		IF "%~1"=="" ( echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m ) ELSE (
+		IF "%~1"=="" ( echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m && echo [36m	 â””â”€â”€â”€ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m ) ELSE (
 			if "!i!" equ "%~1" ( echo 	[92m[107m[SELECTED][40m[7m Channel No. !i![27m [93m[7m"!displaych!"[27m ) else ( echo 	[96m[7mChannel No. !i![27m [93m[7m"!displaych!"[27m )
-			echo [36m	 ¦¦¦¡¦¡¦¡ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
+			echo [36m	 â””â”€â”€â”€ [96mLabel Text: [93m!displayedlabel![100m[97m^|^|[0m	[96mAmplification: [93m!amp%i%!	[100m[97m^|^|[0m	[96mWave Color: !displaycolor![0m
 		)
 		set chcount=!i!
 		rem echo !chcount!
@@ -1176,11 +1331,11 @@ rem goto :eof
 	goto :EOF
 	
 :render
-:: ¸¶½ºÅÍ ¿Àµð¿À ÆÄÀÏ (%1)
+:: è‘†è¶æ”ª èžƒè›¤èžƒ ï›”æ©¾ (%1)
 rem set "masterAudio=%~1"
 rem echo on
 
-:: Ã¤³Î ¿Àµð¿À ÆÄÀÏµéÀ» Ã³¸® (%2ºÎÅÍ ³¡±îÁö)
+:: ç“£å‰² èžƒè›¤èžƒ ï›”æ©¾èŸæ“Š ç±€è‘¬ (%2ç¡æ”ª éƒ¨æ¢±é›–)
 set channelCount=0
 set H1Count=0
 set H2Count=0
@@ -1239,7 +1394,7 @@ rem IF "!chsort!"=="AUTO" (
 		echo H2 : !H2_y_res!, !last_H2_y_res!
 
 	)
-rem )
+
 :loop
 rem shift
 set /a channelCount+=1
@@ -1314,7 +1469,7 @@ goto loop
 :endloop
 set channelCount+=1
 rem echo %channelCount% %i%
-:: ÃÖÁ¾ Ãâ·Â ·¹ÀÌ¾Æ¿ôÀ» Á¤ÀÇ
+:: è­†è¬™ è½Žæº˜ æº¯æªœå¬´é†’æ“Š è–‘æ›–
 if "!bgimage!"=="None" (
 	set "bgcf1="
 	set "bgcf2="
@@ -1365,14 +1520,14 @@ if /i "!renderorpreview!"=="2" (
 	del /q !progresslogpath!
 	start conhost !progressbartestpath! "!masterAudio!" "!progresslogpath!"
 
-	ffmpeg -progress !progresslogpath! !ffmpegcommand! "!ffmpegoutput!" 2> "!ffmpeglogpath!"
+	ffmpeg -y -progress !progresslogpath! !ffmpegcommand! "!ffmpegoutput!" 2> "!ffmpeglogpath!"
 	
 	echo None> !progresslogpath!
-	IF "!ERRORLEVEL!" NEQ "255" ( CALL :ffmpegerrorhandling NEQ ) ELSE ( ECHO If you see the message ¡°Terminate batch job ^(Y/N^)¡±, please type [7m[N][27m. )
+	IF "!ERRORLEVEL!" NEQ "255" ( CALL :ffmpegerrorhandling NEQ ) ELSE ( ECHO If you see the message â€»Terminate batch job ^(Y/N^)Â§, please type [7m[N][27m. )
 				
 ) else if /i "!renderorpreview!"=="1" (
 
-	ffmpeg !ffmpegcommand! -f nut - | ffplay - 2> "!ffmpeglogpath!"
+	ffmpeg -y !ffmpegcommand! -f nut - | ffplay - 2> "!ffmpeglogpath!"
 	findstr /i "Invalid" "!ffmpeglogpath!"
 	REM echo !errorlevel!r
 	REM pause
@@ -1389,16 +1544,19 @@ if /i "!renderorpreview!"=="2" (
 goto drawlogo
 
 :ffmpegerrorhandling
-IF "!ERRORLEVEL!" %1 "0" (
-		for /f "delims=" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -File !ffmpegrenderingerrorboxpath!') do (
-			if "%%a"=="YES" (
-				for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Error Log|*.log'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
-				IF NOT "!saveFile!"=="None" move /y "!ffmpeglogpath!" "!saveFile!"
-			)
-		)
-	)
+IF "!ERRORLEVEL!" %1 "0" call :guierrorbox "!ffmpeglogpath!" "An error occurred during video rendering."
 goto :EOF
 
+:guierrorbox logfilepath message
+	for /f "delims=" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -Command !ffmpegrenderingerrorboxpath! '%~1' '%~2'') do (
+		if "%%a"=="YES" (
+			for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.SaveFileDialog; $f.Filter = 'Error Log|*.log'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "saveFile=%%a"
+			IF NOT "!saveFile!"=="None" move /y "%~1" "!saveFile!"
+		)
+	)
+	set "saveFile="
+	rem del /q "%~1" 2>nul
+goto :EOF
 :resetvariables
 set "masteraudio=None"
 set "bgimage=None"
