@@ -3,16 +3,24 @@ mode 120, 30
 SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by heeminwelcome1@gmail.com
 "!__APPDIR__!chcp.com" 65001 >nul
+CALL :resetvariables
+if not "%~1"=="" if exist "%~1" if /i "%~x1"==".ini" for /f "tokens=1,* delims==" %%a in ('type "%~1"') do set "%%a=%%b"
+
+	rem if "%~1"=="/?" (
+	rem	ECHO Usage: "%~nx0 <.ini configuration file> /? /R <Output video path> 
+	rem	pause
+	rem )
 
 REM :resetvariables
 :: VERSION
-SET "NSOVVGVERSION=1.0.4a9_rev1"
+SET "NSOVVGVERSION=1.0.4a10"
 
-CALL :resetvariables
+
 
 set "chosenfiles="
-set "tempfileprefix=!temp!\NSOVVG_"
-set "userfileprefix=!temp!\NSOVVG-USER_"
+set "tempfileprefix=!APPDATA!\NSOVVG\NSOVVG_"
+set "userfileprefix=!APPDATA!\NSOVVG\NSOVVG-USER_"
+IF NOT EXIST "!APPDATA!\NSOVVG\" mkdir "!APPDATA!\NSOVVG\"
 
 set "progressbartestpath=!tempfileprefix!displayrendering.bat"
 set "progresslogpath=!tempfileprefix!ffmpegprogresslog.log"
@@ -26,6 +34,8 @@ set "chsortboxpath=!tempfileprefix!chsortBox.ps1"
 set "loadingshowname=!userfileprefix!loadingscreen"
 set "multidumperpath=!userfileprefix!multidumper"
 set "multidumpersettingsboxpath=!tempfileprefix!vgmsettingsBox.ps1"
+set "multidumperfullsoundtrackpath=!tempfileprefix!vgmfullsoundtrackBox"
+
 
 del /q "!tempfileprefix!*" 2>nul
 
@@ -36,7 +46,7 @@ if not exist "!loadingshowname!.bat" (
 ) else echo. > "!loadingshowname!.b64"
 START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG is now loading"
 
-echo Checking for the existence of the ffmpeg set... Please wait!
+echo Checking for the existence of the ffmpeg set... Please wait^!
 set fmpeg=0
 set fplay=0
 set fprobe=0
@@ -54,9 +64,9 @@ IF EXIST "ffprobe.exe" ( set "fprobe=1" ) else for %%P in (!PATH!) do (
 
 if "!fmpeg!!fplay!!fprobe!" NEQ "111" call :errmsg "Some or all of the ffmpeg set is missing. Please put the set in the same directory as this script or system path"
 
-echo Detecting your GPU... Please wait!
+echo Detecting your GPU... Please wait^!
 call :gpudetect
-echo Creating external scripts... Please wait!
+echo Creating external scripts... Please wait^!
 
 
 :bfdrawlogo
@@ -402,7 +412,7 @@ echo $form.Controls.Add^($btnCancel^) >> !chsortboxpath!
 
 echo $btnAuto = New-Object System.Windows.Forms.Button >> !chsortboxpath!
 echo $btnAuto.Text = "Auto" >> !chsortboxpath!
-echo $btnAuto.Location = New-Object System.Drawing.Point^(100, 160^) >> !chsortboxpath!
+echo $btnAuto.Location = New-Object System.Drawing.Point^(50, 160^) >> !chsortboxpath!
 echo $btnAuto.Size = New-Object System.Drawing.Size^(75, 30^) >> !chsortboxpath!
 echo $btnAuto.Add_Click^({ >> !chsortboxpath!
 rem echo     
@@ -416,6 +426,17 @@ echo     } >> !chsortboxpath!
 echo }^) >> !chsortboxpath!
 echo $form.Controls.Add^($btnAuto^) >> !chsortboxpath!
 
+echo $btnAllVertical = New-Object System.Windows.Forms.Button >> !chsortboxpath!
+echo $btnAllVertical.Text = "Vertical" >> !chsortboxpath!
+echo $btnAllVertical.Location = New-Object System.Drawing.Point^(150, 160^) >> !chsortboxpath!
+echo $btnAllVertical.Size = New-Object System.Drawing.Size^(75, 30^) >> !chsortboxpath!
+echo $btnAllVertical.Add_Click^({ >> !chsortboxpath!
+echo 	$buttonClicked = $true >> !chsortboxpath!
+echo     Write-Host "AllVertical" >> !chsortboxpath!
+echo     $form.Close^(^) >> !chsortboxpath!
+echo }^) >> !chsortboxpath!
+echo $form.Controls.Add^($btnAllVertical^) >> !chsortboxpath!
+
 
 
 echo $buttonClicked = $false >> !chsortboxpath!
@@ -428,9 +449,11 @@ echo         Write-Host "None" >> !chsortboxpath!
 echo     } >> !chsortboxpath!
 echo }^) >> !chsortboxpath!
 
-echo /9j/4AAQSkZJRgABAQEAeAB4AAD/4QA6RXhpZgAATU0AKgAAAAgAA1EQAAEAAAABAQAAAFERAAQAAAABAAAAAFESAAQAAAABAAAAAAAAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9cv2ov2grH9mn4X3firy/MW3AWRW6NmvlP4S/tjeOPhD8T/8Ait8MrD866z/gp9pniTTrD/ioI7dfh2x+do/vE/7XevhOb/gpD4Gh6t8Rj9PAAP8AWv524+ozqcbxnRi3GKjd7pX/AM7H57VqcbOp7nw+f4n76RNvjVvUA0V8BfsDftWx/Df4TQ+OPHTvG3xHmWeNl7MM4/maK/oeOyP0GN7an0X+1b8Hf+FwfDB4d25l+YZPY186/D//AIJB+B/ibYNN4yt5Lps4CIcE0UV+JRyXCyqqTWpvvI9F+En/AATrt/gtbrJcOvjwHtOwQ/qaKKK/bY/CjE//2Q== > "!tempfileprefix!fjpegify.b64"
-certutil -decode "!tempfileprefix!fjpegify.b64" "!tempfileprefix!fjpegify.jpeg" >nul
-del /q "!tempfileprefix!fjpegify.b64"
+if not exist "!tempfileprefix!fjpegify.jpeg" (
+	echo /9j/4AAQSkZJRgABAQEAeAB4AAD/4QA6RXhpZgAATU0AKgAAAAgAA1EQAAEAAAABAQAAAFERAAQAAAABAAAAAFESAAQAAAABAAAAAAAAAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9cv2ov2grH9mn4X3firy/MW3AWRW6NmvlP4S/tjeOPhD8T/8Ait8MrD866z/gp9pniTTrD/ioI7dfh2x+do/vE/7XevhOb/gpD4Gh6t8Rj9PAAP8AWv524+ozqcbxnRi3GKjd7pX/AM7H57VqcbOp7nw+f4n76RNvjVvUA0V8BfsDftWx/Df4TQ+OPHTvG3xHmWeNl7MM4/maK/oeOyP0GN7an0X+1b8Hf+FwfDB4d25l+YZPY186/D//AIJB+B/ibYNN4yt5Lps4CIcE0UV+JRyXCyqqTWpvvI9F+En/AATrt/gtbrJcOvjwHtOwQ/qaKKK/bY/CjE//2Q== > "!tempfileprefix!fjpegify.b64"
+	certutil -decode "!tempfileprefix!fjpegify.b64" "!tempfileprefix!fjpegify.jpeg" >nul
+	del /q "!tempfileprefix!fjpegify.b64"
+)
 
 
 echo $jsonFilePath = $args[0]   > "!multidumpersettingsboxpath!"
@@ -438,8 +461,13 @@ echo $jsonData = Get-Content -Raw -Path $jsonFilePath ^| ConvertFrom-Json >> "!m
 
 
 echo $subsongCount = $jsonData.subsongCount >> "!multidumpersettingsboxpath!"
+
 echo $copyright = $jsonData.containerinfo.copyright >> "!multidumpersettingsboxpath!"
+echo if ^(-not $copyright^) { $copyright = $jsonData.containerinfo.system } >> "!multidumpersettingsboxpath!"
 echo $game = $jsonData.containerinfo.game >> "!multidumpersettingsboxpath!"
+echo if ^(-not $game^) { $game = $jsonData.containerinfo.dumper } >> "!multidumpersettingsboxpath!"
+echo if ^(-not $copyright^) { $copyright = "Unknown Artist" } >> "!multidumpersettingsboxpath!"
+echo if ^(-not $game^) { $game = "Unknown Game" } >> "!multidumpersettingsboxpath!"
 
 
 echo Add-Type -AssemblyName System.Windows.Forms >> "!multidumpersettingsboxpath!"
@@ -447,7 +475,7 @@ echo Add-Type -AssemblyName System.Drawing >> "!multidumpersettingsboxpath!"
 
 echo $form = New-Object System.Windows.Forms.Form >> "!multidumpersettingsboxpath!"
 echo $form.Text = "NSOVVG [$copyright - $game]" >> "!multidumpersettingsboxpath!"
-echo $form.Size = New-Object System.Drawing.Size^(300, 180^) >> "!multidumpersettingsboxpath!"
+echo if ^($subsongCount -ne 1 ^) { $form.Size = New-Object System.Drawing.Size^(300, 220^) } else { $form.Size = New-Object System.Drawing.Size^(300, 180^) } >> "!multidumpersettingsboxpath!"
 echo $form.StartPosition = 'CenterScreen' >> "!multidumpersettingsboxpath!"
 
 
@@ -506,12 +534,24 @@ echo     $form.Close^(^) >> "!multidumpersettingsboxpath!"
 echo }^) >> "!multidumpersettingsboxpath!"
 echo $form.Controls.Add^($btnCancel^) >> "!multidumpersettingsboxpath!"
 
+echo $btnFullSoundtrack = New-Object System.Windows.Forms.Button >> "!multidumpersettingsboxpath!"
+echo $btnFullSoundtrack.Text = "Make ""Full Soundtrack"" Video" >> "!multidumpersettingsboxpath!"
+echo $btnFullSoundtrack.Location = New-Object System.Drawing.Point^(50, 140^) >> "!multidumpersettingsboxpath!"
+echo $btnFullSoundtrack.Size = New-Object System.Drawing.Size^(180, 30^) >> "!multidumpersettingsboxpath!"
+echo $btnFullSoundtrack.Add_Click^({ >> "!multidumpersettingsboxpath!"
+echo 	 $buttonClicked = $true >> "!multidumpersettingsboxpath!"
+echo     Write-Host "FullSoundtrack" >> "!multidumpersettingsboxpath!"
+echo     $form.Close^(^) >> "!multidumpersettingsboxpath!"
+echo }^) >> "!multidumpersettingsboxpath!"
+echo if ^($subsongCount -ne 1 ^) { $form.Controls.Add^($btnFullSoundtrack^) } >> "!multidumpersettingsboxpath!"
+
 
 echo $form.Add_FormClosing^({ >> "!multidumpersettingsboxpath!"
 echo     if ^(-not $buttonClicked^) { >> "!multidumpersettingsboxpath!"
 echo         Write-Host "None" >> "!multidumpersettingsboxpath!"
 echo     } >> "!multidumpersettingsboxpath!"
 echo }^) >> "!multidumpersettingsboxpath!"
+
 
 
 echo [void]$form.ShowDialog^(^) >> "!multidumpersettingsboxpath!"
@@ -553,21 +593,13 @@ if /i "!ERRORLEVEL!"=="5" (
 	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="7" (
-	call :inputbox "Input Grammer: XRESxYRESxFPS (Example: 1280x720x60)" "NSOVVG"
-	if not "!input!"=="" (
-		for /f "tokens=1,2,3 delims=x" %%a in ("!input!") do (
-			if not "%%a"=="" (
-				set /a XX=%%a-1
-				if {!XX!} == {-1} ( call :errmsg "Invalid number in XRES" ) ELSE ( set "x_res=%%a" )
-			)
-			if not "%%b"=="" (
-				set /a XX=%%b-1
-				if {!XX!} == {-1} ( call :errmsg "Invalid number in YRES" ) ELSE ( set "y_res=%%b" )
-			)
-			if not "%%c"=="" (
-				set /a XX=%%c-1 
-				if {!XX!} == {-1} ( call :errmsg "Invalid number in FPS" ) ELSE ( set "fps=%%c" )
-			)
+	REM call :inputbox "Input Grammer: XRESxYRESxFPS (Example: 1280x720x60)" "NSOVVG"
+	call :SCRIPTGEN_VIDEOCONFIG 
+	for /f "tokens=1,2,3 delims==" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!numberboxpath!"') do (
+		if not "%%a"=="None" (
+			SET "x_res=%%a"
+			SET "y_res=%%b"
+			SET "fps=%%c"
 		)
 	)
 	rem TEST
@@ -649,10 +681,8 @@ if /i "!ERRORLEVEL!"=="6" (
 	)
 	if "!ERRORLEVEL!"=="2" (
 		REM call :inputbox "Please Set Amplification for Channel No. !configch!" "NSOVVG"
-		call :createnumberbox 50 !amp%configch%! "Please Set Amplification for Channel No. !configch!" 1
-		if not "!selectedNumber!"=="None" (
-			set "amp!configch!=!selectedNumber!"
-		)
+		call :SCRIPTGEN_NUMBERBOX 50 !amp%configch%! "Please Set Amplification for Channel No. !configch!" 1
+		if not "!selectedNumber!"=="None" set "amp!configch!=!selectedNumber!"
 	)
 	if "!ERRORLEVEL!"=="3" (
 		rem call :inputbox "Please Type Hex Color for Channel No. !configch! (Example: 1CFF73)" "NSOVVG"
@@ -707,9 +737,7 @@ IF /I "!ERRORLEVEL!"=="1" (
 	IF NOT "!selectedFile!"=="None" (
 		SET i=0
 		CALL :CHLOOP_CLEAR
-		for /f "tokens=1,* delims==" %%a in ('type "!selectedFile!"') do (
-		set "%%a=%%b"
-		)
+		for /f "tokens=1,* delims==" %%a in ('type "!selectedFile!"') do set "%%a=%%b"
 	)
 	rem TEST
 	goto drawlogo
@@ -801,7 +829,7 @@ if /i "!ERRORLEVEL!"=="9" (
 	)
 	if "!ERRORLEVEL!"=="2" (
 		rem call :inputbox "Please Set Amplification for All of Channels" "NSOVVG"
-		call :createnumberbox 50 !amp1! "Please Set Amplification" 1
+		call :SCRIPTGEN_NUMBERBOX 50 !amp1! "Please Set Amplification" 1
 
 		rem if not "!input!"=="" (
 		if not "!selectedNumber!"=="None" (
@@ -857,14 +885,14 @@ if /i "!ERRORLEVEL!"=="9" (
 		)
 	)
 
-	IF "!ERRORLEVEL!"=="6" call :MsgBox "Are you sure to remove this channel?"  "VBYesNo+VBQuestion" "NSOVVG"
+	IF "!ERRORLEVEL!"=="6" call :MsgBox "Are you sure to remove this channel?" "VBYesNo+VBQuestion" "NSOVVG"
 	if "!errorlevel!"=="6" set "channel!chcount_fortitle!="
 	goto drawlogo
 )
 if /i "!ERRORLEVEL!"=="10" (
 	if not defined channel1 ( call :errmsg "You have no channels to clear" && goto drawlogo )
 	SET i=0
-	call :MsgBox "You imported a lot of channels, are you sure to clear everything?"  "VBYesNo+VBQuestion" "NSOVVG"
+	call :MsgBox "You imported a lot of channels, are you sure to clear everything?" "VBYesNo+VBQuestion" "NSOVVG"
 	if "!errorlevel!"=="6" ( 
 		CALL :CHLOOP_CLEAR
 		CALL :resetvariables
@@ -879,7 +907,7 @@ if /i "!ERRORLEVEL!"=="10" (
 if /i "!ERRORLEVEL!"=="11" (
 	if defined channel1 (
 		SET i=0
-		call :MsgBox "You imported a lot of channels, are you sure to clear everything?"  "VBYesNo+VBQuestion" "NSOVVG"
+		call :MsgBox "You imported a lot of channels, are you sure to clear everything?" "VBYesNo+VBQuestion" "NSOVVG"
 		if "!errorlevel!"=="6" ( 
 			CALL :CHLOOP_CLEAR
 			CALL :resetvariables
@@ -888,7 +916,7 @@ if /i "!ERRORLEVEL!"=="11" (
 	SET i=0
 	
 	IF NOT EXIST "!multidumperpath!\multidumper.exe" (
-		call :MsgBox "Could not find multidumper in NSOVVG temp directory. Would you like to download it now?"  "VBYesNo+VBQuestion" "NSOVVG"
+		call :MsgBox "Could not find multidumper in NSOVVG temp directory. Would you like to download it now?" "VBYesNo+VBQuestion" "NSOVVG"
 		if "!errorlevel!"=="6" (
 			echo. > "!multidumperpath!.zip"
 			START conhost "!loadingshowname!.bat" "!multidumperpath!.zip" "Downloading multidumper"
@@ -899,51 +927,102 @@ if /i "!ERRORLEVEL!"=="11" (
 		)
 	)
 	IF NOT EXIST "!multidumperpath!\multidumper.exe" goto drawlogo
-	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Multidumper Compatible Files|*.ay;*.gbs;*.gym;*.hes;*.kss;*.nsf;*.nsfe;*.sap;*.sfm;*.sgc;*.spc;*.vgm;*.vgz;*.spu'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
+	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Multidumper Compatible Files|*.ay;*.gbs;*.gym;*.hes;*.kss;*.nsf;*.nsfe;*.sap;*.sfm;*.sgc;*.spc;*.vgm;*.vgz;*.spu'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a" && set "multidumperFileDir=%%~dpa" && set "multidumperExtansion=%%~xa"
 	IF NOT "!selectedFile!"=="None" (
 		echo WScript.Echo^(new Date^(^).getTime^(^)^); > "!tempfileprefix!unixTime.js"
 		for /f "tokens=*" %%a in ('cscript //nologo "!tempfileprefix!unixTime.js"') do set "multidumperTimeStamp=%%a"
-		for /f "tokens=*" %%a in ("!selectedFile!") do set "multidumperExtansion=%%~xa"
+		rem for /f "tokens=*" %%a in ("!selectedFile!") do set "multidumperExtansion=%%~xa"
 		del /q "!tempfileprefix!unixTime.js" 2>nul
-		mkdir "!multidumperpath!\TEMP_!multidumperTimeStamp!\"
-		copy /y /v "!selectedFile!" "!multidumperpath!\TEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!"
-		!multidumperpath!\multidumper.exe "!multidumperpath!\TEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" --json > "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"
-		findstr /i "error" "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"
+		mkdir "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\"
+		copy /y /v "!selectedFile!" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!"
+		!multidumperpath!\multidumper.exe "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" --json > "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json"
+		findstr /i "error" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json"
 		if "!errorlevel!" EQU "0" (
-			call :guierrorbox "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json" "A problem occurred while converting file information to json in multidumper."
+			call :guierrorbox "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json" "A problem occurred while converting file information to json in multidumper."
 			goto drawlogo
 		)
 		:f
-		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -Command "!multidumpersettingsboxpath!" "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"') do (
+		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -Command "!multidumpersettingsboxpath!" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json"') do (
 			if "%%a"=="None" goto drawlogo
-			START conhost "!loadingshowname!.bat" "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json" "Seperating audio channels"
-			!multidumperpath!\multidumper.exe "!multidumperpath!\TEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" %%a --play_length=%%b000 --gap_length=100 --fade_length=5000
+			rem START conhost "!loadingshowname!.bat" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json" "Seperating audio channels"
+			IF /I "%%a"=="FullSoundtrack" (
+				echo Generating the script... Please wait^!
+				rem START conhost "!loadingshowname!.bat" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json" "Seperating audio channels"
+				rem set multidumperSubdirNumber=1
+				set i=0
+				CALL :SCRIPTGEN_FULLSOUNDTRACK
+				rem set 
+				echo Done^!
+				for /f "tokens=1,2,3 delims==" %%f in ('powershell -ExecutionPolicy Bypass -Command "!multidumperfullsoundtrackpath!.ps1" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json"') do (
+					if "%%f"=="None" ( 
+						goto f 
+					) else if "%%f"=="Header" (
+						rem set "multidumperSubdirNumber=%%f" 
+						REM echo A%%hA%%gA
+						set /a multidumperTotalWavSize="(((441 * 16 * 2 * %%h / 8) / 10000) * (%%g + 1)) + ((441 * 16 * 2 * (%%h * %%g) / 8) / 10000)" 
+						rem set /a multidumperTotalWavSize2="((441 * 16 * 2 * (%%h * %%g) / 8) / 10000)" 
+						REM ECHO !multidumperTotalWavSize!
+						call :MsgBox "This render will use about !multidumperTotalWavSize!MB of disk. Do you want to continue?" "VBYesNo+VBQuestion" "NSOVVG"
+						if "!errorlevel!" NEQ "6" goto f
+						START conhost "!loadingshowname!.bat" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json" "Processing"
+					) else (
+						set "multidumperSubdirNumber=%%f" 
+						rem IF "!multidumperSubdirNumber" EQU "1" START conhost "!loadingshowname!.bat" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json" "Seperating audio channels"
+						
+						MKDIR "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\"
+						copy /y /v "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\vgm!multidumperExtansion!"
+						
+						!multidumperpath!\multidumper.exe "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\vgm!multidumperExtansion!" %%f --play_length=%%g000 --fade_length=5000
+						if "!ERRORLEVEL!" NEQ "0"  ( call :errmsg "An error occurred while rendering track !multidumperSubdirNumber!. ERRORLEVEL is !ERRORLEVEL!" ) else (
+							for %%z in ("!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\*.wav") do (
+								echo file '%%z' >> "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\%%~nz_concatlist.txt"
+							)
+						)
+						
+					
+					rem FOR %%h IN ("!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\*.wav") DO (
+
+					rem	FFMPEG -i %%h -filter:a volumedetect -f null nul 2> "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\%%~nh_analysis.txt"
+					rem	For /F "tokens=2 delims=:" %%y In ('FindStr /C:"mean_volume:" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\TRACK_!multidumperSubdirNumber!\%%~nh_analysis.txt"') Do For /F "tokens=1" %%c In ("%%y") Do for /f "tokens=*" %%R in ('powershell -Command "if ([double]-80 -lt [double]%%c) { echo true } else { echo false }"') do IF /i "%%R"=="FALSE" del /q %%h 2>nul && ECHO DELETED %%h
+						rem echo %%e::!vMeanVol!
+					rem )
+					rem set /a multidumperSubdirNumber+=1
+					)
+				)
+				for %%h in ("!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\*_concatlist.txt") do (
+					set "multidumperTempFilename=%%~dpnh"
+					ffmpeg -f concat -safe 0 -i "%%~h" -c copy "!multidumperTempFilename:_concatlist=.wav!"
+				)
+				
+			) else (
+				START conhost "!loadingshowname!.bat" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json" "Seperating audio channels"
+				!multidumperpath!\multidumper.exe "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\vgm!multidumperExtansion!" %%a --play_length=%%b000 --fade_length=5000
+			)
+			
 			set "multidumperFFmpegMixingCommand="
-			echo $jsonData = Get-Content -Path '!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json' ^| ConvertFrom-Json;foreach ^($channel in $jsonData.channels^) { Write-Host "vgm - $channel.wav" } > "!tempfileprefix!multidumperchsort.ps1"
-			rem for /f "tokens=*" %%b in ('powershell -command "Get-ChildItem -File "!multidumperpath!\TEMP_!multidumperTimeStamp!\*.wav" | Sort-Object { [int]($_.Name -replace '[^^0-9]', '') } | ForEach-Object { $_.Name }"') do (
-			for /f "tokens=*" %%b in ('powershell -ExecutionPolicy Bypass -File "!tempfileprefix!multidumperchsort.ps1"') do (
-			rem echo %%b
+			echo $jsonData = Get-Content -Path '!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json' ^| ConvertFrom-Json;foreach ^($channel in $jsonData.channels^) { Write-Host "vgm - $channel.wav" } > "!tempfileprefix!multidumperchsort.ps1"
+			for /f "tokens=*" %%l in ('powershell -ExecutionPolicy Bypass -File "!tempfileprefix!multidumperchsort.ps1"') do (
 				set /a i+=1
-				set "channel!i!=!multidumperpath!\TEMP_!multidumperTimeStamp!\%%b"
-				set "multidumperFilename=%%~nb"
+				set "channel!i!=!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\%%l"
+				set "multidumperFilename=%%~nl"
 				set "label!i!=!multidumperFilename:~6!"
 				set "amp!i!=2"
 				set "color!i!=#FFFFFF"
-				set "multidumperFFmpegMixingCommand=!multidumperFFmpegMixingCommand!-i "!multidumperpath!\TEMP_!multidumperTimeStamp!\%%b" "
+				set "multidumperFFmpegMixingCommand=!multidumperFFmpegMixingCommand!-i "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\%%l" "
 				
 				rem \TEMP_!multidumperTimeStamp!
 			)
-			rem pause
-			rem del /q "!tempfileprefix!multidumperchsort.ps1" 2>nul
-			rem powershell -command "Get-ChildItem -File "!multidumperpath!\TEMP_!multidumperTimeStamp!\*.wav" ^| Sort-Object { [int]^($_.Name -replace '[^0-9]', ''^) } ^| ForEach-Object { $_.Name }"
-			rem PAUSE
-			rem pause
-			ffmpeg.exe !multidumperFFmpegMixingCommand! -filter_complex amix=inputs=!i!:duration=longest:normalize=0 "!multidumperpath!\TEMP_!multidumperTimeStamp!\masteraud.wav"
-			set "masteraudio=!multidumperpath!\TEMP_!multidumperTimeStamp!\masteraud.wav"
-			del /q "!multidumperpath!\TEMP_!multidumperTimeStamp!\info.json"
+			
+
+			ffmpeg.exe !multidumperFFmpegMixingCommand! -filter_complex amix=inputs=!i!:duration=longest:normalize=0 "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\masteraud.wav"
+			set "masteraudio=!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\masteraud.wav"
+			del /q "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json"
+			
 		)
 		
 	)
+	rem pause
+
 	
 		rem Could not find multidumper in NSOVVG temp location. Would you like to download it now?
 	goto drawlogo
@@ -954,9 +1033,9 @@ if /i "!ERRORLEVEL!"=="12" (
 	ECHO [0mWhich configuration would you like to configure?
 	echo 	[44m[97m[I] - Background Image / Video[0m						[44m[97m[C] - Background Color[0m
 	if "!gpu!"=="libx264" (
-		echo 	[46m[97m[S] - Use Hardware Rendering For This Time[0m				[44m[97m[W] - Channel Sorting[0m
+		echo 	[46m[97m[S] - Use Hardware Rendering For This Time[0m				[44m[97m[W] - Configure Channel Array[0m
 	) else (
-		echo 	[41m[97m[S] - Use Software Rendering For This Time ^(libx264^)[0m			[44m[97m[W] - Channel Sorting[0m
+		echo 	[41m[97m[S] - Use Software Rendering For This Time ^(libx264^)[0m			[44m[97m[W] - Configure Channel Array[0m
 	)
 	echo 	[44m[97m[T] - Font Configuration[0m						[100m[97m[X] - Cancel[0m
 	CHOICE /C BIXCSWT /N
@@ -977,11 +1056,10 @@ if /i "!ERRORLEVEL!"=="12" (
 	)
 	IF /I "!ERRORLEVEL!"=="4" (
 		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do set "color=%%A"
-
-		if not "!color!"=="None" set "bgimage=!color!"
+		if not "!color!"=="None" if "!color!"=="#000000" ( set "bgimage=None" ) else set "bgimage=!color!"
 	)
 	IF /I "!ERRORLEVEL!"=="1" (
-		call :createnumberbox 100000 !bitrate:~0,-1! "Please set the bitrate of the video. (kbps)" 100
+		call :SCRIPTGEN_NUMBERBOX 100000 !bitrate:~0,-1! "Please set the bitrate of the video. (kbps)" 100
 		if not "!selectedNumber!"=="None" set "bitrate=!selectedNumber!k"
 	)
 	rem 
@@ -1010,19 +1088,21 @@ if /i "!ERRORLEVEL!"=="12" (
 			
 		) else (
 			for /f "tokens=1,2 delims==" %%a in ("!chsort!") do (
-				set "SORT_h1number=%%a"
-				set "SORT_h2number=%%b"
+				set "SORT_h2number=%%a"
+				set "SORT_h1number=%%b"
 			)
 		)
 			
-		for /f "tokens=1,2 delims==" %%a in ('powershell -Command "& {!chsortboxpath! !SORT_h2number! !SORT_h1number!}"') do (
-			if "%%a" NEQ "None" (
+		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -Command "& {!chsortboxpath! !SORT_h2number! !SORT_h1number!}"') do (
+			if "%%a" NEQ "None" IF "%%a" EQU "AllVertical" (
+				set "chsort=ALLVERTICAL"
+			) else (
 				if "!SORT2_h2number!"=="%%a" ( set "chsort=AUTO" ) ELSE ( set "chsort=%%a=%%b" )
 				REM if "!SORT2_h2number!"=="%%a" if "!SORT2_h1number!"=="%%b" ( set "chsort=AUTO" ) ELSE ( set "chsort=%%a=%%b" )
 			)
 			ECHO %%a%%b
 			echo !SORT2_h2number!x!SORT2_h1number!
-			pause
+			rem pause
 		)
 		rem echo !SORT_h1number! !SORT_h2number!
 		rem pause
@@ -1037,7 +1117,7 @@ if /i "!ERRORLEVEL!"=="12" (
 	if /i "!ERRORLEVEL!"=="7" (
 		ECHO [101m[97m[1m[WARNING] Nothing is supported other than "Font selection", "Font color", and "Font size".[0m
 
-		call :createfontpicker
+		call :SCRIPTGEN_FONTPICKER
 		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -File "!fontpickerpath!"') do (
 			if "%%a"=="Canceled" goto drawlogo
 			if "%%a"=="FontName" set "dffont=%%b"
@@ -1134,15 +1214,17 @@ set "displaycolorfont=[38;2;!r!;!g!;!b!m!colorfont!"
 rem if defined channel1 echo !chcount!
 if "!chsort!"=="AUTO" (
 	set "displaychannelsorting=	[91mAuto"
-) else (
+) else if "!chsort!"=="ALLVERTICAL" (
+	set "displaychannelsorting=	[93mAll Vertical"
+) ELSE (
 	for /f "tokens=1,2 delims==" %%a in ("!chsort!") do (
 		set /a CCresult=%%a + %%b
-		IF "!CCresult!" NEQ "!chcount_fortitle!" ( set "chsort=AUTO" && set "displaychannelsorting=	[91mAuto" ) ELSE ( set "displaychannelsorting=	[93mLeft=%%a, Right=%%b" )
+		IF "!CCresult!" NEQ "!chcount_fortitle!" ( set "chsort=AUTO" && set "displaychannelsorting=	[91mAuto" ) ELSE ( set "displaychannelsorting=	[93mL=%%a, R=%%b" )
 	)
 	
 )
 cls
-echo [90mNSOVVG Version v!NSOVVGVERSION![0m
+echo [90mNSOVVG Version v!NSOVVGVERSION! by [4mheeminwelcome1@gmail.com[0m
 echo    [1m[97m         ,--.              ,----..                                     	┌──────────[Current Settings]──────────┐
 echo           ,--.'^| .--.--.     /   /   \                         ,----..    	^|  [32mChosen Master Audio: !mastername![97m		^|
 echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	^|  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		^|
@@ -1152,7 +1234,7 @@ echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /-
 echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	^|  [32mChosen Font:	[93m!displayfont![97m^|
 echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	^|  [32mFont Size:	[93m!sizefont![97m											^|
 echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	^|  [32mFont Color:	!displaycolorfont![97m												^|
-echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	^|  [32mChannel Sorting:[97m !displaychannelsorting![97m												^|
+echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	^|  [32mChannel Array:[97m !displaychannelsorting![97m												^|
 echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	^|												^|
 echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	^|												^|
 echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	└──────────────────────────────────────┘
@@ -1172,7 +1254,7 @@ goto :EOF
 		)
 		goto :EOF
 		
-:createfontpicker
+:SCRIPTGEN_FONTPICKER
 echo Add-Type -AssemblyName System.Windows.Forms > !fontpickerpath!
 echo $fontDialog = New-Object System.Windows.Forms.FontDialog >> !fontpickerpath!
 
@@ -1198,71 +1280,71 @@ echo } else { Write-Host "Canceled" } >> !fontpickerpath!
 
 goto :EOF
 
-:createnumberbox
+:SCRIPTGEN_NUMBERBOX
 rem set "numberboxpath=asd.ps1"
-echo Add-Type -AssemblyName System.Windows.Forms> !numberboxpath!
-echo Add-Type -AssemblyName System.Drawing>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo Add-Type -AssemblyName System.Windows.Forms > !numberboxpath!
+	echo Add-Type -AssemblyName System.Drawing >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo $form ^= New-Object System.Windows.Forms.Form>> !numberboxpath!
-echo $form.Text ^= 'NSOVVG'>> !numberboxpath!
-echo $form.Size ^= New-Object System.Drawing.Size^(250, 150^)>> !numberboxpath!
-echo $form.StartPosition ^= 'CenterScreen'>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo $form ^= New-Object System.Windows.Forms.Form >> !numberboxpath!
+	echo $form.Text ^= 'NSOVVG' >> !numberboxpath!
+	echo $form.Size ^= New-Object System.Drawing.Size^(250, 150^) >> !numberboxpath!
+	echo $form.StartPosition ^= 'CenterScreen' >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo $label ^= New-Object System.Windows.Forms.Label>> !numberboxpath!
-echo $label.Text ^= "%~3">> !numberboxpath!
-echo $label.AutoSize ^= $true>> !numberboxpath!
-echo $label.Location ^= New-Object System.Drawing.Point(0, 10)>> !numberboxpath!
-echo $form.Controls.Add($label)>> !numberboxpath!
+	echo $label ^= New-Object System.Windows.Forms.Label >> !numberboxpath!
+	echo $label.Text ^= "%~3" >> !numberboxpath!
+	echo $label.AutoSize ^= $true >> !numberboxpath!
+	echo $label.Location ^= New-Object System.Drawing.Point(0, 10) >> !numberboxpath!
+	echo $form.Controls.Add($label) >> !numberboxpath!
 
-echo $numericUpDown ^= New-Object System.Windows.Forms.NumericUpDown>> !numberboxpath!
-echo $numericUpDown.Location ^= New-Object System.Drawing.Point^(50, 30^)>> !numberboxpath!
-echo $numericUpDown.Width ^= 100 >> !numberboxpath!
-echo $numericUpDown.Minimum ^= 0 >> !numberboxpath!
-echo $numericUpDown.Maximum ^= %~1 >> !numberboxpath!
-echo $numericUpDown.DecimalPlaces ^= 0 >> !numberboxpath!
-echo $numericUpDown.Value ^= %~2 >> !numberboxpath!
-ECHO $numericUpDown.Increment = %~4 >> !numberboxpath!
-echo $form.Controls.Add^($numericUpDown^)>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo $numericUpDown ^= New-Object System.Windows.Forms.NumericUpDown >> !numberboxpath!
+	echo $numericUpDown.Location ^= New-Object System.Drawing.Point^(50, 30^) >> !numberboxpath!
+	echo $numericUpDown.Width ^= 100  >> !numberboxpath!
+	echo $numericUpDown.Minimum ^= 0  >> !numberboxpath!
+	echo $numericUpDown.Maximum ^= %~1  >> !numberboxpath!
+	echo $numericUpDown.DecimalPlaces ^= 0  >> !numberboxpath!
+	echo $numericUpDown.Value ^= %~2  >> !numberboxpath!
+	ECHO $numericUpDown.Increment = %~4  >> !numberboxpath!
+	echo $form.Controls.Add^($numericUpDown^) >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo $okButton ^= New-Object System.Windows.Forms.Button>> !numberboxpath!
-echo $okButton.Text ^= 'OK'>> !numberboxpath!
-echo $okButton.Location ^= New-Object System.Drawing.Point^(30, 70^)>> !numberboxpath!
-echo $okButton.Add_Click^({>> !numberboxpath!
-echo     $form.Tag ^= $numericUpDown.Value>> !numberboxpath!
-echo     $form.Close^(^)>> !numberboxpath!
-echo }^)>> !numberboxpath!
-echo $form.Controls.Add^($okButton^)>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo $okButton ^= New-Object System.Windows.Forms.Button >> !numberboxpath!
+	echo $okButton.Text ^= 'OK' >> !numberboxpath!
+	echo $okButton.Location ^= New-Object System.Drawing.Point^(30, 70^) >> !numberboxpath!
+	echo $okButton.Add_Click^({ >> !numberboxpath!
+	echo     $form.Tag ^= $numericUpDown.Value >> !numberboxpath!
+	echo     $form.Close^(^) >> !numberboxpath!
+	echo }^) >> !numberboxpath!
+	echo $form.Controls.Add^($okButton^) >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo $cancelButton ^= New-Object System.Windows.Forms.Button>> !numberboxpath!
-echo $cancelButton.Text ^= 'Cancel'>> !numberboxpath!
-echo $cancelButton.Location ^= New-Object System.Drawing.Point^(120, 70^)>> !numberboxpath!
-echo $cancelButton.Add_Click^({>> !numberboxpath!
-echo     $form.Tag ^= 'None'>> !numberboxpath!
-echo     $form.Close^(^)>> !numberboxpath!
-echo }^)>> !numberboxpath!
-echo $form.Controls.Add^($cancelButton^)>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo $cancelButton ^= New-Object System.Windows.Forms.Button >> !numberboxpath!
+	echo $cancelButton.Text ^= 'Cancel' >> !numberboxpath!
+	echo $cancelButton.Location ^= New-Object System.Drawing.Point^(120, 70^) >> !numberboxpath!
+	echo $cancelButton.Add_Click^({ >> !numberboxpath!
+	echo     $form.Tag ^= 'None' >> !numberboxpath!
+	echo     $form.Close^(^) >> !numberboxpath!
+	echo }^) >> !numberboxpath!
+	echo $form.Controls.Add^($cancelButton^) >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo $form.Add_FormClosing^({>> !numberboxpath!
-echo     if ^($form.Tag -eq $null^) {>> !numberboxpath!
-echo         $form.Tag ^= 'None'>> !numberboxpath!
-echo     }>> !numberboxpath!
-echo }^)>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo $form.Add_FormClosing^({ >> !numberboxpath!
+	echo     if ^($form.Tag -eq $null^) { >> !numberboxpath!
+	echo         $form.Tag ^= 'None' >> !numberboxpath!
+	echo     } >> !numberboxpath!
+	echo }^) >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo $form.ShowDialog^(^) ^| Out-Null>> !numberboxpath!
-echo. >> !numberboxpath!
+	echo $form.ShowDialog^(^) ^| Out-Null >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
 
-echo Write-Host $form.Tag>> !numberboxpath!
-echo. >> !numberboxpath!
-echo. >> !numberboxpath!
-for /f "usebackq delims=" %%i in (`powershell -NoProfile -ExecutionPolicy Bypass -File "!numberboxpath!"`) do (
-			set selectedNumber=%%i
-)
+	echo Write-Host $form.Tag >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
+	rem echo.  >> !numberboxpath!
+
+for /f "tokens=*" %%i in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!numberboxpath!"') do set selectedNumber=%%i
+
 del /q !numberboxpath!
 goto :eof
 
@@ -1330,18 +1412,21 @@ rem goto :eof
 	goto :EOF
 	
 :render
-:: 葆蝶攪 螃蛤螃 橾 (%1)
-rem set "masterAudio=%~1"
-rem echo on
 
-:: 瓣割 螃蛤螃 橾菟擊 籀葬 (%2睡攪 部梱雖)
 set channelCount=0
 set H1Count=0
 set H2Count=0
 set "channelInputs="
 set "filterComplex="
 set "layout="
-IF "!chsort!"=="AUTO" ( set "autosortvaule=4" ) else ( set "autosortvaule=1" )
+IF "!chsort!" equ "AUTO" ( 
+	set autosortvaule=4
+) else if "!chsort!" equ "ALLVERTICAL" ( 
+	set autosortvaule=64
+) else (
+	set autosortvaule=1
+)
+REM @echo on
 set "outer="
 set "H1F="
 set "H2F="
@@ -1356,8 +1441,7 @@ set /a stack_y_res=y_res / stack_num
 set /a remainder=y_res %% stack_num
 echo !stack_num!
 set /a last_stack_y_res=stack_y_res + remainder
-rem set "drawtext=drawtext=text='Channel 3':x=10:y=10:fontsize=24:fontcolor=white"
-rem IF "!chsort!"=="AUTO" (
+
 	if !chcount! GTR !autosortvaule! (
 		if "!chsort!"=="AUTO" (
 			echo AUTO CHANNEL SORTING
@@ -1372,8 +1456,6 @@ rem IF "!chsort!"=="AUTO" (
 				rem set /a h1number=!chcount! / 2
 				set /a h2number=!hremainder! + !h1number!
 			)
-		) else if "!chsort!"=="ALLVERTICAL" (
-			echo A
 		) else for /f "tokens=1,2 delims==" %%a in ("!chsort!") do (
 			set "h2number=%%a"
 			set "h1number=%%b"
@@ -1409,14 +1491,20 @@ if defined label!channelCount! (
 )
 
 if !chcount! GTR !autosortvaule! (
-
+	echo !h2number! !h1number! HAAA
 	if !channelCount! LEQ !h2number! (
+		rem OSCI LEFT SIDE
 		set /a H1Count+=1
 		if "!H1Count!"=="!h2number!" (
+			rem LAST CHANNEL
 
 				set "H1F=!H1F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!last_H1_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
-				set "layout=!layout![wave%channelCount%]vstack=inputs=!H1Count![left];"
+				if "!h2number!" EQU "1" ( set "LAYOUT_VSTACKL=wave%channelCount%" ) ELSE (
+					set "layout=!layout![wave%channelCount%]vstack=inputs=!H1Count![left];"
+					set "LAYOUT_VSTACKL=left"
+				)
 		) else (
+			rem OTHERS
 
 				set "H1F=!H1F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!H1_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 				set "layout=!layout![wave%channelCount%]"
@@ -1425,14 +1513,20 @@ if !chcount! GTR !autosortvaule! (
 			REM :: set "layout=!layout![wave%channelCount%]"
 
 	) else (
+		rem OSCI RIGHT SIDE
 		set /a H2Count+=1
 		if "!H2Count!"=="!h1number!" (
-				
+				rem LAST CHANNEL
 
 				set "H2F=!H2F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!last_H2_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
-				set "layout=!layout![wave%channelCount%]vstack=inputs=!H2Count![right];"
+				rem if "!h1number!" EQU "1" ( set "layout=!layout![wave%channelCount%];" ) ELSE set "layout=!layout![wave%channelCount%]vstack=inputs=!H2Count![right];"
+				if "!h1number!" EQU "1" ( set "LAYOUT_VSTACKR=wave%channelCount%" ) ELSE (
+					set "layout=!layout![wave%channelCount%]vstack=inputs=!H2Count![right];"
+					set "LAYOUT_VSTACKR=right"
+				)
+				rem set "layout=!layout![wave%channelCount%]vstack=inputs=!H2Count![right];"
 		) else (
-
+				rem OTHERS
 				set "H2F=!H2F! [%channelCount%:a]!beforeshowwaves!%channelCount%];[g%channelCount%]showwaves=s=!x_reshalf!x!H2_y_res!:mode=!linemode2!:colors=!color%channelCount%!:rate=!fps!:scale=!scalemode![wave%channelCount%];!drawtext!"
 				set "layout=!layout![wave%channelCount%]"
 		)
@@ -1504,7 +1598,7 @@ if "!chcount!"=="1" (
 	 set "outer=-c:v !gpu! -format yuv420p -b:v !bitrate! -map [wave1]"
 ) else if !chcount! GTR !autosortvaule! (
 	set "filterComplex=!H1F!!H2F!"
-	set "layout=!layout![left][right]hstack=inputs=2[v2];!bgcf1!"
+	set "layout=!layout![!LAYOUT_VSTACKL!][!LAYOUT_VSTACKR!]hstack=inputs=2[v2];!bgcf1!"
 	 set "outer=-c:v !gpu! -format yuv420p -b:v !bitrate! -map [v2]"
 ) else (
 	set "layout=!layout!vstack=inputs=!chcount![v2];!bgcf1!"
@@ -1543,7 +1637,11 @@ if /i "!renderorpreview!"=="2" (
 goto drawlogo
 
 :ffmpegerrorhandling
-IF "!ERRORLEVEL!" %1 "0" call :guierrorbox "!ffmpeglogpath!" "An error occurred during video rendering."
+IF "!ERRORLEVEL!" %1 "0" (
+	echo. >> "!ffmpeglogpath!"
+	echo !ffmpegcommand! >> "!ffmpeglogpath!"
+	call :guierrorbox "!ffmpeglogpath!" "An error occurred during video rendering."
+)
 goto :EOF
 
 :guierrorbox logfilepath message
@@ -1556,6 +1654,7 @@ goto :EOF
 	set "saveFile="
 	rem del /q "%~1" 2>nul
 goto :EOF
+
 :resetvariables
 set "masteraudio=None"
 set "bgimage=None"
@@ -1571,3 +1670,332 @@ set "sizefont=14"
 set "colorfont=#FFFFFF"
 set "chsort=AUTO"
 goto :eof
+
+:SCRIPTGEN_FULLSOUNDTRACK
+echo Add-Type -AssemblyName System.Windows.Forms > "!multidumperfullsoundtrackpath!.ps1"
+echo Add-Type -AssemblyName System.Drawing >> "!multidumperfullsoundtrackpath!.ps1"
+echo $buttonClicked = $false >> "!multidumperfullsoundtrackpath!.ps1"
+echo $jsonData = Get-Content -Raw -Path $args[0] ^| ConvertFrom-Json >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $subsongCount = $args[1] >> "!multidumperfullsoundtrackpath!.ps1"
+echo if ^(-not $subsongCount^) { $subsongCount = $jsonData.subsongCount } >> "!multidumperfullsoundtrackpath!.ps1"
+echo $copyright = $jsonData.containerinfo.copyright >> "!multidumperfullsoundtrackpath!.ps1"
+echo if ^(-not $copyright^) { $copyright = $jsonData.containerinfo.system } >> "!multidumperfullsoundtrackpath!.ps1"
+echo $game = $jsonData.containerinfo.game >> "!multidumperfullsoundtrackpath!.ps1"
+echo if ^(-not $game^) { $game = $jsonData.containerinfo.dumper } >> "!multidumperfullsoundtrackpath!.ps1"
+echo if ^(-not $copyright^) { $copyright = "Unknown Artist" } >> "!multidumperfullsoundtrackpath!.ps1"
+echo if ^(-not $game^) { $game = "Unknown Game" } >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $form = New-Object System.Windows.Forms.Form >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Text = "NSOVVG [$copyright - $game]" >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Size = New-Object System.Drawing.Size^(800, 500^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.StartPosition = "CenterScreen" >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $labelText = New-Object System.Windows.Forms.Label >> "!multidumperfullsoundtrackpath!.ps1"
+echo $labelText.Text = "This window is a wizard that helps users render the entire song of a game into a single video.`nYou can make what is commonly called a ""Full Soundtrack Oscilloscope View"" video using this wizard.`nCheck or uncheck the checkboxes to exclude unnecessary sound effects or songs when rendering, and set the length if you want!" >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $labelText.Location = New-Object System.Drawing.Point^(10, 10^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $labelText.Size = New-Object System.Drawing.Size^(780, 60^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($labelText^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $listView = New-Object System.Windows.Forms.ListView >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.View = [System.Windows.Forms.View]::Details >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.Location = New-Object System.Drawing.Point^(10, 80^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.Size = New-Object System.Drawing.Size^(760, 200^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.FullRowSelect = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.GridLines = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.CheckBoxes = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo $listView.Scrollable = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo [void]$listView.Columns.Add^("Select", 50^)        >> "!multidumperfullsoundtrackpath!.ps1"
+echo [void]$listView.Columns.Add^("Track No.", 600^)   >> "!multidumperfullsoundtrackpath!.ps1"
+echo [void]$listView.Columns.Add^("Length", 50^)      >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo for ^($i = 1; $i -le $subsongCount; $i++^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $item = New-Object System.Windows.Forms.ListViewItem >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $item.Checked = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo     [void]$item.SubItems.Add^("Track No. $i"^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     [void]$item.SubItems.Add^("120"^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     [void]$listView.Items.Add^($item^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo } >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+
+echo function ShowEditForm { >> "!multidumperfullsoundtrackpath!.ps1"
+echo     param ^( >> "!multidumperfullsoundtrackpath!.ps1"
+echo         [string]$currentValue >> "!multidumperfullsoundtrackpath!.ps1"
+echo     ^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo     $editForm = New-Object System.Windows.Forms.Form >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $editForm.Text = "Edit Length" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $editForm.Size = New-Object System.Drawing.Size^(300, 150^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $editForm.StartPosition = "CenterParent" >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo     $textBox = New-Object System.Windows.Forms.TextBox >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $textBox.Location = New-Object System.Drawing.Point^(50, 20^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $textBox.Size = New-Object System.Drawing.Size^(200, 30^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $textBox.Text = $currentValue >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $editForm.Controls.Add^($textBox^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo     $okButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $okButton.Text = "OK" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $okButton.Location = New-Object System.Drawing.Point^(50, 60^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $okButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $editForm.Tag = $textBox.Text   >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $editForm.Close^(^)              >> "!multidumperfullsoundtrackpath!.ps1"
+echo     }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $editForm.Controls.Add^($okButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo     $cancelButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $cancelButton.Text = "Cancel" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $cancelButton.Location = New-Object System.Drawing.Point^(150, 60^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $cancelButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $editForm.Tag = $null          >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $editForm.Close^(^)              >> "!multidumperfullsoundtrackpath!.ps1"
+echo     }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $editForm.Controls.Add^($cancelButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo     $editForm.ShowDialog^(^) ^| Out-Null >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo     return $editForm.Tag   >> "!multidumperfullsoundtrackpath!.ps1"
+echo } >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+
+echo $listView.Add_MouseDoubleClick^({ >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo     $mousePosition = $listView.PointToClient^([System.Windows.Forms.Cursor]::Position^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $hitTest = $listView.HitTest^($mousePosition^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $item = $hitTest.Item >> "!multidumperfullsoundtrackpath!.ps1"
+REM echo     if ($item.Checked -eq $true) { $item.Checked = $false } else { $item.Checked = $true } >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo     if ^($item -ne $null -and $hitTest.SubItem -ne $null^) { >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo         $clickedColumnIndex = 0 >> "!multidumperfullsoundtrackpath!.ps1"
+echo         foreach ^($subItem in $item.SubItems^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo             if ^($subItem -eq $hitTest.SubItem^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo                 break >> "!multidumperfullsoundtrackpath!.ps1"
+echo             } >> "!multidumperfullsoundtrackpath!.ps1"
+echo             $clickedColumnIndex++ >> "!multidumperfullsoundtrackpath!.ps1"
+echo         } >> "!multidumperfullsoundtrackpath!.ps1"
+echo     if ($item.Checked -eq $true) { $item.Checked = $false } else { $item.Checked = $true } >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo         if ^($clickedColumnIndex -eq 2^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo             $currentLength = $item.SubItems[$clickedColumnIndex].Text >> "!multidumperfullsoundtrackpath!.ps1"
+echo             $newLength = ShowEditForm -currentValue $currentLength >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo             if ^($newLength -ne $null^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo                 $item.SubItems[$clickedColumnIndex].Text = $newLength >> "!multidumperfullsoundtrackpath!.ps1"
+echo             } >> "!multidumperfullsoundtrackpath!.ps1"
+echo         } >> "!multidumperfullsoundtrackpath!.ps1"
+echo     } >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+
+echo $form.Controls.Add^($listView^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+
+echo $toggleButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo $toggleButton.Text = "Uncheck All" >> "!multidumperfullsoundtrackpath!.ps1"
+echo $toggleButton.Location = New-Object System.Drawing.Point^(10, 290^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $toggleButton.Size = New-Object System.Drawing.Size^(100, 30^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $toggleButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo     if ^($toggleButton.Text -eq "Check All"^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $listView.Items ^| ForEach-Object { $_.Checked = $true } >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $toggleButton.Text = "Uncheck All" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     } else { >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $listView.Items ^| ForEach-Object { $_.Checked = $false } >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $toggleButton.Text = "Check All" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     } >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($toggleButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $rangeStartBox = New-Object System.Windows.Forms.NumericUpDown >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeStartBox.Location = New-Object System.Drawing.Point^(10, 330^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeStartBox.Size = New-Object System.Drawing.Size^(60, 20^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeStartBox.Minimum = 1 >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeStartBox.Maximum = $subsongCount >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeStartBox.Value = 1 >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($rangeStartBox^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $rangeEndBox = New-Object System.Windows.Forms.NumericUpDown >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeEndBox.Location = New-Object System.Drawing.Point^(80, 330^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeEndBox.Size = New-Object System.Drawing.Size^(60, 20^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeEndBox.Minimum = 1 >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeEndBox.Maximum = $subsongCount >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeEndBox.Value = $subsongCount >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($rangeEndBox^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $rangeButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeButton.Text = "Select Range" >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeButton.Location = New-Object System.Drawing.Point^(150, 330^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeButton.Size = New-Object System.Drawing.Size^(100, 30^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $rangeButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $start = $rangeStartBox.Value >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $end = $rangeEndBox.Value >> "!multidumperfullsoundtrackpath!.ps1"
+echo     if ^($start -lt $end^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $listView.Items ^| ForEach-Object { >> "!multidumperfullsoundtrackpath!.ps1"
+echo             $trackNo = $_.SubItems[1].Text -replace 'Track No. ', '' >> "!multidumperfullsoundtrackpath!.ps1"
+echo             if ^([int]::TryParse^($trackNo, [ref]$null^)^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo                 $_.Checked = ^([int]$trackNo -ge $start -and [int]$trackNo -le $end^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo             } >> "!multidumperfullsoundtrackpath!.ps1"
+echo         } >> "!multidumperfullsoundtrackpath!.ps1"
+echo     } >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $form.Controls.Add^($rangeButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $lengthBox = New-Object System.Windows.Forms.NumericUpDown >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthBox.Location = New-Object System.Drawing.Point^(10, 370^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthBox.Size = New-Object System.Drawing.Size^(60, 20^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthBox.Minimum = 1 >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthBox.Maximum = 600 >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthBox.Value = 120 >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($lengthBox^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $lengthButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthButton.Text = "Set All Lengths" >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthButton.Location = New-Object System.Drawing.Point^(80, 370^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthButton.Size = New-Object System.Drawing.Size^(150, 30^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $lengthButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $newLength = $lengthBox.Value >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $listView.Items ^| ForEach-Object { >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $_.SubItems[2].Text = $newLength.ToString^(^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo     } >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($lengthButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $confirmButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo $confirmButton.Text = "Confirm" >> "!multidumperfullsoundtrackpath!.ps1"
+echo $confirmButton.Location = New-Object System.Drawing.Point^(550, 420^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $confirmButton.Size = New-Object System.Drawing.Size^(100, 30^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $confirmButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+ECHO	 $listView.Items ^| Where-Object { $_.Checked } ^| ForEach-Object { $totalLength += [int]$_.SubItems[2].Text } >> "!multidumperfullsoundtrackpath!.ps1"
+ECHO	 Write-Host "Header=$($jsonData.channels.Count)=$($totalLength)" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $listView.Items ^| Where-Object { $_.Checked } ^| ForEach-Object { >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $trackNo = $_.SubItems[1].Text -replace 'Track No. ', '' >> "!multidumperfullsoundtrackpath!.ps1"
+echo         $length = $_.SubItems[2].Text >> "!multidumperfullsoundtrackpath!.ps1"
+echo         Write-Host "$($trackNo - 1)=$length" >> "!multidumperfullsoundtrackpath!.ps1"
+echo     } >> "!multidumperfullsoundtrackpath!.ps1"
+echo 	 $buttonClicked = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $form.Close^(^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($confirmButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+echo $cancelButton = New-Object System.Windows.Forms.Button >> "!multidumperfullsoundtrackpath!.ps1"
+echo $cancelButton.Text = "Cancel" >> "!multidumperfullsoundtrackpath!.ps1"
+echo $cancelButton.Location = New-Object System.Drawing.Point^(660, 420^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $cancelButton.Size = New-Object System.Drawing.Size^(100, 30^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $cancelButton.Add_Click^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo     Write-Host "None" >> "!multidumperfullsoundtrackpath!.ps1"
+echo 	 $buttonClicked = $true >> "!multidumperfullsoundtrackpath!.ps1"
+echo     $form.Close^(^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo $form.Controls.Add^($cancelButton^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $form.Add_FormClosing^({ >> "!multidumperfullsoundtrackpath!.ps1"
+echo 	if ^(-not $buttonClicked^) { >> "!multidumperfullsoundtrackpath!.ps1"
+echo 		Write-Host "None" >> "!multidumperfullsoundtrackpath!.ps1"
+echo 	} >> "!multidumperfullsoundtrackpath!.ps1"
+echo }^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+echo $form.Add_Shown^({ $form.Activate() }^) >> "!multidumperfullsoundtrackpath!.ps1"
+echo [void]$form.ShowDialog^(^) >> "!multidumperfullsoundtrackpath!.ps1"
+
+
+goto :EOF
+
+:SCRIPTGEN_VIDEOCONFIG
+	echo Add-Type -AssemblyName System.Windows.Forms > !numberboxpath!
+	echo Add-Type -AssemblyName System.Drawing >> !numberboxpath!
+
+	echo $buttonClicked = $false >> !numberboxpath!
+
+	echo $form = New-Object System.Windows.Forms.Form >> !numberboxpath!
+	echo $form.Text = "NSOVVG" >> !numberboxpath!
+	echo $form.Size = New-Object System.Drawing.Size^(435, 200^) >> !numberboxpath!
+
+
+	echo $xLabel = New-Object System.Windows.Forms.Label >> !numberboxpath!
+	echo $xLabel.Text = "Width (X):" >> !numberboxpath!
+	echo $xLabel.Location = New-Object System.Drawing.Point^(20, 20^) >> !numberboxpath!
+	echo $form.Controls.Add^($xLabel^) >> !numberboxpath!
+
+	echo $yLabel = New-Object System.Windows.Forms.Label >> !numberboxpath!
+	echo $yLabel.Text = "Height (Y):" >> !numberboxpath!
+	echo $yLabel.Location = New-Object System.Drawing.Point^(160, 20^) >> !numberboxpath!
+	echo $form.Controls.Add^($yLabel^) >> !numberboxpath!
+
+	echo $fpsLabel = New-Object System.Windows.Forms.Label >> !numberboxpath!
+	echo $fpsLabel.Text = "FPS:" >> !numberboxpath!
+	echo $fpsLabel.Location = New-Object System.Drawing.Point^(300, 20^) >> !numberboxpath!
+	echo $form.Controls.Add^($fpsLabel^) >> !numberboxpath!
+
+
+	echo $xBox = New-Object System.Windows.Forms.NumericUpDown >> !numberboxpath!
+	echo $xBox.Location = New-Object System.Drawing.Point^(20, 50^) >> !numberboxpath!
+	echo $xBox.Size = New-Object System.Drawing.Size^(100, 20^) >> !numberboxpath!
+	echo $xBox.Minimum = 160 >> !numberboxpath!
+	echo $xBox.Maximum = 1366 >> !numberboxpath!
+	echo $xBox.Value = !x_res! >> !numberboxpath!
+	echo $form.Controls.Add^($xBox^) >> !numberboxpath!
+
+	echo $yBox = New-Object System.Windows.Forms.NumericUpDown >> !numberboxpath!
+	echo $yBox.Location = New-Object System.Drawing.Point^(160, 50^) >> !numberboxpath!
+	echo $yBox.Size = New-Object System.Drawing.Size^(100, 20^) >> !numberboxpath!
+	echo $yBox.Minimum = 90 >> !numberboxpath!
+	echo $yBox.Maximum = 768 >> !numberboxpath!
+	echo $yBox.Value = !y_res! >> !numberboxpath!
+	echo $form.Controls.Add^($yBox^) >> !numberboxpath!
+
+	echo $fpsBox = New-Object System.Windows.Forms.NumericUpDown >> !numberboxpath!
+	echo $fpsBox.Location = New-Object System.Drawing.Point^(300, 50^) >> !numberboxpath!
+	echo $fpsBox.Size = New-Object System.Drawing.Size^(100, 20^) >> !numberboxpath!
+	echo $fpsBox.Minimum = 24 >> !numberboxpath!
+	echo $fpsBox.Maximum = 240 >> !numberboxpath!
+	echo $fpsBox.Value = !fps! >> !numberboxpath!
+	echo $form.Controls.Add^($fpsBox^) >> !numberboxpath!
+
+
+	echo $okButton = New-Object System.Windows.Forms.Button >> !numberboxpath!
+	echo $okButton.Text = "OK" >> !numberboxpath!
+	echo $okButton.Location = New-Object System.Drawing.Point^(300, 100^) >> !numberboxpath!
+	echo $okButton.Size = New-Object System.Drawing.Size^(80, 30^) >> !numberboxpath!
+	echo $okButton.Add_Click^({ >> !numberboxpath!
+	echo     Write-Host "$($xBox.Value)=$($yBox.Value)=$($fpsBox.Value)" >> !numberboxpath!
+	echo 	 $buttonClicked = $true >> !numberboxpath!
+	echo     $form.Close^(^) >> !numberboxpath!
+	echo }^) >> !numberboxpath!
+	echo $form.Controls.Add^($okButton^) >> !numberboxpath!
+
+	echo $cancelButton = New-Object System.Windows.Forms.Button >> !numberboxpath!
+	echo $cancelButton.Text = "Cancel" >> !numberboxpath!
+	echo $cancelButton.Location = New-Object System.Drawing.Point^(200, 100^) >> !numberboxpath!
+	echo $cancelButton.Size = New-Object System.Drawing.Size^(80, 30^) >> !numberboxpath!
+	echo $cancelButton.Add_Click^({ >> !numberboxpath!
+	echo     $form.Close^(^) >> !numberboxpath!
+	echo }^) >> !numberboxpath!
+	echo $form.Controls.Add^($cancelButton^) >> !numberboxpath!
+
+	echo $form.Add_FormClosing^({ >> !numberboxpath!
+	echo 	if ^(-not $buttonClicked^) { >> !numberboxpath!
+	echo 		Write-Host "None" >> !numberboxpath!
+	echo 	} >> !numberboxpath!
+	echo }^) >> !numberboxpath!
+
+	echo [void]$form.ShowDialog^(^) >> !numberboxpath!
