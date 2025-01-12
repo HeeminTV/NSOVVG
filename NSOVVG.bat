@@ -4,25 +4,22 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 title Not Serious Oscilloscope View Video Generator - by heeminwelcome1@gmail.com
 "!__APPDIR__!chcp.com" 65001 >nul
 CALL :resetvariables
-if not "%~1"=="" if exist "%~1" if /i "%~x1"==".ini" for /f "tokens=1,* delims==" %%a in ('type "%~1"') do (
-	set dummyvariable1=%%a
-	IF NOT "!dummyvariable1:~0,1!"=="[" set "%%a=%%b"
-)
+CALL :LOADINICONFIGFILE "%~1"
 
 :: VERSION
-SET "NSOVVGVERSION=1.0.4a11"
+SET "NSOVVGVERSION=1.0.4a12_dev"
 
 set "chosenfiles="
-set "tempfileprefix=!APPDATA!\NSOVVG\NSOVVG_"
-set "userfileprefix=!APPDATA!\NSOVVG\NSOVVG-USER_"
-IF NOT EXIST "!APPDATA!\NSOVVG\" mkdir "!APPDATA!\NSOVVG\"
+set "ASSETSFOLDER=assets"
+set "tempfileprefix=!ASSETSFOLDER!\"
+set "userfileprefix=!ASSETSFOLDER!\NSOVVG-USER_"
+IF NOT EXIST "!ASSETSFOLDER!\" mkdir "!ASSETSFOLDER!\"
 
 set "progressbarpath=!tempfileprefix!displayrendering.bat"
 set "progresslogpath=!tempfileprefix!ffmpegprogresslog.log"
 set "fontpickerpath=!tempfileprefix!fontPicker.ps1"
 set "numberboxpath=!tempfileprefix!numberBox.ps1"
 set "reorderboxpath=!tempfileprefix!reorder.ps1"
-set "colorpickerpath=!tempfileprefix!colorPicker.ps1"
 set "ffmpeglogpath=!tempfileprefix!ffmpeglog.log"
 set "ffmpegrenderingerrorboxpath=!tempfileprefix!ffmpegrenderingerrorBox.ps1"
 set "chsortboxpath=!tempfileprefix!chsortBox.ps1"
@@ -31,313 +28,49 @@ set "multidumperpath=!userfileprefix!multidumper"
 set "multidumpersettingsboxpath=!tempfileprefix!vgmsettingsBox.ps1"
 set "multidumperfullsoundtrackpath=!tempfileprefix!vgmfullsoundtrackBox"
 set "helpchmpath=!userfileprefix!!NSOVVGVERSION!-helpchm"
-del /q "!tempfileprefix!*" 2>nul
 
-if not exist "!loadingshowname!.bat" (
-	ECHO Please wait a moment... This procedure will be run once on the first run...
-	echo QEVDSE8gT0ZGDQpTRVRMT0NBTCBFTkFCTEVERUxBWUVERVhQQU5TSU9ODQpDSENQIDY1MDAxDQpUSVRMRSBOU09WVkcNCnNldCBpPTANCnNldCBpbnRyb3k9Mg0Kc2V0ICJnYXA9CQkJCSINCnNldCAibG9hZGlnbj0bWzRBCSV+MiINCkNMUw0KDQpjYWxsIDpJTlRSTw0KDQo6RVhJDQpjbHMNCkNBTEwgOkRSTE9HTw0KDQpFQ0hPLg0KRUNITy4NCkVDSE8uDQpFQ0hPLg0KOlRFU1QNCnNldCAvYSBpKz0xDQoNCkNBTEwgOkFOSSFpIQ0KaWYgIWkhIEdFUSA0IHNldCBpPTANCnRpbWVvdXQgMCA+bnVsDQpJRiBOT1QgRVhJU1QgIiV+MSIgKCANCglDQUxMIDpPVVRSTw0KCUVYSVQgL0INCikNCkdPVE8gVEVTVA0KDQo6QU5JMQ0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCEgICAvIA0KRUNITyAhZ2FwISAgLyAgDQpFQ0hPICFnYXAhIC8gICANCkdPVE8gOkVPRg0KDQo6QU5JMg0KZWNobyAhbG9hZGlnbiEuICANCkVDSE8gIWdhcCEgIF58ICANCkVDSE8gIWdhcCEgIF58ICANCkVDSE8gIWdhcCEgIF58ICANCkdPVE8gOkVPRg0KDQo6QU5JMw0KZWNobyAhbG9hZGlnbiEuLiAJDQpFQ0hPICFnYXAhIFwgICANCkVDSE8gIWdhcCEgIFwgIA0KRUNITyAhZ2FwISAgIFwgDQpHT1RPIDpFT0YNCg0KOkFOSTQNCmVjaG8gIWxvYWRpZ24hLi4uDQpFQ0hPICFnYXAh44Wk44Wk44Wk44Wk44WkDQpFQ0hPICFnYXAhLS0tLS0NCkVDSE8gIWdhcCHjhaTjhaTjhaTjhaTjhaQNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDENCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pWU4pSA4pSA4pSA4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pSA4pSA4pSA4pWdDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQyDQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKVkOKUgOKUgOKUkA0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKUlOKUgOKUgOKVkOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUMw0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilZDilIDilJANCkVDSE8gIWdhcCHilIIgICDilIINCkVDSE8gIWdhcCHilJTilIDilZDilIDilJgNCkdPVE8gOkVPRg0KDQo6QU5JX0FMVDQNCmVjaG8gIWxvYWRpZ24hICAgDQpFQ0hPICFnYXAh4pSM4pSA4pSA4pWQ4pSQDQpFQ0hPICFnYXAh4pSCICAg4pSCDQpFQ0hPICFnYXAh4pSU4pWQ4pSA4pSA4pSYDQpHT1RPIDpFT0YNCg0KOkFOSV9BTFQ1DQplY2hvICFsb2FkaWduISAgIA0KRUNITyAhZ2FwIeKUjOKUgOKUgOKUgOKVlw0KRUNITyAhZ2FwIeKUgiAgIOKUgg0KRUNITyAhZ2FwIeKVmuKUgOKUgOKUgOKUmA0KR09UTyA6RU9GDQoNCjpBTklfQUxUNg0KZWNobyAhbG9hZGlnbiEgICANCkVDSE8gIWdhcCHilIzilIDilIDilIDilJANCkVDSE8gIWdhcCHilZEgICDilZENCkVDSE8gIWdhcCHilJTilIDilIDilIDilJgNCkdPVE8gOkVPRg0KDQo6RFJMT0dPDQpFQ0hPLg0KZWNobyAgICAbWzFtG1s5N20gICAgICAgICAsLS0uICAgICAgICAgICAgICAsLS0tLS4uDQplY2hvICAgICAgICAgICAsLS0uJ158IC4tLS4tLS4gICAgIC8gICAvICAgXCAgICAgICAgICAgICAgICAgICAgICAgICAsLS0tLS4uDQplY2hvICAgICAgICwtLSw6ICA6IF58LyAgLyAgICAnLiAgLyAgIC4gICAgIDogICAgICAgLC0tLS4gICAgICAsLS0tLi8gICAvICAgXA0KZWNobyAgICAsYC0tLidgXnwgICcgXnwgIDogIC9gLiAvIC4gICAvICAgOy4gIFwgICAgIC9fXy4vXnwgICAgIC9fXy4vXnwgICA6ICAgICA6DQplY2hvICAgIF58ICAgOiAgOiAgXnwgOyAgXnwgIF58LS1gIC4gICA7ICAgLyAgYCA7LC0tLS47ICA7IF58LC0tLS47ICA7IC4gICBefCAgOy4gLw0KZWNobyAgICA6ICAgXnwgICBcIF58IF58ICA6ICA7XyAgIDsgICBefCAgOyBcIDsgL19fXy8gXCAgXnwgL19fXy8gXCAgXnwgLiAgIDsgLy0tYA0KZWNobyAgICBefCAgIDogJyAgJzsgXnxcICBcICAgIGAuXnwgICA6ICBefCA7IF58IFwgICA7ICBcICcgXCAgIDsgIFwgJyA7ICAgXnwgOyAgX18NCmVjaG8gICAgJyAgICcgOy4gICAgOyBgLS0tLS4gICAuICAgXnwgICcgJyAnIDpcICAgXCAgXDogXnxcICAgXCAgXDogXnwgICA6IF58LicgLicNCmVjaG8gICAgXnwgICBefCBefCBcICAgXnwgX18gXCAgXCAgJyAgIDsgIFw7IC8gIF58IDsgICBcICAnIC4gOyAgIFwgICcgLiAgIF58ICdfLicgOg0KZWNobyAgICAnICAgOiBefCAgOyAuJy8gIC9gLS0nICAvXCAgIFwgICcsICAvICAgXCAgIFwgICAnICBcICAgXCAgICcgICA7IDogXCAgXnwNCmVjaG8gICAgXnwgICBefCAnYC0tJyAnLS0nLiAgICAgLyAgOyAgIDogICAgLyAgICAgXCAgIGAgIDsgICBcICAgYCAgJyAgIF58ICcvICAuJw0KZWNobyAgICAnICAgOiBefCAgICAgICBgLS0nLS0tJyAgICBcICAgXCAuJyAgICAgICA6ICAgXCBefCAgICA6ICAgXCBefCAgIDogICAgLw0KZWNobyAgICA7ICAgXnwuJyAgICAgICAgICAgICAgICAgICAgYC0tLWAgICAgICAgICAgJy0tLSIgICAgICAnLS0tIiBcICAgXCAuJw0KZWNobyAgICAnLS0tJyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBgLS0tYBtbMG0NCmVjaG8uICAgICAgICAgICAgIE5vdCBTZXJpb3VzIE9zY2lsbG9zY29wZSBWaWV3IFZpZGVvIEdlbmVyYXRvcg0KZWNoby4NCkdPVE8gOkVPRg0KDQo6SU5UUk8NCnNldCAvYSBpbnRyb3krPTENCk1PREUgNzUsICFpbnRyb3khDQpDQUxMIDpEUkxPR08NCmlmICFpbnRyb3khIEdFUSAyMyAgZ290byA6RU9GDQpHT1RPIElOVFJPDQoNCjpPVVRSTw0Kc2V0IC9hIGludHJveS09MQ0KTU9ERSA3NSwgIWludHJveSENCkNBTEwgOkRSTE9HTw0KaWYgIWludHJveSEgTFNTIDIgIGdvdG8gOkVPRg0KR09UTyBPVVRSTw== > "!loadingshowname!.b64"
-	certutil -decode "!loadingshowname!.b64" "!loadingshowname!.bat" >nul
-) else echo. > "!loadingshowname!.b64"
+REM echo. > "!loadingshowname!.b64"
 
 set "msg_scgen=Generating the script... Please wait^!"
 set "msg_scgendone=Done^!"
 
-START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG is now loading"
+REM START conhost "!loadingshowname!.bat" "!loadingshowname!.b64" "NSOVVG is now loading"
 
 CALL :FFMPEG_CHECK
 
 echo Detecting your GPU... Please wait^!
 call :gpudetect
-echo Creating external scripts... Please wait^!
 
 
 :bfdrawlogo
 
- echo @echo off> !progressbarpath!
- echo setlocal enabledelayedexpansion >> !progressbarpath!
- ECHO CHCP 65001 >> !progressbarpath!
- echo title Rendering... >> !progressbarpath!
- echo mode 54,8 >> !progressbarpath!
- echo for /f "tokens=* delims=" %%%%a in ('ffprobe -v error -show_entries format^^=duration -of default^^=noprint_wrappers^^=1:nokey^^=1 "%%~1"') do ( >> !progressbarpath!
- echo     set decimal_value=%%%%a >> !progressbarpath!
- echo ) >> !progressbarpath!
- echo for /f "usebackq tokens=* delims=" %%%%a in (`powershell -command "[math]::Round(%%decimal_value%% * 1000)"`) do ( >> !progressbarpath!
- echo 	set duration=%%%%a >> !progressbarpath!
- echo ) >> !progressbarpath!
- echo :a >> !progressbarpath!
- echo if not exist "%%~2" goto a >> !progressbarpath!
- echo set /p ifnone=^<"%%~2" >> !progressbarpath!
- echo if "^!ifnone^!"=="None" exit /b >> !progressbarpath!
- echo set "result=" >> !progressbarpath!
- echo for /f "tokens=2 delims==" %%%%a in ('findstr "out_time_ms" "%%~2"') do ( >> !progressbarpath!
- echo     set /a last_out_time=%%%%a / 1000 >> !progressbarpath!
- echo ) >> !progressbarpath!
- echo if not defined last_out_time goto a >> !progressbarpath!
- echo set /a percent=(last_out_time*100)/duration 2^>nul >> !progressbarpath!
- echo set /a display=(last_out_time*50)/duration 2^>nul >> !progressbarpath!
- echo for /l %%%%i in (1,1,^^!display^^!) do set "result=^!result^![103m [0m" >> !progressbarpath!
- echo set /a remaining=50-^^!display^^! >> !progressbarpath!
- echo for /l %%%%i in (1,1,^^!remaining^^!) do set "result=^!result^![44m [0m" >> !progressbarpath!
- echo if not defined result goto a >> !progressbarpath!
- echo cls >> !progressbarpath!
-echo echo. >> !progressbarpath!
- echo echo [44m[97m [7mO==================================================O[27m >> !progressbarpath!
- echo echo     Not Serious Oscilloscope View Video Generator    >> !progressbarpath!
- echo echo     Rendering: ^^!percent^^!%%%%				     >> !progressbarpath!
- echo echo.                                                      >> !progressbarpath!
- echo echo  ^^!result^^![44m[97m  >> !progressbarpath!
- echo echo  [7mO==================================================O[27m >> !progressbarpath!
- rem echo echo To abort, press [7m[Ctrl][27m + [7m[C][27m on the main console. >> !progressbarpath!
- echo timeout 1 ^> nul >> !progressbarpath!
- echo goto a >> !progressbarpath!
  
-echo Add-Type -AssemblyName System.Windows.Forms > !reorderboxpath!
-echo Add-Type -AssemblyName System.Drawing >> !reorderboxpath!
-echo $buttonClicked = $false >> !reorderboxpath!
-
-
-echo $channels = @^(^) >> !reorderboxpath!
-echo for ^($i = 1; $true; $i++^) { >> !reorderboxpath!
-echo     $varName = "channel$i" >> !reorderboxpath!
-echo     $value = [Environment]::GetEnvironmentVariable^($varName^) >> !reorderboxpath!
-echo     if ^($null -eq $value^) { break } >> !reorderboxpath!
-echo     $channels += $value >> !reorderboxpath!
-echo } >> !reorderboxpath!
-
-
-echo $form = New-Object System.Windows.Forms.Form >> !reorderboxpath!
-echo $form.Text = "NSOVVG" >> !reorderboxpath!
-echo $form.Width = 800 >> !reorderboxpath!
-echo $form.Height = 300 >> !reorderboxpath!
-echo $form.StartPosition = 'CenterScreen' >> !reorderboxpath!
-
-
-echo $listBox = New-Object System.Windows.Forms.ListBox >> !reorderboxpath!
-echo $listBox.Location = New-Object System.Drawing.Point^(10, 10^) >> !reorderboxpath!
-echo $listBox.Size = New-Object System.Drawing.Size^(700, 200^) >> !reorderboxpath!
-echo $listBox.SelectionMode = 'One' >> !reorderboxpath!
-echo $listBox.Items.AddRange^($channels^) >> !reorderboxpath!
-echo $form.Controls.Add^($listBox^) >> !reorderboxpath!
-
-
-echo $btnUp = New-Object System.Windows.Forms.Button >> !reorderboxpath!
-echo $btnUp.Text = "Up" >> !reorderboxpath!
-echo $btnUp.Location = New-Object System.Drawing.Point^(710, 30^) >> !reorderboxpath!
-echo $btnUp.Add_Click^({ >> !reorderboxpath!
-echo     $selectedIndex = $listBox.SelectedIndex >> !reorderboxpath!
-echo     if ^($selectedIndex -gt 0^) { >> !reorderboxpath!
-
-echo         $temp = $listBox.Items[$selectedIndex] >> !reorderboxpath!
-echo         $listBox.Items[$selectedIndex] = $listBox.Items[$selectedIndex - 1] >> !reorderboxpath!
-echo         $listBox.Items[$selectedIndex - 1] = $temp >> !reorderboxpath!
-echo         $listBox.SelectedIndex = $selectedIndex - 1 >> !reorderboxpath!
-echo     } >> !reorderboxpath!
-echo }^) >> !reorderboxpath!
-echo $form.Controls.Add^($btnUp^) >> !reorderboxpath!
-
-
-echo $btnDown = New-Object System.Windows.Forms.Button >> !reorderboxpath!
-echo $btnDown.Text = "Down" >> !reorderboxpath!
-echo $btnDown.Location = New-Object System.Drawing.Point^(710, 70^) >> !reorderboxpath!
-echo $btnDown.Add_Click^({ >> !reorderboxpath!
-echo     $selectedIndex = $listBox.SelectedIndex >> !reorderboxpath!
-echo     if ^($selectedIndex -lt $listBox.Items.Count - 1^) { >> !reorderboxpath!
-
-echo         $temp = $listBox.Items[$selectedIndex] >> !reorderboxpath!
-echo         $listBox.Items[$selectedIndex] = $listBox.Items[$selectedIndex + 1] >> !reorderboxpath!
-echo         $listBox.Items[$selectedIndex + 1] = $temp >> !reorderboxpath!
-echo         $listBox.SelectedIndex = $selectedIndex + 1 >> !reorderboxpath!
-echo     } >> !reorderboxpath!
-echo }^) >> !reorderboxpath!
-echo $form.Controls.Add^($btnDown^) >> !reorderboxpath!
-
-
-echo $btnOK = New-Object System.Windows.Forms.Button >> !reorderboxpath!
-echo $btnOK.Text = "OK" >> !reorderboxpath!
-echo $btnOK.Location = New-Object System.Drawing.Point^(100, 220^) >> !reorderboxpath!
-echo $btnOK.Add_Click^({ >> !reorderboxpath!
-echo     $newOrder = $listBox.Items >> !reorderboxpath!
-echo 	 $buttonClicked = $true >> !reorderboxpath!
-
-echo foreach ^($channel in $newOrder^) { >> !reorderboxpath!
-echo     $index = $channels.IndexOf^($channel^) >> !reorderboxpath!
-echo     Write-Host ^($index + 1^) >> !reorderboxpath!
-REM echo 	 $buttonClicked = $true >> !reorderboxpath!
-echo } >> !reorderboxpath!
-
-echo     $form.Close^(^) >> !reorderboxpath!
-echo }^) >> !reorderboxpath!
-echo $form.Controls.Add^($btnOK^) >> !reorderboxpath!
-
-
-echo $btnCancel = New-Object System.Windows.Forms.Button >> !reorderboxpath!
-echo $btnCancel.Text = "Cancel" >> !reorderboxpath!
-echo $btnCancel.Location = New-Object System.Drawing.Point^(200, 220^) >> !reorderboxpath!
-echo $btnCancel.Add_Click^({ >> !reorderboxpath!
-echo 	 $buttonClicked = $true >> !reorderboxpath!
-echo     Write-Host "None" >> !reorderboxpath!
-echo     $form.Close^(^) >> !reorderboxpath!
-echo }^) >> !reorderboxpath!
-echo $form.Controls.Add^($btnCancel^) >> !reorderboxpath!
-
-
-echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !reorderboxpath!
-echo [void]$form.ShowDialog^(^) >> !reorderboxpath!
-
-echo $form.Add_FormClosing^({ >> !reorderboxpath!
-echo     if ^(-not $buttonClicked^) { >> !reorderboxpath!
-echo         Write-Host "None" >> !reorderboxpath!
-echo     } >> !reorderboxpath!
-echo }^) >> !reorderboxpath!
-
-echo param^($defaultColor = "#FF5733"^) > !colorpickerpath!
-
-echo Add-Type -AssemblyName System.Windows.Forms >> !colorpickerpath!
-
-
-echo function Convert-HexToColor^($hex^) { >> !colorpickerpath!
-echo     $r = [Convert]::ToInt32^($hex.Substring^(1, 2^), 16^) >> !colorpickerpath!
-echo     $g = [Convert]::ToInt32^($hex.Substring^(3, 2^), 16^) >> !colorpickerpath!
-echo     $b = [Convert]::ToInt32^($hex.Substring^(5, 2^), 16^) >> !colorpickerpath!
-echo     return [System.Drawing.Color]::FromArgb^($r, $g, $b^) >> !colorpickerpath!
-echo } >> !colorpickerpath!
-
-
-echo $colorDialog = New-Object System.Windows.Forms.ColorDialog >> !colorpickerpath!
-echo $colorDialog.FullOpen = $true >> !colorpickerpath!
-
-
-echo if ^($defaultColor -ne "None"^) { >> !colorpickerpath!
-echo     $colorDialog.Color = Convert-HexToColor $defaultColor >> !colorpickerpath!
-echo } >> !colorpickerpath!
-
-
-echo if ^($colorDialog.ShowDialog^(^) -eq [System.Windows.Forms.DialogResult]::OK^) { >> !colorpickerpath!
-
-echo     $color = "#{0:X2}{1:X2}{2:X2}" -f $colorDialog.Color.R, $colorDialog.Color.G, $colorDialog.Color.B >> !colorpickerpath!
-echo     Write-Host $color >> !colorpickerpath!
-echo } else { >> !colorpickerpath!
-
-echo     Write-Host "None" >> !colorpickerpath!
-echo } >> !colorpickerpath!
-
-echo Add-Type -AssemblyName System.Windows.Forms > !ffmpegrenderingerrorboxpath!
-echo Add-Type -AssemblyName System.Drawing >> !ffmpegrenderingerrorboxpath!
-echo $filePath = $args[0] >> !ffmpegrenderingerrorboxpath!
-echo $contactText = if ^(Test-Path $filePath^) { >> !ffmpegrenderingerrorboxpath!
-echo     $content = Get-Content $filePath -Raw >> !ffmpegrenderingerrorboxpath!
-echo     if ^(-not [string]::IsNullOrWhiteSpace^($content^)^) { >> !ffmpegrenderingerrorboxpath!
-echo         $content >> !ffmpegrenderingerrorboxpath!
-echo     } else { >> !ffmpegrenderingerrorboxpath!
-echo         "None" >> !ffmpegrenderingerrorboxpath!
-echo     } >> !ffmpegrenderingerrorboxpath!
-echo } else { >> !ffmpegrenderingerrorboxpath!
-echo     "None" >> !ffmpegrenderingerrorboxpath!
-echo } >> !ffmpegrenderingerrorboxpath!
-
-
-echo $form = New-Object System.Windows.Forms.Form >> !ffmpegrenderingerrorboxpath!
-echo $form.Text = "NSOVVG" >> !ffmpegrenderingerrorboxpath!
-echo $form.Width = 450 >> !ffmpegrenderingerrorboxpath!
-echo $form.Height = 600 >> !ffmpegrenderingerrorboxpath!
-echo $form.StartPosition = 'CenterScreen' >> !ffmpegrenderingerrorboxpath!
-
-
-echo $errorLabel = New-Object System.Windows.Forms.Label >> !ffmpegrenderingerrorboxpath!
-echo $errorLabel.Text = $args[1] + >> !ffmpegrenderingerrorboxpath!
-echo                    "`nTo send this error to the developer, click [Save]`n" + >> !ffmpegrenderingerrorboxpath!
-echo                    "and send the log file to one of the following contacts:" >> !ffmpegrenderingerrorboxpath!
-echo $errorLabel.Location = New-Object System.Drawing.Point^(10, 10^) >> !ffmpegrenderingerrorboxpath!
-echo $errorLabel.Size = New-Object System.Drawing.Size^(420, 60^) >> !ffmpegrenderingerrorboxpath!
-echo $form.Controls.Add^($errorLabel^) >> !ffmpegrenderingerrorboxpath!
-
-
-echo $contactBox = New-Object System.Windows.Forms.TextBox >> !ffmpegrenderingerrorboxpath!
-echo $contactBox.Multiline = $true >> !ffmpegrenderingerrorboxpath!
-echo $contactBox.Text = "Email: heeminwelcome1@gmail.com`r`nDiscord: _yumetaro_" >> !ffmpegrenderingerrorboxpath!
-echo $contactBox.Location = New-Object System.Drawing.Point^(10, 80^) >> !ffmpegrenderingerrorboxpath!
-echo $contactBox.Size = New-Object System.Drawing.Size^(410, 30^) >> !ffmpegrenderingerrorboxpath!
-echo $contactBox.ReadOnly = $true >> !ffmpegrenderingerrorboxpath!
-echo $form.Controls.Add^($contactBox^) >> !ffmpegrenderingerrorboxpath!
-
-echo $Banner = New-Object System.Windows.Forms.Label >> !ffmpegrenderingerrorboxpath!
-echo $Banner.Text = "Error log:" >> !ffmpegrenderingerrorboxpath!
-echo $Banner.Location = New-Object System.Drawing.Point^(10, 115^) >> !ffmpegrenderingerrorboxpath!
-echo $Banner.Size = New-Object System.Drawing.Size^(420, 15^) >> !ffmpegrenderingerrorboxpath!
-echo $form.Controls.Add^($Banner^) >> !ffmpegrenderingerrorboxpath!
-
-echo $ErrorBox = New-Object System.Windows.Forms.TextBox >> !ffmpegrenderingerrorboxpath!
-echo $ErrorBox.Multiline = $true >> !ffmpegrenderingerrorboxpath!
-echo $ErrorBox.Text = $contactText >> !ffmpegrenderingerrorboxpath!
-echo $ErrorBox.Location = New-Object System.Drawing.Point^(10, 130^) >> !ffmpegrenderingerrorboxpath!
-echo $ErrorBox.Size = New-Object System.Drawing.Size^(410, 350^) >> !ffmpegrenderingerrorboxpath!
-echo $ErrorBox.ReadOnly = $true >> !ffmpegrenderingerrorboxpath!
-echo $form.Controls.Add^($ErrorBox^) >> !ffmpegrenderingerrorboxpath!
-
-echo $saveButton = New-Object System.Windows.Forms.Button >> !ffmpegrenderingerrorboxpath!
-echo $saveButton.Text = "Save" >> !ffmpegrenderingerrorboxpath!
-echo $saveButton.Location = New-Object System.Drawing.Point^(80, 530^) >> !ffmpegrenderingerrorboxpath!
-echo $saveButton.Add_Click^({ >> !ffmpegrenderingerrorboxpath!
-echo     Write-Host "YES" >> !ffmpegrenderingerrorboxpath!
-echo 	 $buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
-echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
-echo }^) >> !ffmpegrenderingerrorboxpath!
-echo $form.Controls.Add^($saveButton^) >> !ffmpegrenderingerrorboxpath!
-
-echo $cancelButton = New-Object System.Windows.Forms.Button >> !ffmpegrenderingerrorboxpath!
-echo $cancelButton.Text = "Cancel" >> !ffmpegrenderingerrorboxpath!
-echo $cancelButton.Location = New-Object System.Drawing.Point^(240, 530^) >> !ffmpegrenderingerrorboxpath!
-echo $cancelButton.Add_Click^({ >> !ffmpegrenderingerrorboxpath!
-echo     Write-Host "None" >> !ffmpegrenderingerrorboxpath!
-echo 	 $buttonClicked = $true >> !ffmpegrenderingerrorboxpath!
-echo     $form.Close^(^) >> !ffmpegrenderingerrorboxpath!
-echo }^) >> !ffmpegrenderingerrorboxpath!
-echo $form.Controls.Add^($cancelButton^) >> !ffmpegrenderingerrorboxpath!
-
-echo $form.Add_FormClosing^({ >> !ffmpegrenderingerrorboxpath!
-echo     if ^(-not $buttonClicked^) { >> !ffmpegrenderingerrorboxpath!
-echo         Write-Host "None" >> !ffmpegrenderingerrorboxpath!
-echo     } >> !ffmpegrenderingerrorboxpath!
-echo }^) >> !ffmpegrenderingerrorboxpath!
-echo $buttonClicked = $false >> !ffmpegrenderingerrorboxpath!
-echo $form.Add_Shown^({ $form.Activate^(^) }^) >> !ffmpegrenderingerrorboxpath!
-echo [void]$form.ShowDialog^(^) >> !ffmpegrenderingerrorboxpath!
-
-del /q "!loadingshowname!.b64"
-
 :drawlogo
-rem echo hi
-rem echo on
 call :reallogo
 
-
 :menu
-echo 	[100m[97m[7m[O][27m - Open config file[0m		[100m[97m[7m[S][27m - Save config file[0m
+echo 	[100m[97m[7m[O][27m - Open config file[0m	[100m[97m[7m[S][27m - Save config file[0m	[44m[97m[7m[Z][27m - Choose the audio channels using drag and drop[0m
+echo.
 echo 	[43m[97m[7m[M][27m - Choose the master audio[0m	[44m[97m[7m[C][27m - Choose the audio channels[0m
 echo 	[44m[97m[7m[D][27m - Change display mode[0m	[104m[97m[7m[F][27m - Configure the audio channels[0m
 echo 	[44m[97m[7m[G][27m - Global configuration[0m	[41m[34m[7m[N][27m - New project[0m
 echo 	[42m[97m[7m[I][27m - Import VGM file[0m		[45m[97m[7m[V][27m - Video settings[0m
 echo 	[100m[97m[7m[H][27m - Help			[0m[101m[93m[7m[R][27m - Render^^![0m
 echo.
-
 CALL :channelbrr
-
-CHOICE /C OSMCDFHRGNIV /N
-REM echo !ERRORLEVEL!
+CHOICE /C OSMCDFHRGNIVZ /N
 IF /I "!ERRORLEVEL!"=="1" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Config File|*.ini'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
 	IF NOT "!selectedFile!"=="None" (
 		SET i=0
-		CALL :CHLOOP_CLEAR
-		for /f "tokens=1,* delims==" %%a in ('type "!selectedFile!"') do (
-			set dummyvariable1=%%a
-			rem echo %%a
-			IF NOT "!dummyvariable1:~0,1!"=="[" set "%%a=%%b"
-		)
+		REM CALL :CHLOOP_CLEAR
+		REM for /f "tokens=1,* delims==" %%a in ('type "!selectedFile!"') do (
+			REM set dummyvariable1=%%a
+			REM IF NOT "!dummyvariable1:~0,1!"=="[" set "%%a=%%b"
+		REM )
+		CALL :LOADINICONFIGFILE "!selectedFile!"
 	)
-
 	goto drawlogo
-
 )
 
 IF /I "!ERRORLEVEL!"=="2" (
@@ -354,7 +87,6 @@ IF /I "!ERRORLEVEL!"=="2" (
 		(echo sizefont=!sizefont!)>> "!saveFile!"
 		(echo colorfont=!colorfont!)>> "!saveFile!"
 		(echo bgimage=!bgimage!)>> "!saveFile!"
-		rem (echo bitrate=!bitrate!)>> "!saveFile!"
 		(echo darkerbg=!darkerbg!)>> "!saveFile!"
 		(echo chsort=!chsort!)>> "!saveFile!"
 		(ECHO [channelConfig])>> "!saveFile!"
@@ -374,13 +106,11 @@ IF /I "!ERRORLEVEL!"=="2" (
 if /i "!ERRORLEVEL!"=="3" (
 	for /f "delims=" %%a in ('powershell -command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Filter = 'Audio Files|*.wav;*.mp3'; $f.Multiselect = $false; if ($f.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host $f.FileName } else { Write-Host 'None' }"') do set "selectedFile=%%a"
 	IF NOT "!selectedFile!"=="None" set "masteraudio=!selectedFile!"
-	rem TEST
 	goto drawlogo
 )
 
 if /i "!ERRORLEVEL!"=="4" (
 	set pwshcmd=powershell -NoP -C "[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms')|Out-Null;$OFD = New-Object System.Windows.Forms.OpenFileDialog;$OFD.Multiselect = $True;$OFD.Filter = 'Audio Files|*.mp3;*.wav';$OFD.InitialDirectory = [Environment]::GetFolderPath('Desktop');$OFD.ShowDialog()|out-null;$OFD.FileNames"
-
 	Set i=0
 	for /f "delims=" %%I in ('!pwshcmd!') do (
 		Set /A i+=1
@@ -389,7 +119,6 @@ if /i "!ERRORLEVEL!"=="4" (
 		set "amp!i!=2"
 		set "color!i!=#FFFFFF"
 	)
-
 	if !i! NEQ 0 (
 		CALL :CHLOOP_CLEAR
 		set /a i-=1
@@ -403,8 +132,7 @@ if /i "!ERRORLEVEL!"=="4" (
 		) else (
 			set /a h1number=!i! / 2
 			set /a h2number=!hremainder! + !h1number!
-		)
-		
+		)		
 	)
 	goto drawlogo
 )
@@ -425,44 +153,22 @@ if /i "!ERRORLEVEL!"=="5" (
 )
 
 if /i "!ERRORLEVEL!"=="6" (
-	if not defined channel1 call :errmsg "You need to add the audio channels first" && goto drawlogo
-	
+	if not defined channel1 call :errmsg "You need to add the audio channels first" && goto drawlogo	
 	:REASK_CONFIGINDIVIDUAL
 	call :reallogo
 	set i=1
 	IF "!ERRORLEVEL!" EQU "6" (
 		CALL :channelbrr
 		if defined channel2 (
-			rem IF NOT DEFINED channel10 (
-			rem 	set dummyvariable1=1
-			rem 	set "dummyvariable2="
-			rem	:CHLOOP_INDIVIDUALCHOICECOUNT
-			rem 	if defined channel!dummyvariable1! (
-			rem 		set "dummyvariable2=!dummyvariable2!!dummyvariable1!
-			rem 		set /a dummyvariable1+=1
-			rem 		goto CHLOOP_INDIVIDUALCHOICECOUNT
-			rem 	)
-			rem 	rem echo !dummyvariable2!
-			rem 	rem pause 
-			rem 	echo Which channel would you like to configure? 
-			rem 	CHOICE /C !dummyvariable2! /N
-			rem 	set "configch=!ERRORLEVEL!"
-			rem 	set "dummyvariable2="
-			rem ) else (
-				echo.
-				SET /P configch=Which channel would you like to configure? 
-
-			rem )
-			
+			echo.
+			SET /P configch=Which channel would you like to configure? 
 		) else set configch=1
 		echo.
-		rem echo aw%configch%fuck
 		if not defined channel!configch! ( call :errmsg "Invalid vaule. Cancelling" && goto drawlogo ) ELSE ( 
 			call :reallogo 
 			set i=1
 			CALL :channelbrr !configch! 
 		)
-		rem SET "configch=!ERRORLEVEL!"
 	) ELSE CALL :channelbrr !configch!
 	
 	echo [0m
@@ -478,7 +184,7 @@ if /i "!ERRORLEVEL!"=="6" (
 		call :SCRIPTGEN_NUMBERBOX 50 !amp%configch%! "Please Set Amplification for Channel No. !configch!" 1
 		if not "!selectedNumber!"=="None" set "amp!configch!=!selectedNumber!"
 	)
-	if "!ERRORLEVEL!"=="3" for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do if not "%%A"=="None" set "color!configch!=%%A"
+	if "!ERRORLEVEL!"=="3" call :CREATE_COLORPICKER "!color%configch%!" color!configch!
 	IF "!ERRORLEVEL!"=="5" (
 		SET i=1
 		set dummyvariable1=1
@@ -491,10 +197,7 @@ if /i "!ERRORLEVEL!"=="6" (
 )
 
 if /i "!ERRORLEVEL!"=="7" (
-	rem if not exist "!helpchmpath!.chm" call :SCRIPTGEN_HELPCHM
-	rem start hh.exe "!helpchmpath!.chm"
 	start https://github.com/HeeminTV/NSOVVG/wiki/Options
-	rem TEST
 	goto drawlogo
 )
 
@@ -502,7 +205,6 @@ if /i "!ERRORLEVEL!"=="8" (
 	if not defined channel1 call :errmsg "You need to add the audio channels first" && goto drawlogo 
 	if "!masteraudio!"=="None" call :errmsg "You need to choose the master audio" && goto drawlogo
 	CALL :FFMPEG_CHECK
-
 	echo 	[101m[93m[R] - Render^^![0m		[46m[97m[P] - Preview[0m		[100m[97m[X] - Cancel[0m
 	CHOICE /C RPX /N
 	if /i "!ERRORLEVEL!"=="1" (
@@ -533,14 +235,10 @@ if /i "!ERRORLEVEL!"=="9" (
 	CHOICE /C LACXRM /N
 	echo.
 	if /i "!ERRORLEVEL!"=="1" (
-		rem set i=0
 		echo Which channel name template do you want?
 		echo 	[44m[97m[7m[1][27m - "Channel No. $"[0m		[44m[97m[7m[2][27m - "Channel #$"[0m		[44m[97m[7m[3][27m - Use the name of the file[0m
 		echo		[44m[97m[7m[4][27m - Custom[0m			[44m[97m[7m[5][27m - Clear[0m			[100m[97m[7m[X][27m - Cancel[0m
-		rem CHOICE /C 12345X /N
 		for /f %%A in ('powershell -command "$key = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').Character; Write-Host $key"') do set "userInput=%%A"
-		rem echo !userInput!!i!
-		rem pause WTF IS THE RPOBLEM????
 		if /i "!userInput!"=="5" (
 			:CHLOOP_LABELSET1			
 			if not "!channel%i%!"=="" (
@@ -599,15 +297,13 @@ if /i "!ERRORLEVEL!"=="9" (
 		)
 	)
 	if "!ERRORLEVEL!"=="3" ( 
-		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color1!"') do set "color=%%A" 
-		if not "!color!"=="None" (
-			:CHLOOP_LABELSET7
-			if not "!channel%i%!"=="" (
-				set "color!i!=!color!"
-				Set /A i+=1
-				goto CHLOOP_LABELSET7
-			)
-		)		
+		call :CREATE_COLORPICKER "!color1!" dummyvariable1
+		:CHLOOP_LABELSET7
+		if not "!channel%i%!"=="" (
+			set "color!i!=!color!"
+			Set /A i+=1
+			goto CHLOOP_LABELSET7
+		)
 		
 	)
 	IF "!ERRORLEVEL!"=="4" goto drawlogo
@@ -615,9 +311,6 @@ if /i "!ERRORLEVEL!"=="9" (
 		set i=1
 		if not defined channel2 call :errmsg "There are no more than 2 channels to reorder" && goto drawlogo
 		for /f "tokens=*" %%A in ('powershell -ExecutionPolicy Bypass -File "!reorderboxpath!"') do (
-			rem set "output=%%A"
-			REM echo %%A
-			REM PAUSE
 			if "%%A" neq "None" (
 				set "buffer_channel!i!=!channel%%A!"
 				set "buffer_label!i!=!label%%A!"
@@ -625,9 +318,7 @@ if /i "!ERRORLEVEL!"=="9" (
 				set "buffer_color!i!=!color%%A!"
 				set /a i+=1
 			)
-		) 
-		rem ECHO !I!
-		rem PAUSE
+		)
 		if "!i!" neq "1" (
 			 for /L %%i in (1,1,!i!) do (
 				set "channel%%i=!buffer_channel%%i!"
@@ -649,21 +340,30 @@ if /i "!ERRORLEVEL!"=="9" (
 		if defined channel!i! (
 			FFMPEG -i "!channel%i%!" -filter:a volumedetect -f null nul 2> "!tempfileprefix!REMOVEQUIETCH_analysis.txt"
 			For /F "tokens=2 delims=:" %%a In ('FINDSTR /C:"mean_volume:" "!tempfileprefix!REMOVEQUIETCH_analysis.txt"') DO FOR /F "tokens=1" %%b IN ("%%a") DO for /f "tokens=*" %%C in ('powershell -Command "if ([double]-80 -lt [double]%%b) { echo true } else { echo false }"') do (
-				echo Analysis for channel number !i! has been done. The result is "%%C".
-				IF /I "%%C"=="FALSE" set "dummyvariable1=!dummyvariable1!!i!="
-			)			
+				REM echo Analysis for channel number !i! has been done. The result is "%%C".
+				IF /I "%%C"=="FALSE" ( 
+					set "dummyvariable1=!dummyvariable1!!i!="
+					echo Analysis for channel no. !i! has been done. This audio does not have any sounds.
+				) else echo Analysis for channel no. !i! has been done. This audio have sounds.
+			)
+			
 			set /a i+=1
 			goto :CHLOOP_REMOVEQUIETCHANNELS
 		)
-		
-		
-		IF "!dummyvariable1!" NEQ "" for /f "tokens=*" %%a in ("!dummyvariable1:~0,-1!") DO for %%b in (%%a) do echo %%b
-		pause
+		SET dummyvariable2=0
+		IF "!dummyvariable1!" NEQ "" for /f "tokens=*" %%a in ("!dummyvariable1:~0,-1!") DO for %%b in (%%a) do (
+			set /a dummyvariable3=%%b - dummyvariable2
+			set i=1
+			SET dummyvariable1=1
+			REM ECHO %%b=!dummyvariable3!=!CHANNEL1!			
+			call :REMOVE_CHANNEL !dummyvariable3!
+			set /a dummyvariable2+=1
+		)
+		set "dummyvariable2="
+		set "dummyvariable3="
 		del /q "!tempfileprefix!REMOVEQUIETCH_analysis.txt" 2>nul
+		REM PAUSE
 	)
-
-	REM IF "!ERRORLEVEL!"=="6" call :MsgBox "Are you sure to remove this channel?" "VBYesNo+VBQuestion" "NSOVVG"
-	REM if "!errorlevel!"=="6" set "channel!chcount_fortitle!="
 	goto REASK_GLOBALCONFIG
 )
 
@@ -724,7 +424,6 @@ if /i "!ERRORLEVEL!"=="11" (
 				echo !msg_scgen!
 				set i=0
 				CALL :SCRIPTGEN_FULLSOUNDTRACK
-				rem set 
 				echo !msg_scgendone!
 				for /f "tokens=1,2,3 delims==" %%f in ('powershell -ExecutionPolicy Bypass -Command "!multidumperfullsoundtrackpath!.ps1" "!multidumperFileDir!NSOVVG-USER_VGMimportTEMP_!multidumperTimeStamp!\info.json"') do (
 					if "%%f"=="None" ( 
@@ -785,7 +484,6 @@ if /i "!ERRORLEVEL!"=="11" (
 	)
 	goto drawlogo
 )
-REM ECHO BEEP
 if /i "!ERRORLEVEL!"=="12" (
 	echo.
 	ECHO [0mWhich configuration would you like to configure?
@@ -814,8 +512,8 @@ if /i "!ERRORLEVEL!"=="12" (
 	goto drawlogo
 	)
 	IF /I "!ERRORLEVEL!"=="4" (
-		for /f "delims=" %%A in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!colorpickerpath!" "!color%configch%!"') do set "color=%%A"
-		if not "!color!"=="None" if "!color!"=="#000000" ( set "bgimage=None" ) else set "bgimage=!color!"
+		call :CREATE_COLORPICKER "#000000" dummyvariable1
+		if "!dummyvariable1!"=="#000000" ( set "bgimage=None" ) else set "bgimage=!dummyvariable1!"
 	)
 	IF /I "!ERRORLEVEL!"=="1" (
 		call :SCRIPTGEN_NUMBERBOX 100000 !bitrate:~0,-1! "Please set the bitrate of the video. (kbps)" 100
@@ -859,19 +557,14 @@ if /i "!ERRORLEVEL!"=="12" (
 		call :SCRIPTGEN_CHSORT
 		ECHO !msg_scgendone!
 		for /f "tokens=1,2 delims==" %%a in ('powershell -ExecutionPolicy Bypass -Command "!chsortboxpath!" !SORT_h2number! !SORT_h1number!') do (
-			rem pause
 			if "%%a" NEQ "None" IF "%%a" EQU "AllVertical" (
 				set "chsort=ALLVERTICAL"
 			) else (
 				if "!SORT2_h2number!"=="%%a" ( set "chsort=AUTO" ) ELSE ( set "chsort=%%a=%%b" )
-				REM if "!SORT2_h2number!"=="%%a" if "!SORT2_h1number!"=="%%b" ( set "chsort=AUTO" ) ELSE ( set "chsort=%%a=%%b" )
 			)
 			ECHO %%a%%b
 			echo !SORT2_h2number!x!SORT2_h1number!
-			rem pause
 		)
-		rem echo !SORT_h1number! !SORT_h2number!
-		rem pause
 		set "SORT_h1number="
 		set "SORT_h2number="
 		set "SORT_hremainder="
@@ -892,7 +585,6 @@ if /i "!ERRORLEVEL!"=="12" (
 		)
 	)
 	if /i "!ERRORLEVEL!"=="8" (
-	REM call :inputbox "Input Grammer: XRESxYRESxFPS (Example: 1280x720x60)" "NSOVVG"
 		call :SCRIPTGEN_VIDEOCONFIG 
 		for /f "tokens=1,2,3 delims==" %%a in ('powershell -NoProfile -ExecutionPolicy Bypass -File "!numberboxpath!"') do (
 			if not "%%a"=="None" (
@@ -902,16 +594,26 @@ if /i "!ERRORLEVEL!"=="12" (
 			)
 		)
 	)
-	rem TEST
 	goto drawlogo
 )
 
 IF "!ERRORLEVEL!"=="13" (
-set /p fuck=
-SET i=1
-set dummyvariable1=1
-call :REMOVE_CHANNEL !fuck!
-goto drawlogo
+	REM set i=1
+	call :reallogo
+	set i=1
+	ECHO.
+	ECHO Drag and drop your channel files here and press [7m[ENTER][27m at the end.
+	set /p dummyvariable1=
+	REM if !errorlevel! equ 1 goto drawlogo
+	REM echo !ERRORLEVEL!
+	REM echo !dummyvariable1!
+	REM pause
+	REM if not defined dummyvariable1 goto drawlogo
+	set dummyvariable2=0
+	call :CHLOOP_ADDCHFROMDRAGNDROP !dummyvariable1!
+	
+	
+	goto drawlogo
 )
 goto drawlogo
 
@@ -931,14 +633,11 @@ DEL /Q "!tempfileprefix!error.vbs"
 goto :EOF
 
 
- :MsgBox prompt type title
-
- set "tempFile=!tempfileprefix!msgbox.tmp"
- >"!tempFile!" echo(WScript.Quit msgBox("%~1",%~2,"%~3") & cscript //nologo //e:vbscript "!tempFile!"
- set "exitCode=!errorlevel!" & del "!tempFile!" >nul 2>nul
-
- rem exit /b !exitCode!
- goto :eof
+:MsgBox prompt type title
+set "tempFile=!tempfileprefix!msgbox.tmp"
+>"!tempFile!" echo(WScript.Quit msgBox("%~1",%~2,"%~3") & cscript //nologo //e:vbscript "!tempFile!"
+set "exitCode=!errorlevel!" & del "!tempFile!" >nul 2>nul
+goto :eof
  
 :reallogo
 SET i=0
@@ -968,16 +667,17 @@ if "!bgimage!"=="None" (
 	set "imagename=[32mBackground Color:	[93m!displaybgimage![97m"
 ) else for %%F in ("!bgimage!") do set "imagename=[32mBackground Image:	[93m"%%~nxF"[97m"
 
-	set strLen=0
-	for /l %%a in (0,1,64) do if not "!dffont:~%%a,1!" == "" set /a strLen+=1
-	if !strLen! geq 23 (
-		set "displayfont=!dffont!"
-	) else (
-		set /a remainLen=23-!strLen!
-		set "fillString="
-		for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
-		set "displayfont=!dffont!!fillString!"
-	)
+set strLen=0
+for /l %%a in (0,1,64) do if not "!dffont:~%%a,1!" == "" set /a strLen+=1
+if !strLen! geq 23 (
+	set "displayfont=!dffont!"
+) else (
+	set /a remainLen=23-!strLen!
+	set "fillString="
+	for /l %%i in (1,1,!remainLen!) do set "fillString=!fillString! "
+	set "displayfont=!dffont!!fillString!"
+)
+
 set "hexColor=!colorfont:~1!"
 set /a r=0x!hexColor:~0,2!
 set /a g=0x!hexColor:~2,2!
@@ -1014,17 +714,29 @@ IF "!NSOVVGVERSION:a=!" NEQ "!NSOVVGVERSION!" (
 cls
 IF DEFINED DISPLAYTOPTAB ( echo [90mNSOVVG Version !NSOVVGVERSION! by [4mheeminwelcome1@gmail.com[24m	[7m[5m_==[!displaytoptab!]==_[0m ) ELSE ( echo [90mNSOVVG Version !NSOVVGVERSION! by [4mheeminwelcome1@gmail.com[0m )
 echo    [1m[97m         ,--.              ,----..                                     	┌──────────[Current Settings]──────────┐
-echo           ,--.'^| .--.--.     /   /   \                         ,----..    	^|  [32mChosen Master Audio: !mastername![97m		^|
-echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	^|  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		^|
-echo    ,`--.'`^|  ' ^|  :  /`. / .   /   ;.  \     /__./^|     /__./^|   :     :  	^|  [32mFPS:			[93m!fps!FPS[97m				^|
-echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;. /  	^|  !imagename!		^|
-echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	^|  [32mDisplay Mode: [93m!linemode! !lmwv1![97m	^|
-echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	^|  [32mChosen Font:	[93m!displayfont![97m^|
-echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	^|  [32mFont Size:	[93m!sizefont![97m											^|
-echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	^|  [32mFont Color:	!displaycolorfont![97m												^|
-echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	^|  [32mChannel Array:[97m !displaychannelsorting![97m												^|
-echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	^|												^|
-echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	^|												^|
+
+echo           ,--.'^| .--.--.     /   /   \                         ,----..    	│  [32mChosen Master Audio: !mastername![97m		│
+
+echo       ,--,:  : ^|/  /    '.  /   .     :       ,---.      ,---./   /   \   	│  [32mVideo Resolution:	[93m!x_res! x !y_res![97m		│
+
+echo    ,`--.'`^|  ' ^|  :  /`. / .   /   ;.  \     /__./^|     /__./^|   :     :  	│  [32mFPS:			[93m!fps!FPS[97m				│
+
+echo    ^|   :  :  ^| ;  ^|  ^|--` .   ;   /  ` ;,---.;  ; ^|,---.;  ; .   ^|  ;. /  	│  !imagename!		│
+
+echo    :   ^|   \ ^| ^|  :  ;_   ;   ^|  ; \ ; /___/ \  ^| /___/ \  ^| .   ; /--`   	│  [32mDisplay Mode: [93m!linemode! !lmwv1![97m	│
+
+echo    ^|   : '  '; ^|\  \    `.^|   :  ^| ; ^| \   ;  \ ' \   ;  \ ' ;   ^| ;  __  	│  [32mChosen Font:	[93m!displayfont![97m│
+
+echo    '   ' ;.    ; `----.   .   ^|  ' ' ' :\   \  \: ^|\   \  \: ^|   : ^|.' .' 	│  [32mFont Size:	[93m!sizefont![97m											│
+
+echo    ^|   ^| ^| \   ^| __ \  \  '   ;  \; /  ^| ;   \  ' . ;   \  ' .   ^| '_.' : 	│  [32mFont Color:	!displaycolorfont![97m												│
+
+echo    '   : ^|  ; .'/  /`--'  /\   \  ',  /   \   \   '  \   \   '   ; : \  ^| 	│  [32mChannel Array:[97m !displaychannelsorting![97m												│
+
+echo    ^|   ^| '`--' '--'.     /  ;   :    /     \   `  ;   \   `  '   ^| '/  .' 	│												│
+
+echo    '   : ^|       `--'---'    \   \ .'       :   \ ^|    :   \ ^|   :    /   	│												│
+
 echo    ;   ^|.'                    `---`          '---"      '---" \   \ .'    	└──────────────────────────────────────┘
 echo    '---'                                                       `---`      [0m
 echo.             Not Serious Oscilloscope View Video Generator
@@ -1033,7 +745,11 @@ goto :EOF
 
 :CHLOOP_CLEAR
 Set /A i+=1
-if not "!channel%i%!"=="" (
+REM if not "!channel%i%!"=="" (
+	REM set "channel!i!="
+	REM goto CHLOOP_CLEAR
+REM )
+IF DEFINED channel!i! (
 	set "channel!i!="
 	goto CHLOOP_CLEAR
 )
@@ -1055,7 +771,6 @@ rem THANK YOU STACKOVERFLOW NERDS
 echo if ($fontDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK^) { >> !fontpickerpath!
 echo Write-Host "FontName=$($fontDialog.Font.Name)" >> !fontpickerpath!
 echo Write-Host "FontSize=$([int]$fontDialog.Font.Size)" >> !fontpickerpath!
-rem echo Write-Host "FontColor=$($fontDialog.Color)" >> !fontpickerpath!
 echo $red = $fontDialog.Color.R >> !fontpickerpath!
 echo $green = $fontDialog.Color.G >> !fontpickerpath!
 echo $blue = $fontDialog.Color.B >> !fontpickerpath!
@@ -1154,11 +869,8 @@ if %errorlevel%==0 (
     rem goto bfdrawlogo
 )
 
-rem exit /b 2
-
-rem exit /b 2
 if not defined gpu ( set "gpu=libx264" && exit /b 2 ) else ( exit /b 1 )
-rem goto :eof
+
 :channelbrr
 	SET i=1
 	rem echo %~1
@@ -2062,3 +1774,55 @@ set fplay=0
 set fprobe=0
 
 GOTO :EOF
+
+:CHLOOP_ADDCHFROMDRAGNDROP
+if NOT "%~1"=="" IF EXIST "%~1" (
+	REM echo !i!
+	IF /i "%~x1" NEQ ".wav" IF /i "%~x1" NEQ ".mp3" (
+		IF /i "%~x1" EQU ".ini" (
+			CALL :LOADINICONFIGFILE "%~1"
+			GOTO DRAWLOGO
+		) else (
+			call :errmsg "%~x1 is not a supported file format"
+			shift
+			GOTO CHLOOP_ADDCHFROMDRAGNDROP
+		)
+	)
+	set /a dummyvariable2+=1
+	set "channel!i!=%~1"
+	set "label!i!=Channel !i!"
+	set "amp!i!=2"
+	set "color!i!=#FFFFFF"		
+	shift
+	SET /a i+=1
+	GOTO CHLOOP_ADDCHFROMDRAGNDROP
+) 
+if not "!dummyvariable2!"=="0" (
+	set "channel!i!="
+	set "label!i!="
+	set "amp!i!="
+	set "color!i!="
+)
+GOTO :EOF
+
+:LOADINICONFIGFILE FILE
+set i=0
+CALL :CHLOOP_CLEAR
+if not "%~1"=="" if exist "%~1" if /i "%~x1"==".ini" for /f "tokens=1,* delims==" %%a in ('type "%~1"') do (
+	set dummyvariable1=%%a
+	IF NOT "!dummyvariable1:~0,1!"=="[" set "%%a=%%b"
+)
+GOTO :EOF
+
+:CREATE_COLORPICKER DF_COLOR VARINAME
+set "hexColor=%~1"
+set "hexColor=!hexColor:~1!"
+set /a r=0x!hexColor:~0,2!
+set /a g=0x!hexColor:~2,2!
+set /a b=0x!hexColor:~4,2!
+powershell -command "Add-Type -AssemblyName System.Windows.Forms ;$colorDialog = New-Object System.Windows.Forms.ColorDialog ;$colorDialog.FullOpen = $true ;$colorDialog.Color = [System.Drawing.Color]::FromArgb(!r!, !g!, !b!) ;if ($colorDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { Write-Host \"$($colorDialog.Color.R)=$($colorDialog.Color.G)=$($colorDialog.Color.B)\" } else { Write-Host \"!r!=!g!=!b!\" }" >"!TEMP!\.tmp"
+SET /P dummyvariable1=<"!TEMP!\.tmp"
+DEL /Q "!TEMP!\.tmp"
+REM echo !dummyvariable1!
+for /f "tokens=*" %%a in ('powershell -command "$rgbString = \"%dummyvariable1%\";$rgbValues = $rgbString -split \"=\" | ForEach-Object { [convert]::ToString($_, 16).PadLeft(2, \"0\") };$hexColor = \"#\" + ($rgbValues -join \"\");Write-Host $hexColor"') do set "%~2=%%a"
+goto :eof
